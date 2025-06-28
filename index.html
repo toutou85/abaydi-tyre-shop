@@ -1,135 +1,217 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>عبايدي للعجلات</title>
   <style>
-    body { font-family: Arial, sans-serif; background: #f2f2f2; margin: 0; padding: 0; }
-    header { background-color: #007bff; color: white; padding: 1rem; display: flex; align-items: center; justify-content: space-between; font-size: 1.2rem; }
-    header img { height: 40px; margin-left: 10px; }
-    nav { display: flex; gap: 10px; }
-    nav a { color: white; text-decoration: none; background: #0056b3; padding: 5px 10px; border-radius: 5px; }
-    footer { background: #007bff; color: white; text-align: center; padding: 1rem; margin-top: 2rem; font-size: 1rem; position: relative; }
-    footer a { color: white; margin-top: 10px; display: inline-block; }
-    #searchBar { width: 80%; margin: 1rem auto; display: block; padding: 0.5rem; font-size: 1rem; border: 1px solid #ccc; border-radius: 5px; }
-    .products { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; padding: 1rem; }
-    .product { background: white; padding: 1rem; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); text-align: center; }
-    .product img { width: 100%; height: auto; border-radius: 10px; }
-    .product button { margin-top: 10px; padding: 0.5rem 1rem; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; }
-    .pagination { text-align: center; margin-bottom: 2rem; }
-    .pagination button { margin: 0 5px; padding: 0.5rem 1rem; border: none; background: #007bff; color: white; border-radius: 5px; cursor: pointer; }
-    .form-popup { display: none; position: fixed; top: 10%; left: 50%; transform: translateX(-50%); background: white; padding: 1rem; box-shadow: 0 0 20px rgba(0,0,0,0.3); border-radius: 10px; z-index: 1000; max-width: 90%; }
-    .form-popup input, .form-popup select { width: 100%; padding: 0.5rem; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 5px; }
-    .form-popup button { background: #007bff; color: white; padding: 0.5rem 1rem; border: none; border-radius: 5px; }
-    .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 999; }
+    body {
+      font-family: 'Arial', sans-serif;
+      background: #f2f2f2;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background-color: #007bff;
+      color: white;
+      padding: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    header img {
+      height: 50px;
+      margin-left: 10px;
+    }
+    nav a {
+      color: white;
+      text-decoration: none;
+      margin-left: 10px;
+    }
+    #searchBar {
+      width: 80%;
+      margin: 1rem auto;
+      display: block;
+      padding: 0.5rem;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    .products {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1rem;
+      padding: 1rem;
+    }
+    .product {
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      padding: 1rem;
+      text-align: center;
+    }
+    .product img {
+      max-width: 100%;
+      height: 180px;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+    .product button {
+      margin-top: 10px;
+      background-color: #28a745;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .form-popup {
+      display: none;
+      position: fixed;
+      top: 10%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: white;
+      padding: 1rem;
+      box-shadow: 0 0 20px rgba(0,0,0,0.3);
+      border-radius: 10px;
+      z-index: 1000;
+      max-width: 90%;
+      width: 350px;
+    }
+    .form-popup input, .form-popup select {
+      width: 100%;
+      margin-bottom: 10px;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    .form-popup button {
+      width: 100%;
+      padding: 10px;
+      border: none;
+      background-color: #007bff;
+      color: white;
+      border-radius: 5px;
+      margin-bottom: 5px;
+    }
+    .overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 999;
+    }
   </style>
 </head>
 <body>
-  <header>
-    <div style="display: flex; align-items: center;">
-      <img src="logo.png" alt="شعار المتجر">
-      <span>متجر عبايدي للعجلات</span>
-    </div>
-    <nav>
-      <a href="#">🛠️ أدوات الميشلان</a>
-      <a href="#">🚗 ملحقات السيارات</a>
-    </nav>
-  </header>
 
-  <input type="text" id="searchBar" placeholder="🔍 ابحث برقم الإطار..." oninput="filterProducts()">
-
-  <section class="products" id="productList"></section>
-  <div class="pagination" id="pagination"></div>
-
-  <div class="overlay" id="overlay" onclick="closeForm()"></div>
-
-  <div class="form-popup" id="orderForm">
-    <h3>نموذج الطلب</h3>
-    <form id="form">
-      <input type="text" id="fullName" placeholder="الاسم واللقب" required>
-      <input type="tel" id="phone" placeholder="رقم الهاتف" required>
-      <input type="text" id="wheelNumber" readonly>
-      <input type="text" id="brandName" readonly>
-      <input type="number" id="quantity" placeholder="الكمية" required>
-      <select id="wilaya" required onchange="updateDeliveryPrice()">
-        <option value="">اختر ولايتك</option>
-        <option value="أدرار">أدرار</option>
-        <option value="الشلف">الشلف</option>
-        <option value="الأغواط">الأغواط</option>
-        <option value="الجزائر">الجزائر</option>
-      </select>
-      <div id="deliveryPriceText">سعر التوصيل: - دج</div>
-      <button type="submit">إرسال الطلب</button>
-      <button type="button" onclick="closeForm()" style="background:#dc3545;margin-top:5px">إلغاء</button>
-    </form>
+<header>
+  <div style="display: flex; align-items: center;">
+    <img src="logo.png" alt="شعار">
+    <strong>عبايدي للعجلات</strong>
   </div>
+  <nav>
+    <a href="#">الصفحة الرئيسية</a>
+    <a href="#">حول</a>
+  </nav>
+</header>
 
-  <footer>
-    <div>🚚 التوصيل متوفر لـ 58 ولاية | 🕒 العمل على مدار الأسبوع | 💵 الدفع عند الاستلام</div>
-    <div>📞 واتساب: <a href="https://wa.me/21356450486" target="_blank">+21356450486</a> | <a href="https://wa.me/213698749015" target="_blank">+213698749015</a></div>
-    <a href="https://www.facebook.com/share/1AZpipVeFa/" target="_blank">
-      <img src="https://cdn-icons-png.flaticon.com/512/124/124010.png" alt="فيسبوك" width="30">
-    </a>
-  </footer>
+<input type="text" id="searchBar" placeholder="🔍 ابحث برقم الإطار..." oninput="filterProducts()" />
 
-  <script>
-    fetch(https://script.google.com/macros/s/AKfycbykP25hc3YbdvA84iUawBIC5K5BFDLPgIAN_5rRUV14QtL01m3QSVKKyy8dxLEPo61i/exec)
-      .then(response => response.json())
-      .then(data => {
-        const products = data.map(item => ({
-          number: item[0],
-          brand: item[1],
-          price: item[2],
-          quantity: item[3],
-          img: item[4] || 'https://via.placeholder.com/250x200'
-        }));
+<div class="products" id="productList"></div>
 
-        const perPage = 20;
-        let currentPage = 1;
+<div class="overlay" id="overlay" onclick="closeForm()"></div>
 
-        function displayProducts() {
-          const productList = document.getElementById('productList');
-          productList.innerHTML = '';
-          const start = (currentPage - 1) * perPage;
-          const end = start + perPage;
-          products.slice(start, end).forEach(p => {
-            const div = document.createElement('div');
-            div.className = 'product';
-            div.setAttribute('data-number', p.number);
-            div.setAttribute('data-brand', p.brand);
-            const available = parseInt(p.quantity) > 0;
-            const availabilityText = available ? '✅ متوفر' : '❌ غير متوفر حاليا يرجى إدخال معلوماتك عند توفره نتصل بك';
-            const disabled = available ? '' : 'disabled';
-            div.innerHTML = `
-              <img src="${p.img}" alt="إطار ${p.number}">
-              <h3>إطار ${p.number} - ${p.brand}</h3>
-              <p>السعر: ${p.price} دج</p>
-              <p>${availabilityText}</p>
-              <button onclick="openForm('${p.number}', '${p.brand}', ${p.price})" ${disabled}>اطلب الآن</button>
-            `;
-            productList.appendChild(div);
-          });
-          updatePagination();
-        }
+<div class="form-popup" id="orderForm">
+  <h3>طلب إطار</h3>
+  <form id="form">
+    <input type="text" id="fullName" placeholder="الاسم واللقب" required>
+    <input type="tel" id="phone" placeholder="رقم الهاتف" required>
+    <input type="text" id="wheelNumber" readonly>
+    <input type="text" id="brandName" readonly>
+    <input type="number" id="quantity" placeholder="الكمية المطلوبة" required>
+    <select id="wilaya" onchange="updateDeliveryPrice()" required>
+      <option value="">اختر الولاية</option>
+      <option value="أدرار">أدرار</option>
+      <option value="الجزائر">الجزائر</option>
+      <option value="البليدة">البليدة</option>
+      <option value="باتنة">باتنة</option>
+    </select>
+    <div id="deliveryPriceText">سعر التوصيل: - دج</div>
+    <button type="submit">إرسال الطلب</button>
+    <button type="button" onclick="closeForm()" style="background:#dc3545;">إلغاء</button>
+  </form>
+</div>
 
-        function updatePagination() {
-          const totalPages = Math.ceil(products.length / perPage);
-          const pagination = document.getElementById('pagination');
-          pagination.innerHTML = '';
-          for (let i = 1; i <= totalPages; i++) {
-            const btn = document.createElement('button');
-            btn.innerText = i;
-            btn.onclick = () => {
-              currentPage = i;
-              displayProducts();
-            };
-            pagination.appendChild(btn);
-          }
-        }
+<script>
+  const deliveryPrices = {
+    "أدرار": 1000,
+    "الجزائر": 500,
+    "البليدة": 600,
+    "باتنة": 700,
+  };
 
-        displayProducts();
+  function updateDeliveryPrice() {
+    const wilaya = document.getElementById("wilaya").value;
+    const price = deliveryPrices[wilaya] || 0;
+    document.getElementById("deliveryPriceText").textContent = `سعر التوصيل: ${price} دج`;
+  }
+
+  function openForm(number, brand) {
+    document.getElementById("wheelNumber").value = number;
+    document.getElementById("brandName").value = brand;
+    document.getElementById("orderForm").style.display = "block";
+    document.getElementById("overlay").style.display = "block";
+  }
+
+  function closeForm() {
+    document.getElementById("orderForm").style.display = "none";
+    document.getElementById("overlay").style.display = "none";
+  }
+
+  function filterProducts() {
+    const search = document.getElementById("searchBar").value.toLowerCase();
+    document.querySelectorAll(".product").forEach(p => {
+      const number = p.getAttribute("data-number").toLowerCase();
+      p.style.display = number.includes(search) ? "block" : "none";
+    });
+  }
+
+  // جلب البيانات من Google Sheet
+  fetch("https://script.google.com/macros/s/AKfycbykP25hc3YbdvA84iUawBIC5K5BFDLPgIAN_5rRUV14QtL01m3QSVKKyy8dxLEPo61i/exec")
+    .then(res => res.json())
+    .then(data => {
+      const productList = document.getElementById("productList");
+      data.forEach(item => {
+        const number = item[0];
+        const brand = item[1];
+        const price = item[2];
+        const quantity = item[3];
+        const img = item[4] || "https://via.placeholder.com/300x200?text=No+Image";
+
+        const available = parseInt(quantity) > 0;
+        const status = available ? "✅ متوفر" : "❌ غير متوفر حاليا";
+        const disabled = available ? "" : "disabled";
+
+        const div = document.createElement("div");
+        div.className = "product";
+        div.setAttribute("data-number", number);
+        div.innerHTML = `
+          <img src="${img}" alt="صورة إطار">
+          <h3>الإطار: ${number}</h3>
+          <p>العلامة: ${brand}</p>
+          <p>السعر: ${price} دج</p>
+          <p>${status}</p>
+          <button ${disabled} onclick="openForm('${number}', '${brand}')">اطلب الآن</button>
+        `;
+        productList.appendChild(div);
       });
-  </script>
+    })
+    .catch(error => {
+      alert("تعذر تحميل المنتجات. تحقق من Google Apps Script.");
+      console.error(error);
+    });
+</script>
 </body>
 </html>
