@@ -6,9 +6,10 @@
   <title>عبايدي للعجلات</title>
   <style>
     body { font-family: Arial, sans-serif; background: #f2f2f2; margin: 0; padding: 0; }
-    header { background-color: #007bff; color: white; padding: 1rem; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; font-size: 1.2rem; text-align: center; }
-    header .top-info { display: flex; justify-content: space-between; width: 100%; padding: 0 1rem; font-size: 0.9rem; }
-    header img { height: 40px; }
+    header { background-color: #007bff; color: white; padding: 1rem; display: flex; align-items: center; justify-content: space-between; font-size: 1.2rem; }
+    header img { height: 40px; margin-left: 10px; }
+    nav { display: flex; gap: 10px; }
+    nav a { color: white; text-decoration: none; background: #0056b3; padding: 5px 10px; border-radius: 5px; }
     footer { background: #007bff; color: white; text-align: center; padding: 1rem; margin-top: 2rem; font-size: 1rem; position: relative; }
     footer a { color: white; margin-top: 10px; display: inline-block; }
     #searchBar { width: 80%; margin: 1rem auto; display: block; padding: 0.5rem; font-size: 1rem; border: 1px solid #ccc; border-radius: 5px; }
@@ -26,15 +27,14 @@
 </head>
 <body>
   <header>
-    <div class="top-info">
-      <span id="clock"></span>
-      <span id="date"></span>
-      <span id="hijri"></span>
-    </div>
-    <div style="display: flex; align-items: center; gap: 10px;">
+    <div style="display: flex; align-items: center;">
       <img src="logo.png" alt="شعار المتجر">
-      <span style="font-size: 1.5rem;">متجر عبايدي للعجلات</span>
+      <span>متجر عبايدي للعجلات</span>
     </div>
+    <nav>
+      <a href="#">🛠️ أدوات الميشلان</a>
+      <a href="#">🚗 ملحقات السيارات</a>
+    </nav>
   </header>
 
   <input type="text" id="searchBar" placeholder="🔍 ابحث برقم الإطار..." oninput="filterProducts()">
@@ -67,147 +67,69 @@
 
   <footer>
     <div>🚚 التوصيل متوفر لـ 58 ولاية | 🕒 العمل على مدار الأسبوع | 💵 الدفع عند الاستلام</div>
+    <div>📞 واتساب: <a href="https://wa.me/21356450486" target="_blank">+21356450486</a> | <a href="https://wa.me/213698749015" target="_blank">+213698749015</a></div>
     <a href="https://www.facebook.com/share/1AZpipVeFa/" target="_blank">
       <img src="https://cdn-icons-png.flaticon.com/512/124/124010.png" alt="فيسبوك" width="30">
     </a>
   </footer>
 
   <script>
-    let products = [];
-    const deliveryPrices = {
-      "أدرار": 1000,
-      "الشلف": 600,
-      "الأغواط": 750,
-      "الجزائر": 250
-    };
+    fetch('https://script.google.com/macros/s/AKfycbz5xNbLBZ7GgD5kdRb15vb07D-58G4ZPpnPRdX_t6qDHgxvupcfuPvVZzSnGlQYNFL_/exec')
+      .then(response => response.json())
+      .then(data => {
+        const products = data.map(item => ({
+          number: item[0],
+          brand: item[1],
+          price: item[2],
+          quantity: item[3],
+          img: item[4] || 'https://via.placeholder.com/250x200'
+        }));
 
-    const perPage = 20;
-    let currentPage = 1;
+        const perPage = 20;
+        let currentPage = 1;
 
-    function fetchProducts() {
-      fetch("https://script.google.com/macros/s/AKfycbz5xNbLBZ7GgD5kdRb15vb07D-58G4ZPpnPRdX_t6qDHgxvupcfuPvVZzSnGlQYNFL_/exec")
-        .then(res => res.json())
-        .then(data => {
-          products = data;
-          displayProducts();
-        })
-        .catch(err => console.error("فشل جلب المنتجات:", err));
-    }
+        function displayProducts() {
+          const productList = document.getElementById('productList');
+          productList.innerHTML = '';
+          const start = (currentPage - 1) * perPage;
+          const end = start + perPage;
+          products.slice(start, end).forEach(p => {
+            const div = document.createElement('div');
+            div.className = 'product';
+            div.setAttribute('data-number', p.number);
+            div.setAttribute('data-brand', p.brand);
+            const available = parseInt(p.quantity) > 0;
+            const availabilityText = available ? '✅ متوفر' : '❌ غير متوفر حاليا يرجى إدخال معلوماتك عند توفره نتصل بك';
+            const disabled = available ? '' : 'disabled';
+            div.innerHTML = `
+              <img src="${p.img}" alt="إطار ${p.number}">
+              <h3>إطار ${p.number} - ${p.brand}</h3>
+              <p>السعر: ${p.price} دج</p>
+              <p>${availabilityText}</p>
+              <button onclick="openForm('${p.number}', '${p.brand}', ${p.price})" ${disabled}>اطلب الآن</button>
+            `;
+            productList.appendChild(div);
+          });
+          updatePagination();
+        }
 
-    function displayProducts() {
-      const productList = document.getElementById('productList');
-      productList.innerHTML = '';
-      const start = (currentPage - 1) * perPage;
-      const end = start + perPage;
-      products.slice(start, end).forEach(p => {
-        const div = document.createElement('div');
-        div.className = 'product';
-        div.setAttribute('data-number', p.number);
-        div.setAttribute('data-brand', p.brand);
-        div.innerHTML = `
-          <img src="${p.img}" alt="إطار ${p.number}">
-          <h3>إطار ${p.number} - ${p.brand}</h3>
-          <p>السعر: ${p.price} دج</p>
-          <button onclick="openForm('${p.number}', '${p.brand}', ${p.price})">اطلب الآن</button>
-        `;
-        productList.appendChild(div);
+        function updatePagination() {
+          const totalPages = Math.ceil(products.length / perPage);
+          const pagination = document.getElementById('pagination');
+          pagination.innerHTML = '';
+          for (let i = 1; i <= totalPages; i++) {
+            const btn = document.createElement('button');
+            btn.innerText = i;
+            btn.onclick = () => {
+              currentPage = i;
+              displayProducts();
+            };
+            pagination.appendChild(btn);
+          }
+        }
+
+        displayProducts();
       });
-      updatePagination();
-    }
-
-    function updatePagination() {
-      const totalPages = Math.ceil(products.length / perPage);
-      const pagination = document.getElementById('pagination');
-      pagination.innerHTML = '';
-      for (let i = 1; i <= totalPages; i++) {
-        const btn = document.createElement('button');
-        btn.innerText = i;
-        btn.onclick = () => {
-          currentPage = i;
-          displayProducts();
-        };
-        pagination.appendChild(btn);
-      }
-    }
-
-    function openForm(wheelNum, brand, price) {
-      document.getElementById('wheelNumber').value = wheelNum;
-      document.getElementById('brandName').value = brand;
-      document.getElementById('orderForm').style.display = 'block';
-      document.getElementById('overlay').style.display = 'block';
-      updateDeliveryPrice();
-    }
-
-    function closeForm() {
-      document.getElementById('orderForm').style.display = 'none';
-      document.getElementById('overlay').style.display = 'none';
-    }
-
-    function updateDeliveryPrice() {
-      const wilaya = document.getElementById('wilaya').value;
-      const price = deliveryPrices[wilaya];
-      document.getElementById('deliveryPriceText').innerText = price ? `سعر التوصيل: ${price} دج` : 'سعر التوصيل: - دج';
-    }
-
-    function filterProducts() {
-      const input = document.getElementById('searchBar').value.trim();
-      const productList = document.getElementById('productList');
-      productList.innerHTML = '';
-      const filtered = products.filter(p => p.number.includes(input));
-      filtered.forEach(p => {
-        const div = document.createElement('div');
-        div.className = 'product';
-        div.setAttribute('data-number', p.number);
-        div.setAttribute('data-brand', p.brand);
-        div.innerHTML = `
-          <img src="${p.img}" alt="إطار ${p.number}">
-          <h3>إطار ${p.number} - ${p.brand}</h3>
-          <p>السعر: ${p.price} دج</p>
-          <button onclick="openForm('${p.number}', '${p.brand}', ${p.price})">اطلب الآن</button>
-        `;
-        productList.appendChild(div);
-      });
-      document.getElementById('pagination').style.display = input ? 'none' : 'block';
-    }
-
-    document.getElementById('form').addEventListener('submit', function(e) {
-      e.preventDefault();
-      const params = new URLSearchParams({
-        fullName: fullName.value,
-        phone: phone.value,
-        wheelNumber: wheelNumber.value,
-        brandName: brandName.value,
-        quantity: quantity.value,
-        wilaya: wilaya.value,
-        deliveryPrice: deliveryPrices[wilaya.value] || ''
-      });
-
-      fetch('https://script.google.com/macros/s/AKfycbzW1qc7wbdFXLBDxAL_ba1H-MVz86IEHsWlj5NI8UuEAEKp7vO27WITc1Rod-7uF_Vjcw/exec', {
-        method: 'POST',
-        body: params
-      })
-      .then(res => res.text())
-      .then(_ => {
-        alert('✅ تم إرسال طلبك بنجاح!');
-        closeForm();
-        document.getElementById('form').reset();
-      })
-      .catch(err => alert('خطأ: ' + err));
-    });
-
-    function updateClock() {
-      const now = new Date();
-      document.getElementById("clock").innerText = now.toLocaleTimeString('ar-DZ');
-      document.getElementById("date").innerText = now.toLocaleDateString('ar-DZ');
-
-      const hijri = new Intl.DateTimeFormat('ar-TN-u-ca-islamic', {
-        year: 'numeric', month: 'long', day: 'numeric'
-      }).format(now);
-      document.getElementById("hijri").innerText = hijri;
-    }
-
-    setInterval(updateClock, 1000);
-    fetchProducts();
   </script>
 </body>
 </html>
