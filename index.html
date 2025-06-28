@@ -4,6 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>عبايدي للعجلات</title>
+  <div id="dateTimeBox" style="text-align: center; flex: 1; font-size: 0.9rem;">
+  <div id="gregorianDate"></div>
+  <div id="hijriDate"></div>
+  <div id="clock" style="font-weight: bold;"></div>
+</div>
   <style>
     body { font-family: Arial, sans-serif; background: #f2f2f2; margin: 0; padding: 0; }
     header { background-color: #007bff; color: white; padding: 1rem; display: flex; align-items: center; justify-content: space-between; font-size: 1.2rem; }
@@ -171,5 +176,46 @@
         document.getElementById('productList').innerHTML = "<p style='text-align:center;color:red;'>⚠️ تعذر تحميل المنتجات، يرجى المحاولة لاحقًا.</p>";
       });
   </script>
+  <script>
+  function updateClock() {
+    const now = new Date();
+
+    // ضبط توقيت الجزائر UTC+1
+    const options = {
+      timeZone: 'Africa/Algiers',
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    };
+
+    const timeOptions = {
+      timeZone: 'Africa/Algiers',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit'
+    };
+
+    const dateString = new Intl.DateTimeFormat('ar-DZ', options).format(now);
+    const timeString = new Intl.DateTimeFormat('ar-DZ', timeOptions).format(now);
+
+    document.getElementById('gregorianDate').textContent = `📅 ${dateString}`;
+    document.getElementById('clock').textContent = `🕒 ${timeString}`;
+
+    // جلب التاريخ الهجري من API
+    const day = now.getDate();
+    const month = now.getMonth() + 1;
+    const year = now.getFullYear();
+    fetch(`https://api.aladhan.com/v1/gToH?date=${day}-${month}-${year}`)
+      .then(res => res.json())
+      .then(data => {
+        const hijri = data.data.hijri;
+        document.getElementById('hijriDate').textContent = `📆 هجري: ${hijri.weekday.ar} ${hijri.day} ${hijri.month.ar} ${hijri.year}`;
+      });
+  }
+
+  updateClock();
+  setInterval(updateClock, 1000);
+</script>
 </body>
 </html>
