@@ -31,16 +31,27 @@
   </style>
 </head>
 <body>
-  <header>
-    <div style="display: flex; align-items: center;">
-      <img src="logo.png" alt="شعار المتجر">
-      <span>متجر عبايدي للعجلات</span>
-    </div>
-    <nav>
-      <a href="#">🛠️ أدوات الميشلان</a>
-      <a href="#">🚗 ملحقات السيارات</a>
-    </nav>
-  </header>
+ <header style="display: flex; align-items: center; justify-content: space-between; padding: 1rem; background-color: #007bff; color: white; font-size: 1.1rem; flex-wrap: wrap;">
+  <!-- الشعار والعنوان -->
+  <div style="display: flex; align-items: center;">
+    <img src="logo.png" alt="شعار المتجر" style="height: 40px; margin-left: 10px;">
+    <span>متجر عبايدي للعجلات</span>
+  </div>
+
+  <!-- التاريخ والساعة (في الوسط) -->
+  <div id="dateTimeBox" style="text-align: center; flex: 1;">
+    <div id="gregorianDate" style="font-size: 0.85rem;"></div>
+    <div id="hijriDate" style="font-size: 0.85rem;"></div>
+    <div id="clock" style="font-weight: bold;"></div>
+  </div>
+
+  <!-- روابط التنقل -->
+  <nav style="display: flex; gap: 10px;">
+    <a href="#">🛠️ أدوات الميشلان</a>
+    <a href="#">🚗 ملحقات السيارات</a>
+  </nav>
+</header>
+
 
   <input type="text" id="searchBar" placeholder="🔍 ابحث برقم الإطار..." oninput="filterProducts()">
 
@@ -180,7 +191,7 @@
   function updateClock() {
     const now = new Date();
 
-    // ضبط توقيت الجزائر UTC+1
+    // توقيت الجزائر
     const options = {
       timeZone: 'Africa/Algiers',
       weekday: 'long',
@@ -202,7 +213,7 @@
     document.getElementById('gregorianDate').textContent = `📅 ${dateString}`;
     document.getElementById('clock').textContent = `🕒 ${timeString}`;
 
-    // جلب التاريخ الهجري من API
+    // التاريخ الهجري
     const day = now.getDate();
     const month = now.getMonth() + 1;
     const year = now.getFullYear();
@@ -217,5 +228,6 @@
   updateClock();
   setInterval(updateClock, 1000);
 </script>
+
 </body>
 </html>
