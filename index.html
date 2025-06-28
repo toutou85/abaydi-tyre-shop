@@ -4,11 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>عبايدي للعجلات</title>
-  <div id="dateTimeBox" style="text-align: center; flex: 1; font-size: 0.9rem;">
-  <div id="gregorianDate"></div>
-  <div id="hijriDate"></div>
-  <div id="clock" style="font-weight: bold;"></div>
-</div>
   <style>
     body { font-family: Arial, sans-serif; background: #f2f2f2; margin: 0; padding: 0; }
     header { background-color: #007bff; color: white; padding: 1rem; display: flex; align-items: center; justify-content: space-between; font-size: 1.2rem; }
@@ -31,28 +26,13 @@
   </style>
 </head>
 <body>
- <header style="display: flex; align-items: center; justify-content: space-between; padding: 1rem; background-color: #007bff; color: white; font-size: 1.1rem; flex-wrap: wrap;">
-  <!-- الشعار والعنوان -->
-  <div style="display: flex; align-items: center;">
-    <img src="logo.png" alt="شعار المتجر" style="height: 40px; margin-left: 10px;">
-    <span>متجر عبايدي للعجلات</span>
-  </div>
-
-  <!-- التاريخ والساعة (في الوسط) -->
-  <div id="dateTimeBox" style="text-align: center; flex: 1;">
-    <div id="gregorianDate" style="font-size: 0.85rem;"></div>
-    <div id="hijriDate" style="font-size: 0.85rem;"></div>
-    <div id="clock" style="font-weight: bold;"></div>
-  </div>
-
-  <!-- روابط التنقل -->
-  <nav style="display: flex; gap: 10px;">
-    <a href="#">🛠️ أدوات الميشلان</a>
-    <a href="#">🚗 ملحقات السيارات</a>
-  </nav>
+ <header>
+   <div id="dateTimeBox" style="text-align: center; flex: 1; font-size: 0.9rem;">
+  <div id="gregorianDate"></div>
+  <div id="hijriDate"></div>
+  <div id="clock" style="font-weight: bold;"></div>
+</div>
 </header>
-
-
   <input type="text" id="searchBar" placeholder="🔍 ابحث برقم الإطار..." oninput="filterProducts()">
 
   <section class="products" id="productList"></section>
