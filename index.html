@@ -77,13 +77,14 @@
     fetch("https://script.google.com/macros/s/AKfycbz2xj8XTW2BmK-CCOH-4TViDX1PaREnMZTCpfi-lXTNTCSCHRAMFKBIoC375uVVhgC1/exec")
       .then(response => response.json())
       .then(data => {
-        const products = data.map(item => ({
-          number: item[0],
-          brand: item[1],
-          price: item[2],
-          quantity: item[3],
-          img: item[4] || 'https://via.placeholder.com/250x200'
-        }));
+        const products = data.map(p => ({
+  number: p.number || "غير معروف",
+  brand: p.brand || "بدون علامة",
+  price: p.price || "0",
+  quantity: p.quantity || "0",
+  img: p.img || 'https://via.placeholder.com/250x200'
+}));
+
 
         const perPage = 20;
         let currentPage = 1;
