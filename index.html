@@ -6,10 +6,11 @@
   <title>عبايدي للعجلات</title>
   <style>
     body { font-family: Arial, sans-serif; background: #f2f2f2; margin: 0; padding: 0; }
-    header { background-color: #007bff; color: white; padding: 1rem; display: flex; align-items: center; justify-content: space-between; font-size: 1.2rem; }
+    header { background-color: #007bff; color: white; padding: 1rem; display: flex; align-items: center; justify-content: space-between; font-size: 1.2rem; position: relative; }
     header img { height: 40px; margin-left: 10px; }
     nav { display: flex; gap: 10px; }
     nav a { color: white; text-decoration: none; background: #0056b3; padding: 5px 10px; border-radius: 5px; }
+    .datetime { position: absolute; top: 5px; left: 10px; font-size: 0.8rem; text-align: left; }
     footer { background: #007bff; color: white; text-align: center; padding: 1rem; margin-top: 2rem; font-size: 1rem; position: relative; }
     footer a { color: white; margin-top: 10px; display: inline-block; }
     #searchBar { width: 80%; margin: 1rem auto; display: block; padding: 0.5rem; font-size: 1rem; border: 1px solid #ccc; border-radius: 5px; }
@@ -35,9 +36,10 @@
       <a href="#">🛠️ أدوات الميشلان</a>
       <a href="#">🚗 ملحقات السيارات</a>
     </nav>
+    <div class="datetime" id="datetime"></div>
   </header>
 
-  <input type="text" id="searchBar" placeholder="🔍 175/70R13 ..." oninput="filterProducts()">
+  <input type="text" id="searchBar" placeholder="🔍 ابحث برقم الإطار..." oninput="filterProducts()">
 
   <section class="products" id="productList"></section>
   <div class="pagination" id="pagination"></div>
@@ -74,6 +76,17 @@
   </footer>
 
   <script>
+    function updateDateTime() {
+      const now = new Date();
+      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+      const time = now.toLocaleTimeString('ar-DZ');
+      const date = now.toLocaleDateString('ar-DZ', options);
+      const hijriDate = new Intl.DateTimeFormat('ar-SA-u-ca-islamic', options).format(now);
+      document.getElementById('datetime').innerHTML = `${date}<br>${hijriDate}<br>${time}`;
+    }
+    setInterval(updateDateTime, 1000);
+    updateDateTime();
+
     fetch('https://script.google.com/macros/s/AKfycbz5xNbLBZ7GgD5kdRb15vb07D-58G4ZPpnPRdX_t6qDHgxvupcfuPvVZzSnGlQYNFL_/exec')
       .then(response => response.json())
       .then(data => {
@@ -133,4 +146,5 @@
   </script>
 </body>
 </html>
+
 
