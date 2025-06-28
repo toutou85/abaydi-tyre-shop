@@ -74,7 +74,7 @@
   </footer>
 
   <script>
-    fetch(https://script.google.com/macros/s/AKfycby9qF_tT2bQtXax5W3pr74zKpwJ4bHCSUaUT8i9p4jQWd6hPqq5XOw9x2RmyKyAvPcm/exec)
+    fetch("https://script.google.com/macros/s/AKfycby9qF_tT2bQtXax5W3pr74zKpwJ4bHCSUaUT8i9p4jQWd6hPqq5XOw9x2RmyKyAvPcm/exec")
       .then(response => response.json())
       .then(data => {
         const products = data.map(item => ({
@@ -128,7 +128,46 @@
           }
         }
 
+        window.filterProducts = function () {
+          const input = document.getElementById('searchBar').value.toLowerCase();
+          const productList = document.querySelectorAll('.product');
+          productList.forEach(product => {
+            const number = product.getAttribute('data-number').toLowerCase();
+            product.style.display = number.includes(input) ? 'block' : 'none';
+          });
+        }
+
+        window.openForm = function (number, brand, price) {
+          document.getElementById('orderForm').style.display = 'block';
+          document.getElementById('overlay').style.display = 'block';
+          document.getElementById('wheelNumber').value = number;
+          document.getElementById('brandName').value = brand;
+        }
+
+        window.closeForm = function () {
+          document.getElementById('orderForm').style.display = 'none';
+          document.getElementById('overlay').style.display = 'none';
+        }
+
+        window.updateDeliveryPrice = function () {
+          const wilaya = document.getElementById('wilaya').value;
+          const priceElement = document.getElementById('deliveryPriceText');
+          let price = 0;
+          switch(wilaya) {
+            case "الجزائر": price = 500; break;
+            case "الشلف": price = 800; break;
+            case "أدرار": price = 1200; break;
+            case "الأغواط": price = 1000; break;
+            default: price = 0;
+          }
+          priceElement.innerText = `سعر التوصيل: ${price > 0 ? price + ' دج' : '- دج'}`;
+        }
+
         displayProducts();
+      })
+      .catch(error => {
+        console.error("حدث خطأ في تحميل البيانات:", error);
+        document.getElementById('productList').innerHTML = "<p style='text-align:center;color:red;'>⚠️ تعذر تحميل المنتجات، يرجى المحاولة لاحقًا.</p>";
       });
   </script>
 </body>
