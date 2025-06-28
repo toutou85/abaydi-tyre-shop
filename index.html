@@ -45,7 +45,7 @@
   <a href="accessories.html">🚗 ملحقات السيارات</a>
 </nav>
 </header>
-  <input type="text" id="searchBar" placeholder="🔍 175 / 70 R 13... " oninput="filterProducts()">
+  <input type="text" id="searchBar" placeholder="🔍 ...R 13 70 / 175 " oninput="filterProducts()">
 
   <section class="products" id="productList"></section>
   <div class="pagination" id="pagination"></div>
@@ -137,14 +137,46 @@
           }
         }
 
-        window.filterProducts = function () {
-          const input = document.getElementById('searchBar').value.toLowerCase();
-          const productList = document.querySelectorAll('.product');
-          productList.forEach(product => {
-            const number = product.getAttribute('data-number').toLowerCase();
-            product.style.display = number.includes(input) ? 'block' : 'none';
-          });
-        }
+       window.filterProducts = function () {
+  const input = document.getElementById('searchBar').value.toLowerCase();
+
+  // تصفية كل المنتجات الأصلية
+  const filtered = products.filter(p =>
+    p.number.toLowerCase().includes(input) ||
+    p.brand.toLowerCase().includes(input)
+  );
+
+  // عرض المنتجات المصفاة فقط
+  const productList = document.getElementById('productList');
+  productList.innerHTML = '';
+
+  if (filtered.length === 0) {
+    productList.innerHTML = "<p style='text-align:center;color:red;'>⚠️ لا توجد نتائج مطابقة.</p>";
+    document.getElementById('pagination').innerHTML = '';
+    return;
+  }
+
+  // عرض النتائج بدون تقسيم الصفحات
+  filtered.forEach(p => {
+    const div = document.createElement('div');
+    div.className = 'product';
+    const available = parseInt(p.quantity) > 0;
+    const availabilityText = available ? '✅ متوفر' : '❌ غير متوفر حاليا يرجى إدخال معلوماتك عند توفره نتصل بك';
+    const disabled = available ? '' : 'disabled';
+    div.innerHTML = `
+      <img src="${p.img}" alt="إطار ${p.number}">
+      <h3>إطار ${p.number} - ${p.brand}</h3>
+      <p>السعر: ${p.price} دج</p>
+      <p>${availabilityText}</p>
+      <button onclick="openForm('${p.number}', '${p.brand}', ${p.price})" ${disabled}>اطلب الآن</button>
+    `;
+    productList.appendChild(div);
+  });
+
+  // إخفاء أزرار الترقيم أثناء البحث
+  document.getElementById('pagination').innerHTML = '';
+};
+
 
         window.openForm = function (number, brand, price) {
           document.getElementById('orderForm').style.display = 'block';
