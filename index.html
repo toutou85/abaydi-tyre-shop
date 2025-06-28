@@ -6,9 +6,9 @@
   <title>عبايدي للعجلات</title>
   <style>
     body { font-family: Arial, sans-serif; background: #f2f2f2; margin: 0; padding: 0; }
-    header { background-color: #007bff; color: white; padding: 1rem; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; font-size: 1.5rem; }
+    header { background-color: #007bff; color: white; padding: 1rem; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; font-size: 1.2rem; text-align: center; }
+    header .top-info { display: flex; justify-content: space-between; width: 100%; padding: 0 1rem; font-size: 0.9rem; }
     header img { height: 40px; }
-    .datetime { font-size: 1rem; margin-top: 0.5rem; }
     footer { background: #007bff; color: white; text-align: center; padding: 1rem; margin-top: 2rem; font-size: 1rem; position: relative; }
     footer a { color: white; margin-top: 10px; display: inline-block; }
     #searchBar { width: 80%; margin: 1rem auto; display: block; padding: 0.5rem; font-size: 1rem; border: 1px solid #ccc; border-radius: 5px; }
@@ -26,9 +26,15 @@
 </head>
 <body>
   <header>
-    <img src="logo.png" alt="شعار المتجر">
-    <span>متجر عبايدي للعجلات</span>
-    <div id="datetime" class="datetime"></div>
+    <div class="top-info">
+      <span id="clock"></span>
+      <span id="date"></span>
+      <span id="hijri"></span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <img src="logo.png" alt="شعار المتجر">
+      <span style="font-size: 1.5rem;">متجر عبايدي للعجلات</span>
+    </div>
   </header>
 
   <input type="text" id="searchBar" placeholder="🔍 ابحث برقم الإطار..." oninput="filterProducts()">
@@ -67,15 +73,141 @@
   </footer>
 
   <script>
-    function updateTime() {
-      const now = new Date();
-      const time = now.toLocaleTimeString('ar-DZ');
-      const dateGregorian = now.toLocaleDateString('ar-DZ', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-      const dateHijri = new Intl.DateTimeFormat('ar-SA-u-ca-islamic', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }).format(now);
-      document.getElementById("datetime").innerHTML = `🕒 ${time} | 📅 ${dateGregorian} | 🕌 ${dateHijri}`;
+    let products = [];
+    const deliveryPrices = {
+      "أدرار": 1000,
+      "الشلف": 600,
+      "الأغواط": 750,
+      "الجزائر": 250
+    };
+
+    const perPage = 20;
+    let currentPage = 1;
+
+    function fetchProducts() {
+      fetch("https://script.google.com/macros/s/AKfycbz5xNbLBZ7GgD5kdRb15vb07D-58G4ZPpnPRdX_t6qDHgxvupcfuPvVZzSnGlQYNFL_/exec")
+        .then(res => res.json())
+        .then(data => {
+          products = data;
+          displayProducts();
+        })
+        .catch(err => console.error("فشل جلب المنتجات:", err));
     }
-    setInterval(updateTime, 1000);
-    updateTime();
+
+    function displayProducts() {
+      const productList = document.getElementById('productList');
+      productList.innerHTML = '';
+      const start = (currentPage - 1) * perPage;
+      const end = start + perPage;
+      products.slice(start, end).forEach(p => {
+        const div = document.createElement('div');
+        div.className = 'product';
+        div.setAttribute('data-number', p.number);
+        div.setAttribute('data-brand', p.brand);
+        div.innerHTML = `
+          <img src="${p.img}" alt="إطار ${p.number}">
+          <h3>إطار ${p.number} - ${p.brand}</h3>
+          <p>السعر: ${p.price} دج</p>
+          <button onclick="openForm('${p.number}', '${p.brand}', ${p.price})">اطلب الآن</button>
+        `;
+        productList.appendChild(div);
+      });
+      updatePagination();
+    }
+
+    function updatePagination() {
+      const totalPages = Math.ceil(products.length / perPage);
+      const pagination = document.getElementById('pagination');
+      pagination.innerHTML = '';
+      for (let i = 1; i <= totalPages; i++) {
+        const btn = document.createElement('button');
+        btn.innerText = i;
+        btn.onclick = () => {
+          currentPage = i;
+          displayProducts();
+        };
+        pagination.appendChild(btn);
+      }
+    }
+
+    function openForm(wheelNum, brand, price) {
+      document.getElementById('wheelNumber').value = wheelNum;
+      document.getElementById('brandName').value = brand;
+      document.getElementById('orderForm').style.display = 'block';
+      document.getElementById('overlay').style.display = 'block';
+      updateDeliveryPrice();
+    }
+
+    function closeForm() {
+      document.getElementById('orderForm').style.display = 'none';
+      document.getElementById('overlay').style.display = 'none';
+    }
+
+    function updateDeliveryPrice() {
+      const wilaya = document.getElementById('wilaya').value;
+      const price = deliveryPrices[wilaya];
+      document.getElementById('deliveryPriceText').innerText = price ? `سعر التوصيل: ${price} دج` : 'سعر التوصيل: - دج';
+    }
+
+    function filterProducts() {
+      const input = document.getElementById('searchBar').value.trim();
+      const productList = document.getElementById('productList');
+      productList.innerHTML = '';
+      const filtered = products.filter(p => p.number.includes(input));
+      filtered.forEach(p => {
+        const div = document.createElement('div');
+        div.className = 'product';
+        div.setAttribute('data-number', p.number);
+        div.setAttribute('data-brand', p.brand);
+        div.innerHTML = `
+          <img src="${p.img}" alt="إطار ${p.number}">
+          <h3>إطار ${p.number} - ${p.brand}</h3>
+          <p>السعر: ${p.price} دج</p>
+          <button onclick="openForm('${p.number}', '${p.brand}', ${p.price})">اطلب الآن</button>
+        `;
+        productList.appendChild(div);
+      });
+      document.getElementById('pagination').style.display = input ? 'none' : 'block';
+    }
+
+    document.getElementById('form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const params = new URLSearchParams({
+        fullName: fullName.value,
+        phone: phone.value,
+        wheelNumber: wheelNumber.value,
+        brandName: brandName.value,
+        quantity: quantity.value,
+        wilaya: wilaya.value,
+        deliveryPrice: deliveryPrices[wilaya.value] || ''
+      });
+
+      fetch('https://script.google.com/macros/s/AKfycbzW1qc7wbdFXLBDxAL_ba1H-MVz86IEHsWlj5NI8UuEAEKp7vO27WITc1Rod-7uF_Vjcw/exec', {
+        method: 'POST',
+        body: params
+      })
+      .then(res => res.text())
+      .then(_ => {
+        alert('✅ تم إرسال طلبك بنجاح!');
+        closeForm();
+        document.getElementById('form').reset();
+      })
+      .catch(err => alert('خطأ: ' + err));
+    });
+
+    function updateClock() {
+      const now = new Date();
+      document.getElementById("clock").innerText = now.toLocaleTimeString('ar-DZ');
+      document.getElementById("date").innerText = now.toLocaleDateString('ar-DZ');
+
+      const hijri = new Intl.DateTimeFormat('ar-TN-u-ca-islamic', {
+        year: 'numeric', month: 'long', day: 'numeric'
+      }).format(now);
+      document.getElementById("hijri").innerText = hijri;
+    }
+
+    setInterval(updateClock, 1000);
+    fetchProducts();
   </script>
 </body>
 </html>
