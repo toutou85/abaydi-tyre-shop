@@ -112,6 +112,17 @@ document.getElementById("orderForm").addEventListener("submit", function(e) {
   .catch(err => alert("❌ فشل في إرسال الطلب"));
 });
 </script>
+<script>
+window.onload = function () {
+  const url = new URL(window.location.href);
+  const number = url.searchParams.get("number");
+  const brand = url.searchParams.get("brand");
+  const price = url.searchParams.get("price");
 
+  if (number) document.querySelector('[name="tireNumber"]').value = number;
+  if (brand) document.querySelector('[name="tireType"]').value = brand;
+  if (price) document.querySelector('[name="tirePrice"]').value = price;
+}
+</script>
 </body>
 </html>
