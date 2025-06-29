@@ -243,13 +243,14 @@ document.getElementById("form").addEventListener("submit", function (e) {
     deliveryPrice: document.getElementById("deliveryPriceText").textContent
   };
 
-fetch("https://script.google.com/macros/s/AKfycbyEHvKQnuhTd4KEpvLMQ9xlGuTwaBg7yoPPHfZ4wKixzYYiE8mmoLOyEYM1-9TLWEdFEw/exec", {
+fetch("https://script.google.com/macros/s/AKfycbw5hJCHiK3McM8QydXUipqzyALGFsGjTGSOUnM05DYTpTqwXdmVTzn5EGgfxs0sqHLI6A/exec", {
   method: "POST",
   body: JSON.stringify(order),
   headers: {
     "Content-Type": "application/json"
   }
 })
+
 .then(res => res.json())
 .then(response => {
   if (response.result) {
