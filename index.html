@@ -223,6 +223,7 @@ function updateDeliveryPrice() {
   }
   priceElement.innerText = `سعر التوصيل: ${price > 0 ? price + ' دج' : '- دج'}`;
 }
+<script>
 document.getElementById("form").addEventListener("submit", function (e) {
   e.preventDefault();
 
@@ -236,7 +237,7 @@ document.getElementById("form").addEventListener("submit", function (e) {
     deliveryPrice: document.getElementById("deliveryPriceText").textContent
   };
 
-  // إرسال الطلب إلى Google Sheets فقط
+  // إرسال الطلب إلى Google Sheets
   fetch("https://script.google.com/macros/s/AKfycbw5hJCHiK3McM8QydXUipqzyALGFsGjTGSOUnM05DYTpTqwXdmVTzn5EGgfxs0sqHLI6A/exec", {
     method: "POST",
     body: JSON.stringify(order),
@@ -246,15 +247,16 @@ document.getElementById("form").addEventListener("submit", function (e) {
   })
   .then(res => res.text())
   .then(msg => {
-    alert("✅ " + msg);
+    alert("\u2705 " + msg);
     closeForm();
     document.getElementById("form").reset();
   })
   .catch(err => {
     console.error(err);
-    alert("❌ حدث خطأ أثناء إرسال الطلب، حاول لاحقًا.");
+    alert("\u274C حدث خطأ أثناء إرسال الطلب، حاول لاحقًا.");
   });
 });
+
 </script>
 
 </body>
