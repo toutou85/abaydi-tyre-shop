@@ -236,33 +236,25 @@ document.getElementById("form").addEventListener("submit", function (e) {
     deliveryPrice: document.getElementById("deliveryPriceText").textContent
   };
 
-  // إعداد رسالة واتساب
-  const message = `
-طلب جديد من الموقع:
-
-👤 الاسم: ${order.fullName}
-📞 الهاتف: ${order.phone}
-🛞 نوع العجلة: ${order.wheelNumber} - ${order.brandName}
-📦 الكمية: ${order.quantity}
-📍 الولاية: ${order.wilaya}
-🚚 ${order.deliveryPrice}
-  `.trim();
-
-  const encodedMsg = encodeURIComponent(message);
-
-  // روابط واتساب (يجب أن تكون صالحة)
-  const links = [
-    "https://wa.me/21356450486?text=" + encodedMsg,
-    "https://wa.me/213698749015?text=" + encodedMsg
-  ];
-
-  links.forEach(link => {
-    window.open(link, '_blank');
+  // إرسال الطلب إلى Google Sheets فقط
+  fetch("https://script.google.com/macros/s/AKfycbw5hJCHiK3McM8QydXUipqzyALGFsGjTGSOUnM05DYTpTqwXdmVTzn5EGgfxs0sqHLI6A/exec", {
+    method: "POST",
+    body: JSON.stringify(order),
+    headers: {
+      "Content-Type": "application/json"
+    }
+  })
+  .then(res => res.text())
+  .then(msg => {
+    alert("✅ " + msg);
+    closeForm();
+    document.getElementById("form").reset();
+  })
+  .catch(err => {
+    console.error(err);
+    alert("❌ حدث خطأ أثناء إرسال الطلب، حاول لاحقًا.");
   });
-
-  closeForm();
-  document.getElementById("form").reset();
-});
+});   هو ة
 </script>
 
 </body>
