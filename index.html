@@ -64,7 +64,7 @@
       <option value="الأغواط">الأغواط</option>
       <option value="الجزائر">الجزائر</option>
     </select>
-    <div id="deliveryPriceText">سعر التوصيل: - دج</div>
+  deliveryPrice: parseInt(document.getElementById("deliveryPriceText").textContent.replace(/\D/g, ''))
     <button type="submit">إرسال الطلب</button>
     <button type="button" onclick="closeForm()" style="background:#dc3545;margin-top:5px">إلغاء</button>
   </form>
