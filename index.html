@@ -16,13 +16,8 @@
     .products { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; padding: 1rem; }
     .product { background: white; padding: 1rem; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); text-align: center; }
     .product img { width: 100%; height: auto; border-radius: 10px; }
-    .product button { margin-top: 10px; padding: 0.5rem 1rem; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; }
     .pagination { text-align: center; margin-bottom: 2rem; }
     .pagination button { margin: 0 5px; padding: 0.5rem 1rem; border: none; background: #007bff; color: white; border-radius: 5px; cursor: pointer; }
-    .form-popup { display: none; position: fixed; top: 10%; left: 50%; transform: translateX(-50%); background: white; padding: 1rem; box-shadow: 0 0 20px rgba(0,0,0,0.3); border-radius: 10px; z-index: 1000; max-width: 90%; }
-    .form-popup input, .form-popup select { width: 100%; padding: 0.5rem; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 5px; }
-    .form-popup button { background: #007bff; color: white; padding: 0.5rem 1rem; border: none; border-radius: 5px; }
-    .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 999; }
   </style>
 </head>
 <body>
@@ -43,34 +38,16 @@
   </nav>
 </header>
 
+<!-- ✅ زر طلب جديد -->
+<div style="text-align: center; margin: 20px;">
+  <a href="order_form.html" target="_blank" style="display:inline-block; padding:10px 20px; background:#28a745; color:white; border-radius:8px; text-decoration:none; font-size:1.1rem;">
+    📦 اطلب الآن
+  </a>
+</div>
+
 <input type="text" id="searchBar" placeholder="🔍 ابحث عن إطار مثال: 175 / 70 R 13" oninput="filterProducts()">
 <section class="products" id="productList"></section>
 <div class="pagination" id="pagination"></div>
-
-<div class="overlay" id="overlay" onclick="closeForm()"></div>
-
-<div class="form-popup" id="orderForm">
-  <h3>نموذج الطلب</h3>
-  <form id="form">
-    <input type="text" id="fullName" placeholder="الاسم واللقب" required>
-    <input type="tel" id="phone" placeholder="رقم الهاتف" required>
-    <input type="text" id="wheelNumber" readonly>
-    <input type="text" id="brandName" readonly>
-    <input type="number" id="quantity" placeholder="الكمية" required>
-    <select id="wilaya" required onchange="updateDeliveryPrice()">
-      <option value="">اختر ولايتك</option>
-      <option value="أدرار">أدرار</option>
-      <option value="الشلف">الشلف</option>
-      <option value="الأغواط">الأغواط</option>
-      <option value="الجزائر">الجزائر</option>
-    </select>
-   
-<p id="deliveryPriceText" style="text-align:center;color:#007bff;">سعر التوصيل: - دج</p>
-
-    <button type="submit">إرسال الطلب</button>
-    <button type="button" onclick="closeForm()" style="background:#dc3545;margin-top:5px">إلغاء</button>
-  </form>
-</div>
 
 <footer>
   <div>🚚 التوصيل متوفر لـ 58 ولاية | 🕒 العمل على مدار الأسبوع | 💵 الدفع عند الاستلام</div>
@@ -80,104 +57,8 @@
   </a>
 </footer>
 
+<!-- JS للساعة والتاريخ فقط (بقية الأكواد يتم نسخها حسب الحاجة) -->
 <script>
-let products = [];
-
-fetch("https://script.google.com/macros/s/AKfycbz2xj8XTW2BmK-CCOH-4TViDX1PaREnMZTCpfi-lXTNTCSCHRAMFKBIoC375uVVhgC1/exec")
-  .then(response => response.json())
-  .then(data => {
-    products = data.map(p => ({
-      number: p.number || "غير معروف",
-      brand: p.brand || "بدون علامة",
-      price: p.price || "0",
-      quantity: p.quantity || "0",
-      img: p.img || 'https://via.placeholder.com/250x200'
-    }));
-
-    const perPage = 20;
-    let currentPage = 1;
-
-    function displayProducts() {
-      const productList = document.getElementById('productList');
-      productList.innerHTML = '';
-      const start = (currentPage - 1) * perPage;
-      const end = start + perPage;
-      products.slice(start, end).forEach(p => {
-        const div = document.createElement('div');
-        div.className = 'product';
-        const available = parseInt(p.quantity) > 0;
-        const availabilityText = available ? '✅ متوفر' : '❌ غير متوفر حاليا يرجى إدخال معلوماتك عند توفره نتصل بك';
-        const disabled = available ? '' : 'disabled';
-        div.innerHTML = `
-          <img src="${p.img}" alt="إطار ${p.number}">
-          <h3>إطار ${p.number} - ${p.brand}</h3>
-          <p>السعر: ${p.price} دج</p>
-          <p>${availabilityText}</p>
-          <button onclick="openForm('${p.number}', '${p.brand}', '${p.price}')" ${disabled}>اطلب الآن</button>
-        `;
-        productList.appendChild(div);
-      });
-      updatePagination();
-    }
-
-    function updatePagination() {
-      const totalPages = Math.ceil(products.length / perPage);
-      const pagination = document.getElementById('pagination');
-      pagination.innerHTML = '';
-      for (let i = 1; i <= totalPages; i++) {
-        const btn = document.createElement('button');
-        btn.innerText = i;
-        btn.onclick = () => {
-          currentPage = i;
-          displayProducts();
-        };
-        btn.style.background = (i === currentPage) ? "#0056b3" : "#007bff";
-        pagination.appendChild(btn);
-      }
-    }
-
-    window.filterProducts = function () {
-      const input = document.getElementById('searchBar').value.toLowerCase();
-      const filtered = products.filter(p =>
-        p.number.toLowerCase().includes(input) ||
-        p.brand.toLowerCase().includes(input)
-      );
-
-      const productList = document.getElementById('productList');
-      productList.innerHTML = '';
-
-      if (filtered.length === 0) {
-        productList.innerHTML = "<p style='text-align:center;color:red;'>⚠️ لا توجد نتائج مطابقة.</p>";
-        document.getElementById('pagination').innerHTML = '';
-        return;
-      }
-
-      filtered.forEach(p => {
-        const div = document.createElement('div');
-        div.className = 'product';
-        const available = parseInt(p.quantity) > 0;
-        const availabilityText = available ? '✅ متوفر' : '❌ غير متوفر حاليا يرجى إدخال معلوماتك عند توفره نتصل بك';
-        const disabled = available ? '' : 'disabled';
-        div.innerHTML = `
-          <img src="${p.img}" alt="إطار ${p.number}">
-          <h3>إطار ${p.number} - ${p.brand}</h3>
-          <p>السعر: ${p.price} دج</p>
-          <p>${availabilityText}</p>
-          <button onclick="openForm('${p.number}', '${p.brand}', '${p.price}')" ${disabled}>اطلب الآن</button>
-        `;
-        productList.appendChild(div);
-      });
-
-      document.getElementById('pagination').innerHTML = '';
-    }
-
-    displayProducts();
-  })
-  .catch(error => {
-    console.error("حدث خطأ في تحميل البيانات:", error);
-    document.getElementById('productList').innerHTML = "<p style='text-align:center;color:red;'>⚠️ تعذر تحميل المنتجات، يرجى المحاولة لاحقًا.</p>";
-  });
-
 function updateClock() {
   const now = new Date();
   const options = { timeZone: 'Africa/Algiers', weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
@@ -201,85 +82,8 @@ function updateClock() {
 }
 updateClock();
 setInterval(updateClock, 1000);
-
-function openForm(number, brand, price) {
-  document.getElementById('orderForm').style.display = 'block';
-  document.getElementById('overlay').style.display = 'block';
-  document.getElementById('wheelNumber').value = number;
-  document.getElementById('brandName').value = brand;
-}
-function closeForm() {
-  document.getElementById('orderForm').style.display = 'none';
-  document.getElementById('overlay').style.display = 'none';
-}
-function updateDeliveryPrice() {
-  const wilaya = document.getElementById('wilaya').value;
-  const priceElement = document.getElementById('deliveryPriceText');
-  let price = 0;
-  switch(wilaya) {
-    case "الجزائر": price = 500; break;
-    case "الشلف": price = 800; break;
-    case "أدرار": price = 1200; break;
-    case "الأغواط": price = 1000; break;
-    default: price = 0;
-  }
-  priceElement.innerText = `سعر التوصيل: ${price > 0 ? price + ' دج' : '- دج'}`;
-}
-
-document.getElementById("form").addEventListener("submit", function (e) {
-  e.preventDefault();
-
-  alert("🚀 بدأ الإرسال...");
-
-  const confirmation = confirm("هل أنت متأكد من إرسال الطلب؟");
-  if (!confirmation) {
-    alert("❌ تم إلغاء الإرسال من قبل المستخدم.");
-    return;
-  }
-
-  const fullName = document.getElementById("fullName").value;
-  const phone = document.getElementById("phone").value;
-  const wheelNumber = document.getElementById("wheelNumber").value;
-  const brandName = document.getElementById("brandName").value;
-  const quantity = document.getElementById("quantity").value;
-  const wilaya = document.getElementById("wilaya").value;
-  const priceText = document.getElementById("deliveryPriceText").textContent;
-  const deliveryPrice = priceText.match(/\d+/)?.[0] || "0";
-
-  // تحقق من الحقول
-  if (!fullName || !phone || !wheelNumber || !brandName || !quantity || !wilaya) {
-    alert("❗ جميع الحقول مطلوبة، تحقق منها.");
-    return;
-  }
-
-  const order = {
-    fullName, phone, wheelNumber, brandName, quantity, wilaya, deliveryPrice
-  };
-
-  alert("📦 الطلب جاهز للإرسال:\n" + JSON.stringify(order, null, 2));
-  fetch("https://script.google.com/macros/s/AKfycbyqfXgFp77Efqu34S5no6JO2aoSjD4YoTIiqm-tt048Fyp6Dn-c-cwOs0ioqpiLPUBOfg/exec", {
-    method: "POST",
-    body: JSON.stringify(order),
-    headers: {
-      "Content-Type": "application/json"
-    }
-  })
-  .then(res => res.json())
-  .then(obj => {
-    if (obj.result) {
-      alert("✅ تم الإرسال: " + obj.result);
-      closeForm();
-      document.getElementById("form").reset();
-    } else {
-      alert("❌ رد السيرفر:\n" + JSON.stringify(obj));
-    }
-  })
-  .catch(err => {
-    alert("🛑 فشل الاتصال بالخادم:\n" + err);
-  });
-});
 </script>
-</script>
-</script>
+
 </body>
 </html>
+
