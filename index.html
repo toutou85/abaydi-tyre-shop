@@ -6,11 +6,11 @@
   <title>عبايدي للعجلات</title>
   <style>
     body { font-family: Arial, sans-serif; background: #f2f2f2; margin: 0; padding: 0; }
-    header { background-color: #007bff; color: white; padding: 1rem; display: flex; align-items: center; justify-content: space-between; font-size: 1.2rem; }
+    header { background-color: #007bff; color: white; padding: 1rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; }
     header img { height: 40px; margin-left: 10px; }
     nav { display: flex; gap: 10px; }
     nav a { color: white; text-decoration: none; background: #0056b3; padding: 5px 10px; border-radius: 5px; }
-    footer { background: #007bff; color: white; text-align: center; padding: 1rem; margin-top: 2rem; font-size: 1rem; position: relative; }
+    footer { background: #007bff; color: white; text-align: center; padding: 1rem; margin-top: 2rem; font-size: 1rem; }
     footer a { color: white; margin-top: 10px; display: inline-block; }
     #searchBar { width: 80%; margin: 1rem auto; display: block; padding: 0.5rem; font-size: 1rem; border: 1px solid #ccc; border-radius: 5px; }
     .products { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; padding: 1rem; }
@@ -26,232 +26,209 @@
   </style>
 </head>
 <body>
-<header style="display: flex; align-items: center; justify-content: space-between; padding: 1rem; background-color: #007bff; color: white; font-size: 1.1rem; flex-wrap: wrap;">
-  <!-- الشعار والعنوان -->
+
+<header>
   <div style="display: flex; align-items: center;">
-    <img src="logo.png" alt="شعار المتجر" style="height: 40px; margin-left: 10px;">
+    <img src="logo.png" alt="شعار المتجر">
     <span>متجر عبايدي للعجلات</span>
   </div>
-
-  <!-- التاريخ والساعة (في الوسط) -->
   <div id="dateTimeBox" style="text-align: center; flex: 1;">
     <div id="gregorianDate" style="font-size: 0.85rem;"></div>
     <div id="hijriDate" style="font-size: 0.85rem;"></div>
     <div id="clock" style="font-weight: bold;"></div>
   </div>
-
- <nav style="display: flex; gap: 10px;">
-  <a href="tools.html">🛠️ أدوات الميشلان</a>
-  <a href="accessories.html">🚗 ملحقات السيارات</a>
-</nav>
+  <nav>
+    <a href="tools.html">🛠️ أدوات الميشلان</a>
+    <a href="accessories.html">🚗 ملحقات السيارات</a>
+  </nav>
 </header>
-  <input type="text" id="searchBar" placeholder="🔍 175 / 70 R 13  " oninput="filterProducts()">
 
-  <section class="products" id="productList"></section>
-  <div class="pagination" id="pagination"></div>
+<input type="text" id="searchBar" placeholder="🔍 ابحث عن إطار مثال: 175 / 70 R 13" oninput="filterProducts()">
+<section class="products" id="productList"></section>
+<div class="pagination" id="pagination"></div>
 
-  <div class="overlay" id="overlay" onclick="closeForm()"></div>
+<div class="overlay" id="overlay" onclick="closeForm()"></div>
 
-  <div class="form-popup" id="orderForm">
-    <h3>نموذج الطلب</h3>
-    <form id="form">
-      <input type="text" id="fullName" placeholder="الاسم واللقب" required>
-      <input type="tel" id="phone" placeholder="رقم الهاتف" required>
-      <input type="text" id="wheelNumber" readonly>
-      <input type="text" id="brandName" readonly>
-      <input type="number" id="quantity" placeholder="الكمية" required>
-      <select id="wilaya" required onchange="updateDeliveryPrice()">
-        <option value="">اختر ولايتك</option>
-        <option value="أدرار">أدرار</option>
-        <option value="الشلف">الشلف</option>
-        <option value="الأغواط">الأغواط</option>
-        <option value="الجزائر">الجزائر</option>
-      </select>
-      <div id="deliveryPriceText">سعر التوصيل: - دج</div>
-      <button type="submit">إرسال الطلب</button>
-      <button type="button" onclick="closeForm()" style="background:#dc3545;margin-top:5px">إلغاء</button>
-    </form>
-  </div>
+<div class="form-popup" id="orderForm">
+  <h3>نموذج الطلب</h3>
+  <form id="form">
+    <input type="text" id="fullName" placeholder="الاسم واللقب" required>
+    <input type="tel" id="phone" placeholder="رقم الهاتف" required>
+    <input type="text" id="wheelNumber" readonly>
+    <input type="text" id="brandName" readonly>
+    <input type="number" id="quantity" placeholder="الكمية" required>
+    <select id="wilaya" required onchange="updateDeliveryPrice()">
+      <option value="">اختر ولايتك</option>
+      <option value="أدرار">أدرار</option>
+      <option value="الشلف">الشلف</option>
+      <option value="الأغواط">الأغواط</option>
+      <option value="الجزائر">الجزائر</option>
+    </select>
+    <div id="deliveryPriceText">سعر التوصيل: - دج</div>
+    <button type="submit">إرسال الطلب</button>
+    <button type="button" onclick="closeForm()" style="background:#dc3545;margin-top:5px">إلغاء</button>
+  </form>
+</div>
 
-  <footer>
-    <div>🚚 التوصيل متوفر لـ 58 ولاية | 🕒 العمل على مدار الأسبوع | 💵 الدفع عند الاستلام</div>
-    <div>📞 واتساب: <a href="https://wa.me/21356450486" target="_blank">+21356450486</a> | <a href="https://wa.me/213698749015" target="_blank">+213698749015</a></div>
-    <a href="https://www.facebook.com/share/1AZpipVeFa/" target="_blank">
-      <img src="https://cdn-icons-png.flaticon.com/512/124/124010.png" alt="فيسبوك" width="30">
-    </a>
-  </footer>
+<footer>
+  <div>🚚 التوصيل متوفر لـ 58 ولاية | 🕒 العمل على مدار الأسبوع | 💵 الدفع عند الاستلام</div>
+  <div>📞 واتساب: <a href="https://wa.me/21356450486" target="_blank">+21356450486</a> | <a href="https://wa.me/213698749015" target="_blank">+213698749015</a></div>
+  <a href="https://www.facebook.com/share/1AZpipVeFa/" target="_blank">
+    <img src="https://cdn-icons-png.flaticon.com/512/124/124010.png" alt="فيسبوك" width="30">
+  </a>
+</footer>
 
-  <script>
-    fetch("https://script.google.com/macros/s/AKfycbz2xj8XTW2BmK-CCOH-4TViDX1PaREnMZTCpfi-lXTNTCSCHRAMFKBIoC375uVVhgC1/exec")
-      .then(response => response.json())
-      .then(data => {
-        const products = data.map(p => ({
-  number: p.number || "غير معروف",
-  brand: p.brand || "بدون علامة",
-  price: p.price || "0",
-  quantity: p.quantity || "0",
-  img: p.img || 'https://via.placeholder.com/250x200'
-}));
+<script>
+let products = [];
 
+fetch("https://script.google.com/macros/s/AKfycbz2xj8XTW2BmK-CCOH-4TViDX1PaREnMZTCpfi-lXTNTCSCHRAMFKBIoC375uVVhgC1/exec")
+  .then(response => response.json())
+  .then(data => {
+    products = data.map(p => ({
+      number: p.number || "غير معروف",
+      brand: p.brand || "بدون علامة",
+      price: p.price || "0",
+      quantity: p.quantity || "0",
+      img: p.img || 'https://via.placeholder.com/250x200'
+    }));
 
-        const perPage = 20;
-        let currentPage = 1;
+    const perPage = 20;
+    let currentPage = 1;
 
-        function displayProducts() {
-          const productList = document.getElementById('productList');
-          productList.innerHTML = '';
-          const start = (currentPage - 1) * perPage;
-          const end = start + perPage;
-          products.slice(start, end).forEach(p => {
-            const div = document.createElement('div');
-            div.className = 'product';
-            div.setAttribute('data-number', p.number);
-            div.setAttribute('data-brand', p.brand);
-            const available = parseInt(p.quantity) > 0;
-            const availabilityText = available ? '✅ متوفر' : '❌ غير متوفر حاليا يرجى إدخال معلوماتك عند توفره نتصل بك';
-            const disabled = available ? '' : 'disabled';
-            div.innerHTML = `
-              <img src="${p.img}" alt="إطار ${p.number}">
-              <h3>إطار ${p.number} - ${p.brand}</h3>
-              <p>السعر: ${p.price} دج</p>
-              <p>${availabilityText}</p>
-              <button onclick="openForm('${p.number}', '${p.brand}', ${p.price})" ${disabled}>اطلب الآن</button>
-            `;
-            productList.appendChild(div);
-          });
-          updatePagination();
-        }
+    function displayProducts() {
+      const productList = document.getElementById('productList');
+      productList.innerHTML = '';
+      const start = (currentPage - 1) * perPage;
+      const end = start + perPage;
+      products.slice(start, end).forEach(p => {
+        const div = document.createElement('div');
+        div.className = 'product';
+        const available = parseInt(p.quantity) > 0;
+        const availabilityText = available ? '✅ متوفر' : '❌ غير متوفر حاليا يرجى إدخال معلوماتك عند توفره نتصل بك';
+        const disabled = available ? '' : 'disabled';
+        div.innerHTML = `
+          <img src="${p.img}" alt="إطار ${p.number}">
+          <h3>إطار ${p.number} - ${p.brand}</h3>
+          <p>السعر: ${p.price} دج</p>
+          <p>${availabilityText}</p>
+          <button onclick="openForm('${p.number}', '${p.brand}', '${p.price}')" ${disabled}>اطلب الآن</button>
+        `;
+        productList.appendChild(div);
+      });
+      updatePagination();
+    }
 
-        function updatePagination() {
-          const totalPages = Math.ceil(products.length / perPage);
-          const pagination = document.getElementById('pagination');
-          pagination.innerHTML = '';
-          for (let i = 1; i <= totalPages; i++) {
-            const btn = document.createElement('button');
-            btn.innerText = i;
-            btn.onclick = () => {
-              currentPage = i;
-              displayProducts();
-            };
-            pagination.appendChild(btn);
-          }
-        }
+    function updatePagination() {
+      const totalPages = Math.ceil(products.length / perPage);
+      const pagination = document.getElementById('pagination');
+      pagination.innerHTML = '';
+      for (let i = 1; i <= totalPages; i++) {
+        const btn = document.createElement('button');
+        btn.innerText = i;
+        btn.onclick = () => {
+          currentPage = i;
+          displayProducts();
+        };
+        btn.style.background = (i === currentPage) ? "#0056b3" : "#007bff";
+        pagination.appendChild(btn);
+      }
+    }
 
-       window.filterProducts = function () {
-  const input = document.getElementById('searchBar').value.toLowerCase();
+    window.filterProducts = function () {
+      const input = document.getElementById('searchBar').value.toLowerCase();
+      const filtered = products.filter(p =>
+        p.number.toLowerCase().includes(input) ||
+        p.brand.toLowerCase().includes(input)
+      );
 
-  // تصفية كل المنتجات الأصلية
-  const filtered = products.filter(p =>
-    p.number.toLowerCase().includes(input) ||
-    p.brand.toLowerCase().includes(input)
-  );
+      const productList = document.getElementById('productList');
+      productList.innerHTML = '';
 
-  // عرض المنتجات المصفاة فقط
-  const productList = document.getElementById('productList');
-  productList.innerHTML = '';
+      if (filtered.length === 0) {
+        productList.innerHTML = "<p style='text-align:center;color:red;'>⚠️ لا توجد نتائج مطابقة.</p>";
+        document.getElementById('pagination').innerHTML = '';
+        return;
+      }
 
-  if (filtered.length === 0) {
-    productList.innerHTML = "<p style='text-align:center;color:red;'>⚠️ لا توجد نتائج مطابقة.</p>";
-    document.getElementById('pagination').innerHTML = '';
-    return;
-  }
+      filtered.forEach(p => {
+        const div = document.createElement('div');
+        div.className = 'product';
+        const available = parseInt(p.quantity) > 0;
+        const availabilityText = available ? '✅ متوفر' : '❌ غير متوفر حاليا يرجى إدخال معلوماتك عند توفره نتصل بك';
+        const disabled = available ? '' : 'disabled';
+        div.innerHTML = `
+          <img src="${p.img}" alt="إطار ${p.number}">
+          <h3>إطار ${p.number} - ${p.brand}</h3>
+          <p>السعر: ${p.price} دج</p>
+          <p>${availabilityText}</p>
+          <button onclick="openForm('${p.number}', '${p.brand}', '${p.price}')" ${disabled}>اطلب الآن</button>
+        `;
+        productList.appendChild(div);
+      });
 
-  // عرض النتائج بدون تقسيم الصفحات
-  filtered.forEach(p => {
-    const div = document.createElement('div');
-    div.className = 'product';
-    const available = parseInt(p.quantity) > 0;
-    const availabilityText = available ? '✅ متوفر' : '❌ غير متوفر حاليا يرجى إدخال معلوماتك عند توفره نتصل بك';
-    const disabled = available ? '' : 'disabled';
-    div.innerHTML = `
-      <img src="${p.img}" alt="إطار ${p.number}">
-      <h3>إطار ${p.number} - ${p.brand}</h3>
-      <p>السعر: ${p.price} دج</p>
-      <p>${availabilityText}</p>
-      <button onclick="openForm('${p.number}', '${p.brand}', ${p.price})" ${disabled}>اطلب الآن</button>
-    `;
-    productList.appendChild(div);
+      document.getElementById('pagination').innerHTML = '';
+    }
+
+    displayProducts();
+  })
+  .catch(error => {
+    console.error("حدث خطأ في تحميل البيانات:", error);
+    document.getElementById('productList').innerHTML = "<p style='text-align:center;color:red;'>⚠️ تعذر تحميل المنتجات، يرجى المحاولة لاحقًا.</p>";
   });
 
-  // إخفاء أزرار الترقيم أثناء البحث
-  document.getElementById('pagination').innerHTML = '';
-};
+window.openForm = function (number, brand, price) {
+  document.getElementById('orderForm').style.display = 'block';
+  document.getElementById('overlay').style.display = 'block';
+  document.getElementById('wheelNumber').value = number;
+  document.getElementById('brandName').value = brand;
+}
 
+window.closeForm = function () {
+  document.getElementById('orderForm').style.display = 'none';
+  document.getElementById('overlay').style.display = 'none';
+}
 
-        window.openForm = function (number, brand, price) {
-          document.getElementById('orderForm').style.display = 'block';
-          document.getElementById('overlay').style.display = 'block';
-          document.getElementById('wheelNumber').value = number;
-          document.getElementById('brandName').value = brand;
-        }
+window.updateDeliveryPrice = function () {
+  const wilaya = document.getElementById('wilaya').value;
+  const priceElement = document.getElementById('deliveryPriceText');
+  let price = 0;
+  switch(wilaya) {
+    case "الجزائر": price = 500; break;
+    case "الشلف": price = 800; break;
+    case "أدرار": price = 1200; break;
+    case "الأغواط": price = 1000; break;
+    default: price = 0;
+  }
+  priceElement.innerText = `سعر التوصيل: ${price > 0 ? price + ' دج' : '- دج'}`;
+}
+</script>
 
-        window.closeForm = function () {
-          document.getElementById('orderForm').style.display = 'none';
-          document.getElementById('overlay').style.display = 'none';
-        }
+<script>
+function updateClock() {
+  const now = new Date();
+  const options = { timeZone: 'Africa/Algiers', weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+  const timeOptions = { timeZone: 'Africa/Algiers', hour: '2-digit', minute: '2-digit', second: '2-digit' };
 
-        window.updateDeliveryPrice = function () {
-          const wilaya = document.getElementById('wilaya').value;
-          const priceElement = document.getElementById('deliveryPriceText');
-          let price = 0;
-          switch(wilaya) {
-            case "الجزائر": price = 500; break;
-            case "الشلف": price = 800; break;
-            case "أدرار": price = 1200; break;
-            case "الأغواط": price = 1000; break;
-            default: price = 0;
-          }
-          priceElement.innerText = `سعر التوصيل: ${price > 0 ? price + ' دج' : '- دج'}`;
-        }
+  document.getElementById('gregorianDate').textContent = `📅 ${new Intl.DateTimeFormat('ar-DZ', options).format(now)}`;
+  document.getElementById('clock').textContent = `🕒 ${new Intl.DateTimeFormat('ar-DZ', timeOptions).format(now)}`;
 
-        displayProducts();
-      })
-      .catch(error => {
-        console.error("حدث خطأ في تحميل البيانات:", error);
-        document.getElementById('productList').innerHTML = "<p style='text-align:center;color:red;'>⚠️ تعذر تحميل المنتجات، يرجى المحاولة لاحقًا.</p>";
-      });
-  </script>
-  <script>
-  function updateClock() {
-    const now = new Date();
+  const day = now.getDate();
+  const month = now.getMonth() + 1;
+  const year = now.getFullYear();
 
-    // توقيت الجزائر
-    const options = {
-      timeZone: 'Africa/Algiers',
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    };
-
-    const timeOptions = {
-      timeZone: 'Africa/Algiers',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit'
-    };
-
-    const dateString = new Intl.DateTimeFormat('ar-DZ', options).format(now);
-    const timeString = new Intl.DateTimeFormat('ar-DZ', timeOptions).format(now);
-
-    document.getElementById('gregorianDate').textContent = `📅 ${dateString}`;
-    document.getElementById('clock').textContent = `🕒 ${timeString}`;
-
-    // التاريخ الهجري
-    const day = now.getDate();
-    const month = now.getMonth() + 1;
-    const year = now.getFullYear();
-    fetch(`https://api.aladhan.com/v1/gToH?date=${day}-${month}-${year}`)
-      .then(res => res.json())
-      .then(data => {
+  fetch(`https://api.aladhan.com/v1/gToH?date=${day}-${month}-${year}`)
+    .then(res => res.json())
+    .then(data => {
+      if (data && data.data && data.data.hijri) {
         const hijri = data.data.hijri;
         document.getElementById('hijriDate').textContent = `📆 هجري: ${hijri.weekday.ar} ${hijri.day} ${hijri.month.ar} ${hijri.year}`;
-      });
-  }
-
-  updateClock();
-  setInterval(updateClock, 1000);
+      }
+    });
+}
+updateClock();
+setInterval(updateClock, 1000);
 </script>
+
 <script>
 document.getElementById("form").addEventListener("submit", function (e) {
   e.preventDefault();
@@ -266,23 +243,21 @@ document.getElementById("form").addEventListener("submit", function (e) {
     deliveryPrice: document.getElementById("deliveryPriceText").textContent
   };
 
- fetch("https://script.google.com/macros/s/AKfycbwIxikMLZE8Rd1bd2QQemqCpEO0XyzOPGOY-pU0SgEzJM9dHjjVEib2_lxUaEhFx_4N/exec", {
-  method: "POST",
-  body: JSON.stringify(order),
-  headers: {
-    "Content-Type": "application/json"
-  }
-})
-  .then(res => res.text())
-  .then(msg => {
-    alert("✅ " + msg);
-    closeForm();
-    document.getElementById("form").reset();
+  fetch("https://script.google.com/macros/s/AKfycbwIxikMLZE8Rd1bd2QQemqCpEO0XyzOPGOY-pU0SgEzJM9dHjjVEib2_lxUaEhFx_4N/exec", {
+    method: "POST",
+    body: JSON.stringify(order),
+    headers: { "Content-Type": "application/json" }
   })
-  .catch(err => {
-    console.error(err);
-    alert("❌ حدث خطأ أثناء إرسال الطلب، حاول لاحقًا.");
-  });
+    .then(res => res.text())
+    .then(msg => {
+      alert("✅ " + msg);
+      closeForm();
+      document.getElementById("form").reset();
+    })
+    .catch(err => {
+      console.error(err);
+      alert("❌ حدث خطأ أثناء إرسال الطلب، حاول لاحقًا.");
+    });
 });
 </script>
 
