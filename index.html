@@ -65,7 +65,7 @@
       <option value="الجزائر">الجزائر</option>
     </select>
    
-
+<p id="deliveryPriceText" style="text-align:center;color:#007bff;">سعر التوصيل: - دج</p>
 
     <button type="submit">إرسال الطلب</button>
     <button type="button" onclick="closeForm()" style="background:#dc3545;margin-top:5px">إلغاء</button>
@@ -226,7 +226,6 @@ function updateDeliveryPrice() {
   priceElement.innerText = `سعر التوصيل: ${price > 0 ? price + ' دج' : '- دج'}`;
 }
 
-<script>
 document.getElementById("form").addEventListener("submit", function (e) {
   e.preventDefault();
 
