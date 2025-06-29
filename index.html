@@ -226,25 +226,39 @@ function updateDeliveryPrice() {
   priceElement.innerText = `سعر التوصيل: ${price > 0 ? price + ' دج' : '- دج'}`;
 }
 
+https://script.google.com/macros/s/AKfycbxc6C33VU2S3I6zQVKuTwGSJa6F_hbboU1VaxWTRgYXr-yniH36JD4cr7cyeqTGx_Bs/exec>
 document.getElementById("form").addEventListener("submit", function (e) {
   e.preventDefault();
 
-  const confirmation = confirm("هل أنت متأكد من إرسال الطلب؟");
-  if (!confirmation) return;
+  console.log("🚀 إرسال النموذج بدأ");
 
-  // استخراج السعر الرقمي من النص
+  const confirmation = confirm("هل أنت متأكد من إرسال الطلب؟");
+  if (!confirmation) {
+    console.log("❌ تم إلغاء الإرسال من قبل المستخدم.");
+    return;
+  }
+
+  const fullName = document.getElementById("fullName").value;
+  const phone = document.getElementById("phone").value;
+  const wheelNumber = document.getElementById("wheelNumber").value;
+  const brandName = document.getElementById("brandName").value;
+  const quantity = document.getElementById("quantity").value;
+  const wilaya = document.getElementById("wilaya").value;
   const priceText = document.getElementById("deliveryPriceText").textContent;
   const deliveryPrice = priceText.match(/\d+/)?.[0] || "0";
 
+  // تحقق من الحقول
+  if (!fullName || !phone || !wheelNumber || !brandName || !quantity || !wilaya) {
+    alert("❗ جميع الحقول مطلوبة، تحقق منها.");
+    console.log("❌ أحد الحقول فارغ", { fullName, phone, wheelNumber, brandName, quantity, wilaya });
+    return;
+  }
+
   const order = {
-    fullName: document.getElementById("fullName").value,
-    phone: document.getElementById("phone").value,
-    wheelNumber: document.getElementById("wheelNumber").value,
-    brandName: document.getElementById("brandName").value,
-    quantity: document.getElementById("quantity").value,
-    wilaya: document.getElementById("wilaya").value,
-    deliveryPrice: deliveryPrice
+    fullName, phone, wheelNumber, brandName, quantity, wilaya, deliveryPrice
   };
+
+  console.log("📦 الطلب قبل الإرسال:", order);
 
   fetch("https://script.google.com/macros/s/AKfycbxc6C33VU2S3I6zQVKuTwGSJa6F_hbboU1VaxWTRgYXr-yniH36JD4cr7cyeqTGx_Bs/exec", {
     method: "POST",
@@ -253,8 +267,12 @@ document.getElementById("form").addEventListener("submit", function (e) {
       "Content-Type": "application/json"
     }
   })
-  .then(res => res.json())
+  .then(res => {
+    console.log("📡 تم الاتصال بالسيرفر، جاري المعالجة...");
+    return res.json();
+  })
   .then(obj => {
+    console.log("✅ رد السيرفر:", obj);
     if (obj.result) {
       alert("✅ " + obj.result);
       closeForm();
@@ -264,7 +282,7 @@ document.getElementById("form").addEventListener("submit", function (e) {
     }
   })
   .catch(err => {
-    console.error(err);
+    console.error("🛑 خطأ في الإرسال:", err);
     alert("❌ حدث خطأ أثناء إرسال الطلب، حاول لاحقًا.");
   });
 });
