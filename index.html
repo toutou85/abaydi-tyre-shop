@@ -176,9 +176,6 @@ fetch("https://script.google.com/macros/s/AKfycbz2xj8XTW2BmK-CCOH-4TViDX1PaREnMZ
     document.getElementById('productList').innerHTML = "<p style='text-align:center;color:red;'>⚠️ تعذر تحميل المنتجات، يرجى المحاولة لاحقًا.</p>";
   });
 
-</script>
-
-<script>
 function updateClock() {
   const now = new Date();
   const options = { timeZone: 'Africa/Algiers', weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
@@ -202,95 +199,62 @@ function updateClock() {
 }
 updateClock();
 setInterval(updateClock, 1000);
-</script>
 
-<script>
-
-<div class="overlay" id="overlay" onclick="closeForm()"></div>
-
-<div class="form-popup" id="orderForm">
-  <h3>نموذج الطلب</h3>
-  <form id="form">
-    <input type="text" id="fullName" placeholder="الاسم واللقب" required>
-    <input type="tel" id="phone" placeholder="رقم الهاتف" required>
-    <input type="text" id="wheelNumber" readonly>
-    <input type="text" id="brandName" readonly>
-    <input type="number" id="quantity" placeholder="الكمية" required>
-    <select id="wilaya" required onchange="updateDeliveryPrice()">
-      <option value="">اختر ولايتك</option>
-      <option value="الجزائر">الجزائر</option>
-      <option value="الشلف">الشلف</option>
-      <option value="أدرار">أدرار</option>
-      <option value="الأغواط">الأغواط</option>
-      <!-- يمكنك إضافة المزيد من الولايات هنا -->
-    </select>
-    <div id="deliveryPriceText">سعر التوصيل: - دج</div>
-    <button type="submit">إرسال الطلب</button>
-    <button type="button" onclick="closeForm()" style="background:#dc3545;margin-top:5px">إلغاء</button>
-  </form>
-</div>
-<script>
-  // فتح النموذج
-  window.openForm = function (number, brand, price) {
-    document.getElementById('orderForm').style.display = 'block';
-    document.getElementById('overlay').style.display = 'block';
-    document.getElementById('wheelNumber').value = number;
-    document.getElementById('brandName').value = brand;
+function openForm(number, brand, price) {
+  document.getElementById('orderForm').style.display = 'block';
+  document.getElementById('overlay').style.display = 'block';
+  document.getElementById('wheelNumber').value = number;
+  document.getElementById('brandName').value = brand;
+}
+function closeForm() {
+  document.getElementById('orderForm').style.display = 'none';
+  document.getElementById('overlay').style.display = 'none';
+}
+function updateDeliveryPrice() {
+  const wilaya = document.getElementById('wilaya').value;
+  const priceElement = document.getElementById('deliveryPriceText');
+  let price = 0;
+  switch(wilaya) {
+    case "الجزائر": price = 500; break;
+    case "الشلف": price = 800; break;
+    case "أدرار": price = 1200; break;
+    case "الأغواط": price = 1000; break;
+    default: price = 0;
   }
+  priceElement.innerText = `سعر التوصيل: ${price > 0 ? price + ' دج' : '- دج'}`;
+}
 
-  // إغلاق النموذج
-  window.closeForm = function () {
-    document.getElementById('orderForm').style.display = 'none';
-    document.getElementById('overlay').style.display = 'none';
-  }
+document.getElementById("form").addEventListener("submit", function (e) {
+  e.preventDefault();
+  const order = {
+    fullName: document.getElementById("fullName").value,
+    phone: document.getElementById("phone").value,
+    wheelNumber: document.getElementById("wheelNumber").value,
+    brandName: document.getElementById("brandName").value,
+    quantity: document.getElementById("quantity").value,
+    wilaya: document.getElementById("wilaya").value,
+    deliveryPrice: document.getElementById("deliveryPriceText").textContent
+  };
 
-  // حساب سعر التوصيل حسب الولاية
-  window.updateDeliveryPrice = function () {
-    const wilaya = document.getElementById('wilaya').value;
-    const priceElement = document.getElementById('deliveryPriceText');
-    let price = 0;
-    switch(wilaya) {
-      case "الجزائر": price = 500; break;
-      case "الشلف": price = 800; break;
-      case "أدرار": price = 1200; break;
-      case "الأغواط": price = 1000; break;
-      default: price = 0;
+  fetch("https://script.google.com/macros/s/AKfycbw5hJCHiK3McM8QydXUipqzyALGFsGjTGSOUnM05DYTpTqwXdmVTzn5EGgfxs0sqHLI6A/exec", {
+    method: "POST",
+    body: JSON.stringify(order),
+    headers: {
+      "Content-Type": "application/json"
     }
-    priceElement.innerText = `سعر التوصيل: ${price > 0 ? price + ' دج' : '- دج'}`;
-  }
-
-  // إرسال الطلب إلى Google Sheets
-  document.getElementById("form").addEventListener("submit", function (e) {
-    e.preventDefault();
-
-    const order = {
-      fullName: document.getElementById("fullName").value,
-      phone: document.getElementById("phone").value,
-      wheelNumber: document.getElementById("wheelNumber").value,
-      brandName: document.getElementById("brandName").value,
-      quantity: document.getElementById("quantity").value,
-      wilaya: document.getElementById("wilaya").value,
-      deliveryPrice: document.getElementById("deliveryPriceText").textContent
-    };
-
-    fetch("https://script.google.com/macros/s/AKfycbw5hJCHiK3McM8QydXUipqzyALGFsGjTGSOUnM05DYTpTqwXdmVTzn5EGgfxs0sqHLI6A/exec", {
-      method: "POST",
-      body: JSON.stringify(order),
-      headers: {
-        "Content-Type": "application/json"
-      }
-    })
-    .then(res => res.text())
-    .then(msg => {
-      alert("✅ " + msg);
-      closeForm();
-      document.getElementById("form").reset();
-    })
-    .catch(err => {
-      console.error(err);
-      alert("❌ حدث خطأ أثناء إرسال الطلب، حاول لاحقًا.");
-    });
+  })
+  .then(res => res.text())
+  .then(msg => {
+    alert("✅ " + msg);
+    closeForm();
+    document.getElementById("form").reset();
+  })
+  .catch(err => {
+    console.error(err);
+    alert("❌ حدث خطأ أثناء إرسال الطلب، حاول لاحقًا.");
   });
+});
 </script>
+
 </body>
 </html>
