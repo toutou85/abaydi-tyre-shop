@@ -223,7 +223,6 @@ function updateDeliveryPrice() {
   }
   priceElement.innerText = `سعر التوصيل: ${price > 0 ? price + ' دج' : '- دج'}`;
 }
-
 document.getElementById("form").addEventListener("submit", function (e) {
   e.preventDefault();
 
@@ -237,9 +236,10 @@ document.getElementById("form").addEventListener("submit", function (e) {
     deliveryPrice: document.getElementById("deliveryPriceText").textContent
   };
 
-  // إعداد نص الرسالة لواتساب
+  // إعداد رسالة واتساب
   const message = `
-🔔 طلب جديد من الموقع:
+طلب جديد من الموقع:
+
 👤 الاسم: ${order.fullName}
 📞 الهاتف: ${order.phone}
 🛞 نوع العجلة: ${order.wheelNumber} - ${order.brandName}
@@ -250,17 +250,16 @@ document.getElementById("form").addEventListener("submit", function (e) {
 
   const encodedMsg = encodeURIComponent(message);
 
-  // إرسال إلى رابطين واتساب
+  // روابط واتساب (يجب أن تكون صالحة)
   const links = [
-    "https://wa.me/message/E7SGU5MICB7IH1",
-    "https://wa.me/qr/KEPLCY2YQQC3F1"
+    "https://wa.me/21356450486?text=" + encodedMsg,
+    "https://wa.me/213698749015?text=" + encodedMsg
   ];
 
   links.forEach(link => {
-    window.open(`${link}?text=${encodedMsg}`, '_blank');
+    window.open(link, '_blank');
   });
 
-  // إغلاق النموذج وتفريغه
   closeForm();
   document.getElementById("form").reset();
 });
