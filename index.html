@@ -237,22 +237,8 @@ document.getElementById("form").addEventListener("submit", function (e) {
     deliveryPrice: document.getElementById("deliveryPriceText").textContent
   };
 
-  // 1. إرسال إلى Google Sheets
-  fetch("https://script.google.com/macros/s/AKfycbw5hJCHiK3McM8QydXUipqzyALGFsGjTGSOUnM05DYTpTqwXdmVTzn5EGgfxs0sqHLI6A/exec", {
-    method: "POST",
-    body: JSON.stringify(order),
-    headers: {
-      "Content-Type": "application/json"
-    }
-  })
-  .then(res => res.text())
-  .then(msg => {
-    alert("✅ " + msg);
-    closeForm();
-    document.getElementById("form").reset();
-
-    // 2. إعداد نص الرسالة لواتساب
-    const message = `
+  // إعداد نص الرسالة لواتساب
+  const message = `
 🔔 طلب جديد من الموقع:
 👤 الاسم: ${order.fullName}
 📞 الهاتف: ${order.phone}
@@ -260,25 +246,23 @@ document.getElementById("form").addEventListener("submit", function (e) {
 📦 الكمية: ${order.quantity}
 📍 الولاية: ${order.wilaya}
 🚚 ${order.deliveryPrice}
-    `.trim();
+  `.trim();
 
-    const encodedMsg = encodeURIComponent(message);
+  const encodedMsg = encodeURIComponent(message);
 
-    // 3. إرسال إلى رابطين واتساب تلقائياً
-    const links = [
-      "https://wa.me/message/E7SGU5MICB7IH1",
-      "https://wa.me/qr/KEPLCY2YQQC3F1"
-    ];
+  // إرسال إلى رابطين واتساب
+  const links = [
+    "https://wa.me/message/E7SGU5MICB7IH1",
+    "https://wa.me/qr/KEPLCY2YQQC3F1"
+  ];
 
-    // فتح كل رابط في تبويب جديد
-    links.forEach(link => {
-      window.open(`${link}?text=${encodedMsg}`, '_blank');
-    });
-  })
-  .catch(err => {
-    console.error(err);
-    alert("❌ حدث خطأ أثناء إرسال الطلب، حاول لاحقًا.");
+  links.forEach(link => {
+    window.open(`${link}?text=${encodedMsg}`, '_blank');
   });
+
+  // إغلاق النموذج وتفريغه
+  closeForm();
+  document.getElementById("form").reset();
 });
 </script>
 
