@@ -258,7 +258,7 @@ document.getElementById("form").addEventListener("submit", function (e) {
 
   alert("📦 الطلب جاهز للإرسال:\n" + JSON.stringify(order, null, 2));
 
-  fetch("https://script.google.com/macros/s/AKfycbxlRmbkvVmpv3MOreKRfsrCD4B3rUzGT60IRKFK3kJTCx85xl6hzZhHHeNcrdJepTMxkg/exec", {
+  fetch("https://script.google.com/macros/s/AKfycbz4F7sNsWA3u_KKieVn1pdW27i5D9QELFdDWIMwO6KLf4YfpzAZ7rSHwDjZvd9zSh4k/exec", {
     method: "POST",
     body: JSON.stringify(order),
     headers: {
