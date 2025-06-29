@@ -102,11 +102,11 @@ document.getElementById("orderForm").addEventListener("submit", function(e) {
   data.deliveryPrice = price;
   data.total = parseInt(data.tirePrice || 0) + price;
 
-  fetch("https://script.google.com/macros/s/AKfycbxqp60trG92_iwLu9W0ckOx0JG9zPzxJ4MuIakoRKegcb3kmvFYBmitxrRG5XrLUSM/exec", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data)
-  })
+ fetch("https://script.google.com/macros/s/AKfycbwGmmfpKat7m6ZBScZNbyGSALQxhOWAOX76OKYMphTIikmun4gqNhKOxAJqn5L7OLru/exec", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify(order)
+})
   .then(res => res.json())
   .then(resp => alert("✅ تم إرسال الطلب بنجاح"))
   .catch(err => alert("❌ فشل في إرسال الطلب"));
