@@ -157,7 +157,7 @@ fetch("https://script.google.com/macros/s/AKfycbz2xj8XTW2BmK-CCOH-4TViDX1PaREnMZ
         const div = document.createElement('div');
         div.className = 'product';
         const available = parseInt(p.quantity) > 0;
-        const availabilityText = available ? '✅  متوفر' : '❌ غير متوفر يرجى ملىء الطلب وتركز ملاحظة عند توفرها نتحصل بك ';
+        const availabilityText = available ? '✅  متوفر' : '❌ غير متوفر يرجى ملىء الطلب و ترك ملاحظة عند توفرها نتصل بك ';
         div.innerHTML = `
   <img src="${p.img}" alt="إطار ${p.number}">
   <h3>إطار ${p.number} - ${p.brand}</h3>
