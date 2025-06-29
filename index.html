@@ -38,7 +38,7 @@
   </nav>
 </header>
 
-<!-- ✅ زر طلب جديد -->
+<!-- ✅ زر طلب شامل (عام في الأعلى) -->
 <div style="text-align: center; margin: 20px;">
   <a href="order_form.html" target="_blank" style="display:inline-block; padding:10px 20px; background:#28a745; color:white; border-radius:8px; text-decoration:none; font-size:1.1rem;">
     📦 اطلب الآن
@@ -57,7 +57,7 @@
   </a>
 </footer>
 
-<!-- JS للساعة والتاريخ فقط (بقية الأكواد يتم نسخها حسب الحاجة) -->
+<!-- ✅ سكربت التاريخ والساعة -->
 <script>
 function updateClock() {
   const now = new Date();
@@ -83,6 +83,8 @@ function updateClock() {
 updateClock();
 setInterval(updateClock, 1000);
 </script>
+
+<!-- ✅ سكربت تحميل وعرض المنتجات -->
 <script>
 let products = [];
 
@@ -109,12 +111,19 @@ fetch("https://script.google.com/macros/s/AKfycbz2xj8XTW2BmK-CCOH-4TViDX1PaREnMZ
         const div = document.createElement('div');
         div.className = 'product';
         const available = parseInt(p.quantity) > 0;
-        const availabilityText = available ? '✅ متوفر' : '❌ غير متوفر حاليا';
+        const availabilityText = available
+          ? '✅ متوفر'
+          : '❌ غير متوفر، يرجى ملء الطلب وترك ملاحظة عند توفره نتصل بك';
         div.innerHTML = `
           <img src="${p.img}" alt="إطار ${p.number}">
           <h3>إطار ${p.number} - ${p.brand}</h3>
           <p>السعر: ${p.price} دج</p>
           <p>${availabilityText}</p>
+          <a href="order_form.html?number=${encodeURIComponent(p.number)}&brand=${encodeURIComponent(p.brand)}&price=${encodeURIComponent(p.price)}" 
+             target="_blank"
+             style="display:inline-block;margin-top:10px;padding:8px 14px;background:#28a745;color:white;border-radius:5px;text-decoration:none;">
+             📦 اطلب الآن
+          </a>
         `;
         productList.appendChild(div);
       });
@@ -157,18 +166,20 @@ fetch("https://script.google.com/macros/s/AKfycbz2xj8XTW2BmK-CCOH-4TViDX1PaREnMZ
         const div = document.createElement('div');
         div.className = 'product';
         const available = parseInt(p.quantity) > 0;
-        const availabilityText = available ? '✅  متوفر' : '❌ غير متوفر يرجى ملىء الطلب و ترك ملاحظة عند توفرها نتصل بك ';
+        const availabilityText = available
+          ? '✅ متوفر'
+          : '❌ غير متوفر، يرجى ملء الطلب وترك ملاحظة عند توفره نتصل بك';
         div.innerHTML = `
-  <img src="${p.img}" alt="إطار ${p.number}">
-  <h3>إطار ${p.number} - ${p.brand}</h3>
-  <p>السعر: ${p.price} دج</p>
-  <p>${availabilityText}</p>
-  <a href="order_form.html?number=${encodeURIComponent(p.number)}&brand=${encodeURIComponent(p.brand)}&price=${encodeURIComponent(p.price)}" 
-     target="_blank"
-     style="display:inline-block;margin-top:10px;padding:8px 14px;background:#28a745;color:white;border-radius:5px;text-decoration:none;">
-     📦 اطلب الآن
-  </a>
-`;
+          <img src="${p.img}" alt="إطار ${p.number}">
+          <h3>إطار ${p.number} - ${p.brand}</h3>
+          <p>السعر: ${p.price} دج</p>
+          <p>${availabilityText}</p>
+          <a href="order_form.html?number=${encodeURIComponent(p.number)}&brand=${encodeURIComponent(p.brand)}&price=${encodeURIComponent(p.price)}" 
+             target="_blank"
+             style="display:inline-block;margin-top:10px;padding:8px 14px;background:#28a745;color:white;border-radius:5px;text-decoration:none;">
+             📦 اطلب الآن
+          </a>
+        `;
         productList.appendChild(div);
       });
 
@@ -182,6 +193,6 @@ fetch("https://script.google.com/macros/s/AKfycbz2xj8XTW2BmK-CCOH-4TViDX1PaREnMZ
     document.getElementById('productList').innerHTML = "<p style='text-align:center;color:red;'>⚠️ تعذر تحميل المنتجات، يرجى المحاولة لاحقًا.</p>";
   });
 </script>
+
 </body>
 </html>
-
