@@ -226,14 +226,17 @@ function updateDeliveryPrice() {
   priceElement.innerText = `سعر التوصيل: ${price > 0 ? price + ' دج' : '- دج'}`;
 }
 
+<script>
 document.getElementById("form").addEventListener("submit", function (e) {
   e.preventDefault();
 
-  // ✅ زر تأكيد قبل الإرسال
   const confirmation = confirm("هل أنت متأكد من إرسال الطلب؟");
   if (!confirmation) return;
 
-  // ✅ بيانات الطلب
+  // استخراج السعر الرقمي من النص
+  const priceText = document.getElementById("deliveryPriceText").textContent;
+  const deliveryPrice = priceText.match(/\d+/)?.[0] || "0";
+
   const order = {
     fullName: document.getElementById("fullName").value,
     phone: document.getElementById("phone").value,
@@ -241,28 +244,32 @@ document.getElementById("form").addEventListener("submit", function (e) {
     brandName: document.getElementById("brandName").value,
     quantity: document.getElementById("quantity").value,
     wilaya: document.getElementById("wilaya").value,
-    deliveryPrice: document.getElementById("deliveryPriceText").textContent
+    deliveryPrice: deliveryPrice
   };
 
-  // ✅ إرسال إلى Google Sheets
-  fetch("https://script.google.com/macros/s/AKfycbw5hJCHiK3McM8QydXUipqzyALGFsGjTGSOUnM05DYTpTqwXdmVTzn5EGgfxs0sqHLI6A/exec", {
+  fetch("🔗 ضع_هنا_رابط_EXEC_من_Google_Apps_Script", {
     method: "POST",
     body: JSON.stringify(order),
     headers: {
       "Content-Type": "application/json"
     }
   })
-  .then(res => res.text())
-  .then(msg => {
-    alert("✅ " + msg);
-    closeForm();
-    document.getElementById("form").reset();
+  .then(res => res.json())
+  .then(obj => {
+    if (obj.result) {
+      alert("✅ " + obj.result);
+      closeForm();
+      document.getElementById("form").reset();
+    } else {
+      alert("❌ فشل: " + (obj.error || "حدث خطأ غير معروف"));
+    }
   })
   .catch(err => {
     console.error(err);
     alert("❌ حدث خطأ أثناء إرسال الطلب، حاول لاحقًا.");
   });
 });
+</script>
 
 </script>
 
