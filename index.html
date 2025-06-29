@@ -226,15 +226,14 @@ function updateDeliveryPrice() {
   priceElement.innerText = `سعر التوصيل: ${price > 0 ? price + ' دج' : '- دج'}`;
 }
 
-https://script.google.com/macros/s/AKfycbxc6C33VU2S3I6zQVKuTwGSJa6F_hbboU1VaxWTRgYXr-yniH36JD4cr7cyeqTGx_Bs/exec>
 document.getElementById("form").addEventListener("submit", function (e) {
   e.preventDefault();
 
-  console.log("🚀 إرسال النموذج بدأ");
+  alert("🚀 بدأ الإرسال...");
 
   const confirmation = confirm("هل أنت متأكد من إرسال الطلب؟");
   if (!confirmation) {
-    console.log("❌ تم إلغاء الإرسال من قبل المستخدم.");
+    alert("❌ تم إلغاء الإرسال من قبل المستخدم.");
     return;
   }
 
@@ -250,7 +249,6 @@ document.getElementById("form").addEventListener("submit", function (e) {
   // تحقق من الحقول
   if (!fullName || !phone || !wheelNumber || !brandName || !quantity || !wilaya) {
     alert("❗ جميع الحقول مطلوبة، تحقق منها.");
-    console.log("❌ أحد الحقول فارغ", { fullName, phone, wheelNumber, brandName, quantity, wilaya });
     return;
   }
 
@@ -258,34 +256,30 @@ document.getElementById("form").addEventListener("submit", function (e) {
     fullName, phone, wheelNumber, brandName, quantity, wilaya, deliveryPrice
   };
 
-  console.log("📦 الطلب قبل الإرسال:", order);
+  alert("📦 الطلب جاهز للإرسال:\n" + JSON.stringify(order, null, 2));
 
-  fetch("https://script.google.com/macros/s/AKfycbxc6C33VU2S3I6zQVKuTwGSJa6F_hbboU1VaxWTRgYXr-yniH36JD4cr7cyeqTGx_Bs/exec", {
+  fetch("https://script.google.com/macros/s/AKfycbzWmmiqnt4utr1vk-BFo3um3y_ya_ahYVPn6kk-rwkejrNFQX3tCo9i7XcfhRtWh_1JAA/exec", {
     method: "POST",
     body: JSON.stringify(order),
     headers: {
       "Content-Type": "application/json"
     }
   })
-  .then(res => {
-    console.log("📡 تم الاتصال بالسيرفر، جاري المعالجة...");
-    return res.json();
-  })
+  .then(res => res.json())
   .then(obj => {
-    console.log("✅ رد السيرفر:", obj);
     if (obj.result) {
-      alert("✅ " + obj.result);
+      alert("✅ تم الإرسال: " + obj.result);
       closeForm();
       document.getElementById("form").reset();
     } else {
-      alert("❌ فشل: " + (obj.error || "حدث خطأ غير معروف"));
+      alert("❌ رد السيرفر:\n" + JSON.stringify(obj));
     }
   })
   .catch(err => {
-    console.error("🛑 خطأ في الإرسال:", err);
-    alert("❌ حدث خطأ أثناء إرسال الطلب، حاول لاحقًا.");
+    alert("🛑 فشل الاتصال بالخادم:\n" + err);
   });
 });
+</script>
 </script>
 </script>
 </body>
