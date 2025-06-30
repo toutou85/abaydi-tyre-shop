@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="ar" dir="rtl">
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,18 +14,24 @@
     th { background: #007bff; color: white; }
     button { background: #28a745; color: white; border: none; cursor: pointer; }
     .delete-btn { background: #dc3545; }
+    #searchBar { width: 100%; padding: 10px; margin-top: 10px; margin-bottom: 20px; border: 1px solid #aaa; border-radius: 5px; }
   </style>
 </head>
 <body>
 <div class="container">
   <h2>🛒 إدارة المنتجات</h2>
+
   <form id="productForm">
     <input type="text" name="number" placeholder="رقم الإطار" required>
     <input type="text" name="brand" placeholder="العلامة التجارية" required>
     <input type="text" name="price" placeholder="السعر بالدج" required>
     <input type="url" name="img" placeholder="رابط الصورة (URL)" required>
     <button type="submit">➕ إضافة منتج</button>
-  </form>  <table>
+  </form>
+
+  <input type="text" id="searchBar" placeholder="🔍 ابحث عن منتج بالرقم أو العلامة" oninput="filterProducts()">
+
+  <table>
     <thead>
       <tr>
         <th>رقم الإطار</th>
@@ -38,23 +45,75 @@
       <tr><td colspan="5">⏳ جاري التحميل...</td></tr>
     </tbody>
   </table>
-</div><script>
+</div>
+
+<script>
 const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRGmRO6TOlY4g8QiNx6jZJPESabHQeKvtGLHgm614oIPdfLXhSeE7YZSdHSvKhLkIvcKSgFcmuJz6gr/pub?output=csv";
-const addURL = "https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec"; // ضع رابط السكربت الصحيح هنا
+const addURL = "https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec"; // 🔁 استبدل YOUR_SCRIPT_ID بالرابط الفعلي للسكريبت
+let allProducts = [];
 
 function loadProducts() {
   fetch(sheetURL)
     .then(res => res.text())
     .then(text => {
       const rows = text.trim().split("\n").slice(1);
-      const container = document.getElementById("productList");
-      container.innerHTML = "";
-      rows.forEach(row => {
+      allProducts = rows.map(row => {
         const [number, brand, price, img] = row.split(",");
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${number}</td>
-          <td>${brand}</td>
-          <td>${price} دج</td>
-          <td><img src="${img}" width="50"></td>
-          <td><button class="delete-btn" onclick="alert('❌ حذف غير مفعل بعد')">🗑 حذف</button></td>
+        return { number, brand, price, img };
+      });
+      renderProducts(allProducts);
+    })
+    .catch(err => {
+      document.getElementById("productList").innerHTML = '<tr><td colspan="5" style="color:red">⚠️ فشل التحميل</td></tr>';
+    });
+}
+
+function renderProducts(products) {
+  const container = document.getElementById("productList");
+  container.innerHTML = "";
+  if (products.length === 0) {
+    container.innerHTML = '<tr><td colspan="5" style="color:gray">لا توجد نتائج</td></tr>';
+    return;
+  }
+  products.forEach(p => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${p.number}</td>
+      <td>${p.brand}</td>
+      <td>${p.price} دج</td>
+      <td><img src="${p.img}" width="50"></td>
+      <td><button class="delete-btn" onclick="alert('❌ حذف غير مفعل بعد')">🗑 حذف</button></td>
+    `;
+    container.appendChild(tr);
+  });
+}
+
+function filterProducts() {
+  const input = document.getElementById("searchBar").value.toLowerCase();
+  const filtered = allProducts.filter(p =>
+    p.number.toLowerCase().includes(input) ||
+    p.brand.toLowerCase().includes(input)
+  );
+  renderProducts(filtered);
+}
+
+loadProducts();
+
+document.getElementById("productForm").addEventListener("submit", function(e) {
+  e.preventDefault();
+  const formData = new FormData(this);
+  fetch(addURL, {
+    method: "POST",
+    body: formData
+  })
+  .then(res => res.text())
+  .then(() => {
+    alert("✅ تم إضافة المنتج بنجاح");
+    this.reset();
+    loadProducts();
+  })
+  .catch(() => alert("❌ فشل الإضافة"));
+});
+</script>
+</body>
+</html>
