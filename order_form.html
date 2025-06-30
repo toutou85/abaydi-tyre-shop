@@ -105,13 +105,34 @@ document.getElementById("orderForm").addEventListener("submit", function(e) {
   data.deliveryPrice = price;
   data.total = parseInt(data.tirePrice || 0) + price;
 
+
+
+  document.getElementById("orderForm").addEventListener("submit", function(e) {
+  e.preventDefault();
+  const form = e.target;
+  const formData = new FormData(form);
+
+  // حساب سعر التوصيل والمجموع
+  const wilaya = form.querySelector('[name="wilaya"]').value;
+  const method = document.getElementById("deliveryMethod").value;
+  const price = deliveryPrices[wilaya]
+    ? (method === "home" ? deliveryPrices[wilaya][0] : deliveryPrices[wilaya][1])
+    : 0;
+
+  const tirePrice = parseInt(form.querySelector('[name="tirePrice"]').value) || 0;
+  const total = tirePrice + price;
+
+  // إضافة البيانات المحسوبة إلى FormData
+  formData.append("deliveryMethod", method);
+  formData.append("deliveryPrice", price);
+  formData.append("total", total);
+
   fetch("https://script.google.com/macros/s/AKfycbyGu78_dzf1ix430OlfMT8_sHj0u_1HrCRt5qNWiI8vlDAbo1LKO7qULAUeH7-X6AGF/exec", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data)
+    body: formData
   })
-  .then(res => res.json())
-  .then(resp => {
+  .then(res => res.text())
+  .then(() => {
     alert("✅ تم إرسال الطلب بنجاح");
     form.reset();
     document.getElementById("deliveryPriceText").textContent = "سعر التوصيل: - دج";
@@ -122,20 +143,6 @@ document.getElementById("orderForm").addEventListener("submit", function(e) {
     alert("❌ فشل في إرسال الطلب");
   });
 });
-</script>
-
-<!-- تلقّي البيانات من صفحة المنتجات -->
-<script>
-window.onload = function () {
-  const url = new URL(window.location.href);
-  const number = url.searchParams.get("number");
-  const brand = url.searchParams.get("brand");
-  const price = url.searchParams.get("price");
-
-  if (number) document.querySelector('[name="tireNumber"]').value = number;
-  if (brand) document.querySelector('[name="tireType"]').value = brand;
-  if (price) document.querySelector('[name="tirePrice"]').value = price;
-}
 </script>
 </body>
 </html>
