@@ -19,6 +19,12 @@
       text-align: center;
       color: #333;
     }
+    <button onclick="exportToWord()">📄 تحميل Word</button>
+
+    <div style="text-align: center; margin-bottom: 20px;">
+  <button onclick="printTable()">🖨️ طباعة</button>
+</div>
+
     table {
       width: 100%;
       border-collapse: collapse;
@@ -49,6 +55,34 @@
   </style>
 </head>
 <body>
+<h2 style="text-align:center;">📦 قائمة الطلبات</h2>
+
+<div style="text-align: center; margin-bottom: 20px;">
+  <button onclick="printTable()">🖨️ طباعة</button>
+  <button onclick="exportToWord()">📄 تحميل Word</button>
+</div>
+
+<table id="ordersTable" border="1" style="width:100%; border-collapse: collapse; margin:auto; text-align:center;">
+  <thead>
+    <tr>
+      <th>الاسم</th>
+      <th>الهاتف</th>
+      <th>نوع الإطار</th>
+      <th>رقم الإطار</th>
+      <th>السعر</th>
+      <th>الولاية</th>
+      <th>العنوان</th>
+      <th>سعر التوصيل</th>
+      <th>المجموع</th>
+      <th>التاريخ</th>
+      <th>ملاحظة</th>
+      <th>🛠️ حالة الطلب</th>
+    </tr>
+  </thead>
+  <tbody id="ordersBody"></tbody>
+</table>
+
+<div id="pagination" style="text-align:center; margin-top:20px;"></div>
 
   <h1>📋 جميع الطلبات</h1>
 
@@ -102,6 +136,92 @@
         console.error(error);
       });
   </script>
+<script>
+const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTyCRa-FUh6a62brIHe7tg4YImWLVEuEjsaYtIQGeAxrqt8-dQzcfoH-uQ5H8YHG36soStv6Zuwbd4a/pub?output=csv";
+let allRows = [];
+let rowsPerPage = 10;
+let currentPage = 1;
+
+fetch(csvUrl)
+  .then(res => res.text())
+  .then(csv => {
+    const lines = csv.trim().split('\n');
+    allRows = lines.slice(1).map(line => line.split(','));
+    showPage(1);
+    renderPagination();
+  });
+
+function showPage(page) {
+  currentPage = page;
+  const tbody = document.getElementById("ordersBody");
+  tbody.innerHTML = "";
+
+  const start = (page - 1) * rowsPerPage;
+  const end = start + rowsPerPage;
+  const pageRows = allRows.slice(start, end);
+
+  pageRows.forEach(row => {
+    const tr = document.createElement("tr");
+    row.forEach((cell, index) => {
+      const td = document.createElement("td");
+      td.textContent = cell;
+      tr.appendChild(td);
+    });
+
+    // عمود الحالة (أنت تعدله لاحقًا يدويًا)
+    const statusCell = document.createElement("td");
+    statusCell.textContent = "قيد المعالجة"; // ← حالة مبدئية
+    tr.appendChild(statusCell);
+
+    tbody.appendChild(tr);
+  });
+}
+
+function renderPagination() {
+  const totalPages = Math.ceil(allRows.length / rowsPerPage);
+  const container = document.getElementById("pagination");
+  container.innerHTML = "";
+
+  for (let i = 1; i <= totalPages; i++) {
+    const btn = document.createElement("button");
+    btn.textContent = i;
+    btn.style.margin = "0 5px";
+    btn.onclick = () => showPage(i);
+    container.appendChild(btn);
+  }
+}
+  function printTable() {
+  const printContents = document.getElementById("ordersTable").outerHTML;
+  const win = window.open('', '', 'height=700,width=900');
+  win.document.write('<html><head><title>طباعة الطلبيات</title>');
+  win.document.write('<style>table { width: 100%; border-collapse: collapse; text-align: center; } th, td { border: 1px solid #000; padding: 5px; }</style>');
+  win.document.write('</head><body>');
+  win.document.write('<h2 style="text-align:center;">📦 قائمة الطلبات</h2>');
+  win.document.write(printContents);
+  win.document.write('</body></html>');
+  win.document.close();
+  win.print();
+}
+function exportToWord() {
+  const header = "<html xmlns:o='urn:schemas-microsoft-com:office:office' " +
+                 "xmlns:w='urn:schemas-microsoft-com:office:word' " +
+                 "xmlns='http://www.w3.org/TR/REC-html40'>" +
+                 "<head><meta charset='utf-8'><title>تصدير إلى Word</title></head><body>";
+  const footer = "</body></html>";
+  const tableHTML = document.getElementById("ordersTable").outerHTML;
+  const sourceHTML = header + tableHTML + footer;
+
+  const source = 'data:application/msword;charset=utf-8,' + encodeURIComponent(sourceHTML);
+  const fileDownload = document.createElement("a");
+  document.body.appendChild(fileDownload);
+  fileDownload.href = source;
+  fileDownload.download = 'الطلبيات.doc';
+  fileDownload.click();
+  document.body.removeChild(fileDownload);
+}
+
+</script>
+  
 
 </body>
 </html>
