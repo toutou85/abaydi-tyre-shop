@@ -21,14 +21,14 @@
   <input type="tel" name="phone" placeholder="رقم الهاتف" required>
   <input type="text" name="tireType" placeholder="نوع الإطار" required>
   <input type="text" name="tireNumber" placeholder="رقم الإطار" required>
-  <input type="number" name="tirePrice" placeholder="سعر الإطار (دج)" required>
-<label for="quantity">الكمية:</label>
-<div style="display: flex; align-items: center; gap: 10px; justify-content: space-between; max-width: 200px;">
-  <button type="button" onclick="changeQty(-1)" style="padding:5px 10px;">➖</button>
-  <input type="number" id="quantity" name="quantity" value="1" min="1" style="text-align:center; width: 60px;" required>
-  <button type="button" onclick="changeQty(1)" style="padding:5px 10px;">➕</button>
-</div>
+  <input type="number" name="tirePrice" id="tirePrice" placeholder="سعر الإطار (دج)" readonly required>
 
+  <label for="quantity">الكمية:</label>
+  <div style="display: flex; align-items: center; gap: 10px; max-width: 200px;">
+    <button type="button" onclick="changeQty(-1)" style="padding:5px 10px;">➖</button>
+    <input type="number" id="quantity" name="quantity" value="1" min="1" style="text-align:center; width: 60px;" required>
+    <button type="button" onclick="changeQty(1)" style="padding:5px 10px;">➕</button>
+  </div>
 
   <select name="wilaya" id="wilaya" required onchange="updateDelivery()">
     <option value="">اختر الولاية</option>
@@ -51,10 +51,9 @@
 </form>
 
 <script>
-// أسعار التوصيل حسب الولاية
+// ✅ تصحيح الأسعار
 const deliveryPrices = {
-  "أدرار": [1650, 600]", 
-  "الشلف": [1650, 600], "الأغواط": [850, 450], "أم البواقي": [850, 450],
+  "أدرار": [1650, 600], "الشلف": [1650, 600], "الأغواط": [850, 450], "أم البواقي": [850, 450],
   "باتنة": [850, 450], "بجاية": [850, 450], "بسكرة": [850, 450], "بشار": [1650, 600],
   "البليدة": [850, 450], "بويرة": [850, 450], "تمنراست": [1650, 800], "تبسة": [850, 450],
   "تلمسان": [900, 600], "تيارت": [850, 450], "تيزي وزو": [850, 450], "الجزائر": [850, 450],
@@ -70,35 +69,36 @@ const deliveryPrices = {
   "بني عباس": [1650, 850], "في صلاح": [1650, 850], "في قزام": [1400, 700], "تقرت": [500, 300],
   "جانت": [2000, 1200], "المغير": [600, 450], "المنيعة": [850, 500]
 };
-// ملء قائمة الولايات
+
 const wilayaSelect = document.getElementById("wilaya");
 for (const wilaya in deliveryPrices) {
-  const option = document.createElement("option");
-  option.value = wilaya;
-  option.textContent = wilaya;
-  wilayaSelect.appendChild(option);
+  const opt = document.createElement("option");
+  opt.value = wilaya;
+  opt.textContent = wilaya;
+  wilayaSelect.appendChild(opt);
 }
 
-// حساب سعر التوصيل والمجموع
 function updateDelivery() {
   const wilaya = document.getElementById("wilaya").value;
   const method = document.getElementById("deliveryMethod").value;
-  const deliveryPriceText = document.getElementById("deliveryPriceText");
-  const tirePrice = parseFloat(document.getElementById("tirePrice").value) || 0;
-  const quantity = parseInt(document.getElementById("quantity").value) || 1;
-  const totalDisplay = document.getElementById("totalPrice");
+  const price = deliveryPrices[wilaya] ? (method === "home" ? deliveryPrices[wilaya][0] : deliveryPrices[wilaya][1]) : 0;
 
-  if (deliveryPrices[wilaya]) {
-    const price = method === "home" ? deliveryPrices[wilaya][0] : deliveryPrices[wilaya][1];
-    const total = (tirePrice * quantity) + price;
-    deliveryPriceText.textContent = "سعر التوصيل: " + price + " دج";
-    totalDisplay.textContent = "المجموع: " + total + " دج";
-  } else {
-    deliveryPriceText.textContent = "سعر التوصيل: - دج";
-    totalDisplay.textContent = "المجموع: - دج";
-  }
+  const quantity = parseInt(document.getElementById("quantity").value) || 1;
+  const tirePrice = parseFloat(document.getElementById("tirePrice").value) || 0;
+  const total = (tirePrice * quantity) + price;
+
+  document.getElementById("deliveryPriceText").textContent = `سعر التوصيل: ${price} دج`;
+  document.getElementById("totalPrice").textContent = `المجموع: ${total} دج`;
 }
 
+function changeQty(delta) {
+  const input = document.getElementById("quantity");
+  let value = parseInt(input.value) || 1;
+  value += delta;
+  if (value < 1) value = 1;
+  input.value = value;
+  updateDelivery();
+}
 
 // إرسال البيانات
 document.getElementById("orderForm").addEventListener("submit", function(e) {
@@ -108,20 +108,15 @@ document.getElementById("orderForm").addEventListener("submit", function(e) {
 
   const wilaya = form.querySelector('[name="wilaya"]').value;
   const method = document.getElementById("deliveryMethod").value;
-  const price = deliveryPrices[wilaya]
-    ? (method === "home" ? deliveryPrices[wilaya][0] : deliveryPrices[wilaya][1])
-    : 0;
-
-  const tirePrice = parseInt(form.querySelector('[name="tirePrice"]').value) || 0;
-  const total = tirePrice + price;
+  const deliveryPrice = deliveryPrices[wilaya] ? (method === "home" ? deliveryPrices[wilaya][0] : deliveryPrices[wilaya][1]) : 0;
+  const quantity = parseInt(document.getElementById("quantity").value) || 1;
+  const tirePrice = parseInt(document.getElementById("tirePrice").value) || 0;
+  const total = tirePrice * quantity + deliveryPrice;
 
   formData.append("deliveryMethod", method);
-  formData.append("deliveryPrice", price);
+  formData.append("deliveryPrice", deliveryPrice);
   formData.append("total", total);
-const quantity = parseInt(document.getElementById("quantity").value) || 1;
-data.quantity = quantity;
-data.deliveryPrice = price;
-data.total = (parseInt(data.tirePrice) || 0) * quantity + price;
+  formData.append("quantity", quantity);
 
   fetch("https://script.google.com/macros/s/AKfycbyLHKAilcWDDmx3-1Vw5XmyJ8Zq13kp79OauvKzy-DJkU75kRpXHd5x-M9bTC32rRNX/exec", {
     method: "POST",
@@ -137,11 +132,10 @@ data.total = (parseInt(data.tirePrice) || 0) * quantity + price;
   .catch(() => alert("❌ فشل في الإرسال."));
 });
 
-// تعيين تاريخ اليوم تلقائيًا
-document.getElementById("orderDate").value = new Date().toISOString().split('T')[0];
-</script>
-<script>
-// عند تحميل الصفحة، قراءة البيانات من الرابط:
+// تعيين التاريخ تلقائيًا
+document.getElementById("orderDate").value = new Date().toISOString().split("T")[0];
+
+// تعبئة البيانات من الرابط
 window.onload = function () {
   const url = new URL(window.location.href);
   const number = url.searchParams.get("number");
@@ -150,7 +144,11 @@ window.onload = function () {
 
   if (number) document.querySelector('[name="tireNumber"]').value = decodeURIComponent(number);
   if (brand) document.querySelector('[name="tireType"]').value = decodeURIComponent(brand);
-  if (price) document.querySelector('[name="tirePrice"]').value = decodeURIComponent(price);
+  if (price) {
+    const input = document.querySelector('[name="tirePrice"]');
+    input.value = decodeURIComponent(price);
+    updateDelivery();
+  }
 }
 </script>
 </body>
