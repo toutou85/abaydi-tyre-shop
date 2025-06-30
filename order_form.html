@@ -121,5 +121,18 @@ document.getElementById("orderForm").addEventListener("submit", function(e) {
 // تعيين تاريخ اليوم تلقائيًا
 document.getElementById("orderDate").value = new Date().toISOString().split('T')[0];
 </script>
+<script>
+// عند تحميل الصفحة، قراءة البيانات من الرابط:
+window.onload = function () {
+  const url = new URL(window.location.href);
+  const number = url.searchParams.get("number");
+  const brand = url.searchParams.get("brand");
+  const price = url.searchParams.get("price");
+
+  if (number) document.querySelector('[name="tireNumber"]').value = decodeURIComponent(number);
+  if (brand) document.querySelector('[name="tireType"]').value = decodeURIComponent(brand);
+  if (price) document.querySelector('[name="tirePrice"]').value = decodeURIComponent(price);
+}
+</script>
 </body>
 </html>
