@@ -5,145 +5,186 @@
   <title>إدارة المنتجات - laidtaha</title>
   <style>
     body { font-family: Tahoma, sans-serif; background: #f5f5f5; padding: 20px; }
-    .container { max-width: 1000px; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-    h2 { text-align: center; margin-bottom: 20px; }
-    input, button { padding: 8px; margin: 5px; border-radius: 5px; border: 1px solid #ccc; }
-    input[type='text'], input[type='url'], input[type='number'] { width: 100%; }
-    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    .container { max-width: 1000px; margin: auto; background: white; padding: 20px; border-radius: 10px; }
+    h2 { text-align: center; }
+    input, button { padding: 10px; margin: 5px 0; border: 1px solid #ccc; border-radius: 5px; }
+    input[type="text"], input[type="url"] { width: 100%; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 14px; }
     th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
     th { background: #007bff; color: white; }
-    #searchBar { width: 100%; padding: 10px; margin-top: 10px; margin-bottom: 20px; border: 1px solid #aaa; border-radius: 5px; }
-    button.save-btn { background-color: #ffc107; color: black; }
-    .pagination { text-align: center; margin-top: 20px; }
-    .pagination button { margin: 0 5px; padding: 5px 10px; border: none; border-radius: 5px; background-color: #007bff; color: white; }
+    button { background: #28a745; color: white; border: none; cursor: pointer; }
+    .pagination button { margin: 5px; padding: 5px 10px; border: none; background: #007bff; color: white; border-radius: 5px; }
+    #searchBar { width: 100%; padding: 10px; margin-top: 10px; border: 1px solid #aaa; border-radius: 5px; }
   </style>
 </head>
 <body>
 <div class="container">
-  <h2>📦 إدارة المنتجات</h2>
+  <h2>🛒 إدارة المنتجات</h2>
 
   <form id="productForm">
     <input type="text" name="number" placeholder="رقم الإطار" required>
     <input type="text" name="brand" placeholder="العلامة التجارية" required>
-    <input type="number" name="price" placeholder="السعر دج" required>
-    <input type="number" name="quantity" placeholder="الكمية" required>
+    <input type="text" name="price" placeholder="السعر دج" required>
+    <input type="text" name="quantity" placeholder="الكمية" required>
     <input type="url" name="img" placeholder="رابط الصورة (URL)" required>
     <button type="submit">➕ إضافة منتج</button>
   </form>
 
-  <input type="text" id="searchBar" placeholder="🔍 ابحث عن منتج بالرقم أو العلامة" oninput="filterProducts()">
+  <input type="text" id="searchBar" placeholder="🔍 ابحث عن منتج..." oninput="filterProducts()">
 
   <table>
     <thead>
       <tr>
         <th>رقم الإطار</th>
         <th>العلامة</th>
-        <th>السعر (قابل للتعديل)</th>
+        <th>السعر</th>
+        <th>الصورة</th>
         <th>الكمية</th>
-        <th>الصورة (URL)</th>
-        <th>معاينة</th>
-        <th>💾 حفظ</th>
+        <th>💾</th>
       </tr>
     </thead>
-    <tbody id="productList"></tbody>
+    <tbody id="productList">
+      <tr><td colspan="6">⏳ جاري التحميل...</td></tr>
+    </tbody>
   </table>
-
   <div class="pagination" id="pagination"></div>
 </div>
 
 <script>
 const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQBz1iucjkuwAG78fd6m1zE4oXKuaZzlgVGO7cK1uts7UkTFgT0nxpqXA-ovj8iOa9FhujqCSpxHrXw/pub?output=csv";
-const updateURL = "https://script.google.com/macros/s/1gpUsObi2l8InrvJ2Npm8zcTfhUm3oOLACyMQ3iQWN3I/exec";
+const addURL = "https://script.google.com/macros/s/AKfycbyLHKAilcWDDmx3-1Vw5XmyJ8Zq13kp79OauvKzy-DJkU75kRpXHd5x-M9bTC32rRNX/exec";
 
 let allProducts = [];
+let perPage = 10;
 let currentPage = 1;
-const rowsPerPage = 10;
 
 function loadProducts() {
   fetch(sheetURL)
     .then(res => res.text())
     .then(text => {
       const rows = text.trim().split("\n").slice(1);
-      allProducts = rows.map((row, index) => {
+      allProducts = rows.map(row => {
         const [number, brand, price, quantity, img] = row.split(",");
-        return { index: index + 2, number, brand, price, quantity, img };
+        return { number, brand, price, quantity, img };
       });
-      showPage(1);
+      renderProducts();
       renderPagination();
-    })
-    .catch(err => {
-      document.getElementById("productList").innerHTML = '<tr><td colspan="7">⚠️ فشل في التحميل</td></tr>';
     });
 }
 
-function showPage(page) {
-  currentPage = page;
-  const start = (page - 1) * rowsPerPage;
-  const end = start + rowsPerPage;
-  renderProducts(allProducts.slice(start, end));
-}
+function renderProducts() {
+  const start = (currentPage - 1) * perPage;
+  const end = start + perPage;
+  const products = allProducts.slice(start, end);
 
-function renderPagination() {
-  const totalPages = Math.ceil(allProducts.length / rowsPerPage);
-  const container = document.getElementById("pagination");
-  container.innerHTML = "";
-  for (let i = 1; i <= totalPages; i++) {
-    const btn = document.createElement("button");
-    btn.textContent = i;
-    btn.onclick = () => showPage(i);
-    container.appendChild(btn);
-  }
-}
-
-function renderProducts(products) {
   const container = document.getElementById("productList");
   container.innerHTML = "";
-  products.forEach(p => {
+
+  if (products.length === 0) {
+    container.innerHTML = '<tr><td colspan="6">❌ لا توجد نتائج</td></tr>';
+    return;
+  }
+
+  products.forEach((p, index) => {
     const tr = document.createElement("tr");
     tr.innerHTML = `
       <td>${p.number}</td>
       <td>${p.brand}</td>
-      <td><input type="number" value="${p.price}" id="price-${p.index}"></td>
-      <td>${p.quantity}</td>
-      <td><input type="text" value="${p.img}" id="img-${p.index}"></td>
-      <td><img src="${p.img}" width="50"></td>
-      <td><button class="save-btn" onclick="saveChanges('${p.index}', '${p.number}', '${p.brand}')">💾</button></td>
+      <td><input type="number" value="${p.price}" id="price-${index}" style="width: 70px;"></td>
+      <td>
+        <img src="${p.img}" width="50"><br>
+        <input type="text" value="${p.img}" id="img-${index}" style="width: 90%;">
+      </td>
+      <td>
+        <div style="display: flex; align-items: center; justify-content: center; gap: 5px;">
+          <button onclick="changeQty(${index}, -1)">➖</button>
+          <span id="qty-${index}">${p.quantity}</span>
+          <button onclick="changeQty(${index}, 1)">➕</button>
+        </div>
+      </td>
+      <td><button onclick="saveChanges(${index}, '${p.number}')">💾</button></td>
     `;
     container.appendChild(tr);
   });
 }
 
-function saveChanges(index, number, brand) {
+function changeQty(index, delta) {
+  const qtySpan = document.getElementById(`qty-${index}`);
+  let value = parseInt(qtySpan.textContent) || 0;
+  value = Math.max(0, value + delta);
+  qtySpan.textContent = value;
+}
+
+function saveChanges(index, number) {
   const price = document.getElementById(`price-${index}`).value;
   const img = document.getElementById(`img-${index}`).value;
+  const quantity = document.getElementById(`qty-${index}`).textContent;
+
   const formData = new FormData();
+  formData.append("action", "update");
   formData.append("number", number);
-  formData.append("brand", brand);
   formData.append("price", price);
   formData.append("img", img);
-  formData.append("row", index);
+  formData.append("quantity", quantity);
 
-  fetch(updateURL, {
+  fetch(addURL, {
     method: "POST",
     body: formData
   })
   .then(res => res.text())
   .then(() => {
-    alert("✅ تم التحديث بنجاح");
+    alert("✅ تم الحفظ بنجاح");
     loadProducts();
   })
-  .catch(() => alert("❌ حدث خطأ أثناء الحفظ"));
+  .catch(() => alert("❌ فشل في الحفظ"));
+}
+
+function renderPagination() {
+  const totalPages = Math.ceil(allProducts.length / perPage);
+  const container = document.getElementById("pagination");
+  container.innerHTML = "";
+  for (let i = 1; i <= totalPages; i++) {
+    const btn = document.createElement("button");
+    btn.textContent = i;
+    btn.onclick = () => {
+      currentPage = i;
+      renderProducts();
+    };
+    if (i === currentPage) btn.style.background = "#0056b3";
+    container.appendChild(btn);
+  }
 }
 
 function filterProducts() {
-  const query = document.getElementById("searchBar").value.toLowerCase();
+  const input = document.getElementById("searchBar").value.toLowerCase();
   const filtered = allProducts.filter(p =>
-    p.number.toLowerCase().includes(query) || p.brand.toLowerCase().includes(query)
+    p.number.toLowerCase().includes(input) ||
+    p.brand.toLowerCase().includes(input)
   );
-  renderProducts(filtered.slice(0, rowsPerPage));
+  allProducts = filtered;
+  currentPage = 1;
+  renderProducts();
+  renderPagination();
 }
 
-loadProducts();
+document.getElementById("productForm").addEventListener("submit", function(e) {
+  e.preventDefault();
+  const formData = new FormData(this);
+  formData.append("action", "add");
+  fetch(addURL, {
+    method: "POST",
+    body: formData
+  })
+  .then(res => res.text())
+  .then(() => {
+    alert("✅ تمت الإضافة");
+    this.reset();
+    loadProducts();
+  })
+  .catch(() => alert("❌ فشل في الإضافة"));
+});
+
+window.onload = loadProducts;
 </script>
 </body>
 </html>
