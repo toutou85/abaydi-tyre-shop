@@ -105,9 +105,7 @@ document.getElementById("orderForm").addEventListener("submit", function(e) {
   data.deliveryPrice = price;
   data.total = parseInt(data.tirePrice || 0) + price;
 
-  fetch("https://script.google.com/macros/s/AKfycbyGu78_dzf1ix430OlfMT8_sHj0u_1HrCRt5qNWiI8vlDAbo1LKO7qULAUeH7-X6AGF/exec
-
-", {
+  fetch("https://script.google.com/macros/s/AKfycbyGu78_dzf1ix430OlfMT8_sHj0u_1HrCRt5qNWiI8vlDAbo1LKO7qULAUeH7-X6AGF/exec", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data)
