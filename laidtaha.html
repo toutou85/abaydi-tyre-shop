@@ -4,6 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>إدارة المنتجات - laidtaha</title>
+  <script>
+  if (!sessionStorage.getItem("loggedIn")) {
+    window.location.href = "login.html";
+  }
+</script>
+
   <style>
     body { font-family: Tahoma, sans-serif; background: #f5f5f5; padding: 20px; }
     .container { max-width: 900px; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
