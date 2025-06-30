@@ -4,6 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>📋 قائمة الطلبات - Abaydi Shop</title>
+  <script>
+  if (!sessionStorage.getItem("loggedIn")) {
+    window.location.href = "login.html";
+  }
+</script>
   <style>
     body {
       font-family: Tahoma, sans-serif;
