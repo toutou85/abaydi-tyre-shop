@@ -2,7 +2,6 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>نموذج طلب إطار</title>
   <style>
     body { font-family: Arial, sans-serif; background: #f9f9f9; padding: 20px; }
@@ -28,18 +27,18 @@
     <option value="">اختر الولاية</option>
   </select>
 
-  <select id="deliveryMethod" onchange="updateDelivery()" required>
+  <select id="deliveryMethod" required onchange="updateDelivery()">
     <option value="home">🚚 إلى المنزل</option>
     <option value="office">🏢 مكتب الاستلام</option>
   </select>
 
   <input type="text" name="address" placeholder="العنوان الكامل" required>
   <textarea name="note" placeholder="ملاحظة (اختياري)"></textarea>
-  <input type="text" name="date" readonly value="2025-06-29">
+  <input type="text" name="date" readonly id="orderDate">
 
   <p id="deliveryPriceText">سعر التوصيل: - دج</p>
   <p id="totalPrice">المجموع: - دج</p>
-  <p class="note">💡 ملاحظة: الوزن الزائد للعجلات يمكن أن يؤدي إلى زيادة في سعر التوصيل.</p>
+  <p class="note">💡 الوزن الزائد للعجلات قد يؤدي إلى زيادة في سعر التوصيل.</p>
 
   <button type="submit">إرسال الطلب</button>
 </form>
@@ -64,55 +63,34 @@ const deliveryPrices = {
   "جانت": [1200, 2000], "المغير": [450, 600], "المنيعة": [500, 850]
 };
 
-// تعبئة قائمة الولايات
+// ملء قائمة الولايات
 const wilayaSelect = document.getElementById("wilaya");
 for (const wilaya in deliveryPrices) {
-  const opt = document.createElement("option");
-  opt.value = wilaya;
-  opt.textContent = wilaya;
-  wilayaSelect.appendChild(opt);
+  const option = document.createElement("option");
+  option.value = wilaya;
+  option.textContent = wilaya;
+  wilayaSelect.appendChild(option);
 }
 
 // حساب سعر التوصيل والمجموع
 function updateDelivery() {
-  const wilaya = document.getElementById("wilaya").value;
+  const wilaya = wilayaSelect.value;
   const method = document.getElementById("deliveryMethod").value;
-  const deliveryPriceText = document.getElementById("deliveryPriceText");
-  const tirePrice = parseFloat(document.querySelector('[name="tirePrice"]').value) || 0;
-  const totalDisplay = document.getElementById("totalPrice");
+  const price = deliveryPrices[wilaya]
+    ? (method === "home" ? deliveryPrices[wilaya][0] : deliveryPrices[wilaya][1])
+    : 0;
 
-  if (deliveryPrices[wilaya]) {
-    const price = method === "home" ? deliveryPrices[wilaya][0] : deliveryPrices[wilaya][1];
-    deliveryPriceText.textContent = "سعر التوصيل: " + price + " دج";
-    totalDisplay.textContent = "المجموع: " + (price + tirePrice) + " دج";
-  } else {
-    deliveryPriceText.textContent = "سعر التوصيل: - دج";
-    totalDisplay.textContent = "المجموع: - دج";
-  }
+  const tirePrice = parseInt(document.querySelector('[name="tirePrice"]').value) || 0;
+  document.getElementById("deliveryPriceText").textContent = "سعر التوصيل: " + price + " دج";
+  document.getElementById("totalPrice").textContent = "المجموع: " + (tirePrice + price) + " دج";
 }
 
-// إرسال البيانات إلى Google Sheets
+// إرسال البيانات
 document.getElementById("orderForm").addEventListener("submit", function(e) {
-  e.preventDefault();
-  const form = e.target;
-  const data = Object.fromEntries(new FormData(form).entries());
-
-  data.deliveryMethod = document.getElementById("deliveryMethod").value;
-  const wilaya = data.wilaya;
-  const price = deliveryPrices[wilaya]
-    ? (data.deliveryMethod === "home" ? deliveryPrices[wilaya][0] : deliveryPrices[wilaya][1])
-    : 0;
-  data.deliveryPrice = price;
-  data.total = parseInt(data.tirePrice || 0) + price;
-
-
-
-  document.getElementById("orderForm").addEventListener("submit", function(e) {
   e.preventDefault();
   const form = e.target;
   const formData = new FormData(form);
 
-  // حساب سعر التوصيل والمجموع
   const wilaya = form.querySelector('[name="wilaya"]').value;
   const method = document.getElementById("deliveryMethod").value;
   const price = deliveryPrices[wilaya]
@@ -122,7 +100,6 @@ document.getElementById("orderForm").addEventListener("submit", function(e) {
   const tirePrice = parseInt(form.querySelector('[name="tirePrice"]').value) || 0;
   const total = tirePrice + price;
 
-  // إضافة البيانات المحسوبة إلى FormData
   formData.append("deliveryMethod", method);
   formData.append("deliveryPrice", price);
   formData.append("total", total);
@@ -133,16 +110,16 @@ document.getElementById("orderForm").addEventListener("submit", function(e) {
   })
   .then(res => res.text())
   .then(() => {
-    alert("✅ تم إرسال الطلب بنجاح");
+    alert("✅ تم إرسال الطلب بنجاح!");
     form.reset();
     document.getElementById("deliveryPriceText").textContent = "سعر التوصيل: - دج";
     document.getElementById("totalPrice").textContent = "المجموع: - دج";
   })
-  .catch(err => {
-    console.error(err);
-    alert("❌ فشل في إرسال الطلب");
-  });
+  .catch(() => alert("❌ فشل في الإرسال."));
 });
+
+// تعيين تاريخ اليوم تلقائيًا
+document.getElementById("orderDate").value = new Date().toISOString().split('T')[0];
 </script>
 </body>
 </html>
