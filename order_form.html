@@ -104,7 +104,7 @@ document.getElementById("orderForm").addEventListener("submit", function(e) {
   formData.append("deliveryPrice", price);
   formData.append("total", total);
 
-  fetch("https://script.google.com/macros/s/AKfycbynd6K28lTolOS1gv4kOCFm5VqW0kAF7XVuUZmqotoi3yVoP_CVgZlxKX9oNI2mfE8g/exec", {
+  fetch("https://script.google.com/macros/s/AKfycbyLHKAilcWDDmx3-1Vw5XmyJ8Zq13kp79OauvKzy-DJkU75kRpXHd5x-M9bTC32rRNX/exec", {
     method: "POST",
     body: formData
   })
