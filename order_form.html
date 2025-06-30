@@ -113,6 +113,10 @@ document.getElementById("orderForm").addEventListener("submit", function(e) {
   formData.append("deliveryMethod", method);
   formData.append("deliveryPrice", price);
   formData.append("total", total);
+const quantity = parseInt(document.getElementById("quantity").value) || 1;
+data.quantity = quantity;
+data.deliveryPrice = price;
+data.total = (parseInt(data.tirePrice) || 0) * quantity + price;
 
   fetch("https://script.google.com/macros/s/AKfycbyLHKAilcWDDmx3-1Vw5XmyJ8Zq13kp79OauvKzy-DJkU75kRpXHd5x-M9bTC32rRNX/exec", {
     method: "POST",
