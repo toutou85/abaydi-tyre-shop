@@ -22,8 +22,13 @@
   <input type="text" name="tireType" placeholder="نوع الإطار" required>
   <input type="text" name="tireNumber" placeholder="رقم الإطار" required>
   <input type="number" name="tirePrice" placeholder="سعر الإطار (دج)" required>
-<input type="number" name="quantity" id="quantity" placeholder="الكمية" min="1" value="1" required>
-<input type="number" name="tirePrice" id="tirePrice" placeholder="سعر الإطار (دج)" readonly required>
+<label for="quantity">الكمية:</label>
+<div style="display: flex; align-items: center; gap: 10px; justify-content: space-between; max-width: 200px;">
+  <button type="button" onclick="changeQty(-1)" style="padding:5px 10px;">➖</button>
+  <input type="number" id="quantity" name="quantity" value="1" min="1" style="text-align:center; width: 60px;" required>
+  <button type="button" onclick="changeQty(1)" style="padding:5px 10px;">➕</button>
+</div>
+
 
   <select name="wilaya" id="wilaya" required onchange="updateDelivery()">
     <option value="">اختر الولاية</option>
