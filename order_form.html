@@ -22,6 +22,8 @@
   <input type="text" name="tireType" placeholder="نوع الإطار" required>
   <input type="text" name="tireNumber" placeholder="رقم الإطار" required>
   <input type="number" name="tirePrice" placeholder="سعر الإطار (دج)" required>
+<input type="number" name="quantity" id="quantity" placeholder="الكمية" min="1" value="1" required>
+<input type="number" name="tirePrice" id="tirePrice" placeholder="سعر الإطار (دج)" readonly required>
 
   <select name="wilaya" id="wilaya" required onchange="updateDelivery()">
     <option value="">اختر الولاية</option>
@@ -74,16 +76,24 @@ for (const wilaya in deliveryPrices) {
 
 // حساب سعر التوصيل والمجموع
 function updateDelivery() {
-  const wilaya = wilayaSelect.value;
+  const wilaya = document.getElementById("wilaya").value;
   const method = document.getElementById("deliveryMethod").value;
-  const price = deliveryPrices[wilaya]
-    ? (method === "home" ? deliveryPrices[wilaya][0] : deliveryPrices[wilaya][1])
-    : 0;
+  const deliveryPriceText = document.getElementById("deliveryPriceText");
+  const tirePrice = parseFloat(document.getElementById("tirePrice").value) || 0;
+  const quantity = parseInt(document.getElementById("quantity").value) || 1;
+  const totalDisplay = document.getElementById("totalPrice");
 
-  const tirePrice = parseInt(document.querySelector('[name="tirePrice"]').value) || 0;
-  document.getElementById("deliveryPriceText").textContent = "سعر التوصيل: " + price + " دج";
-  document.getElementById("totalPrice").textContent = "المجموع: " + (tirePrice + price) + " دج";
+  if (deliveryPrices[wilaya]) {
+    const price = method === "home" ? deliveryPrices[wilaya][0] : deliveryPrices[wilaya][1];
+    const total = (tirePrice * quantity) + price;
+    deliveryPriceText.textContent = "سعر التوصيل: " + price + " دج";
+    totalDisplay.textContent = "المجموع: " + total + " دج";
+  } else {
+    deliveryPriceText.textContent = "سعر التوصيل: - دج";
+    totalDisplay.textContent = "المجموع: - دج";
+  }
 }
+
 
 // إرسال البيانات
 document.getElementById("orderForm").addEventListener("submit", function(e) {
