@@ -1,0 +1,60 @@
+<!DOCTYPE html><html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>إدارة المنتجات - laidtaha</title>
+  <style>
+    body { font-family: Tahoma, sans-serif; background: #f5f5f5; padding: 20px; }
+    .container { max-width: 900px; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+    h2 { text-align: center; }
+    input, button { padding: 10px; margin: 5px 0; width: 100%; border: 1px solid #ccc; border-radius: 5px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: center; font-size: 14px; }
+    th { background: #007bff; color: white; }
+    button { background: #28a745; color: white; border: none; cursor: pointer; }
+    .delete-btn { background: #dc3545; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h2>🛒 إدارة المنتجات</h2>
+  <form id="productForm">
+    <input type="text" name="number" placeholder="رقم الإطار" required>
+    <input type="text" name="brand" placeholder="العلامة التجارية" required>
+    <input type="text" name="price" placeholder="السعر بالدج" required>
+    <input type="url" name="img" placeholder="رابط الصورة (URL)" required>
+    <button type="submit">➕ إضافة منتج</button>
+  </form>  <table>
+    <thead>
+      <tr>
+        <th>رقم الإطار</th>
+        <th>العلامة</th>
+        <th>السعر</th>
+        <th>الصورة</th>
+        <th>تحكم</th>
+      </tr>
+    </thead>
+    <tbody id="productList">
+      <tr><td colspan="5">⏳ جاري التحميل...</td></tr>
+    </tbody>
+  </table>
+</div><script>
+const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRGmRO6TOlY4g8QiNx6jZJPESabHQeKvtGLHgm614oIPdfLXhSeE7YZSdHSvKhLkIvcKSgFcmuJz6gr/pub?output=csv";
+const addURL = "https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec"; // ضع رابط السكربت الصحيح هنا
+
+function loadProducts() {
+  fetch(sheetURL)
+    .then(res => res.text())
+    .then(text => {
+      const rows = text.trim().split("\n").slice(1);
+      const container = document.getElementById("productList");
+      container.innerHTML = "";
+      rows.forEach(row => {
+        const [number, brand, price, img] = row.split(",");
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${number}</td>
+          <td>${brand}</td>
+          <td>${price} دج</td>
+          <td><img src="${img}" width="50"></td>
+          <td><button class="delete-btn" onclick="alert('❌ حذف غير مفعل بعد')">🗑 حذف</button></td>
