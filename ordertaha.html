@@ -5,26 +5,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>📋 قائمة الطلبات - Abaydi Shop</title>
   <script>
-  if (!sessionStorage.getItem("loggedIn")) {
-    window.location.href = "login.html";
-  }
-</script>
+    if (!sessionStorage.getItem("loggedIn")) {
+      window.location.href = "login.html";
+    }
+  </script>
   <style>
     body {
       font-family: Tahoma, sans-serif;
       background: #f2f2f2;
       padding: 20px;
     }
-    h1 {
+    h1, h2 {
       text-align: center;
       color: #333;
     }
-    <button onclick="exportToWord()">📄 تحميل Word</button>
-
-    <div style="text-align: center; margin-bottom: 20px;">
-  <button onclick="printTable()">🖨️ طباعة</button>
-</div>
-
     table {
       width: 100%;
       border-collapse: collapse;
@@ -52,94 +46,71 @@
       text-decoration: none;
       border-radius: 8px;
     }
+    .pagination button {
+      margin: 0 5px;
+      padding: 5px 10px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .controls {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .controls button {
+      margin: 0 10px;
+      padding: 8px 16px;
+      background: #333;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
-<h2 style="text-align:center;">📦 قائمة الطلبات</h2>
 
-<div style="text-align: center; margin-bottom: 20px;">
+<h2>📦 قائمة الطلبات</h2>
+
+<div class="controls">
   <button onclick="printTable()">🖨️ طباعة</button>
   <button onclick="exportToWord()">📄 تحميل Word</button>
 </div>
 
-<table id="ordersTable" border="1" style="width:100%; border-collapse: collapse; margin:auto; text-align:center;">
+<table id="ordersTable">
   <thead>
     <tr>
+      <th>📆 التاريخ</th>
       <th>الاسم</th>
-      <th>الهاتف</th>
+      <th>📞 الهاتف</th>
       <th>نوع الإطار</th>
       <th>رقم الإطار</th>
       <th>السعر</th>
       <th>الولاية</th>
-      <th>العنوان</th>
-      <th>سعر التوصيل</th>
-      <th>المجموع</th>
-      <th>التاريخ</th>
-      <th>ملاحظة</th>
-      <th>🛠️ حالة الطلب</th>
+      <th>📍 العنوان</th>
+      <th>🚚 توصيل</th>
+      <th>💰 المجموع</th>
+      <th>📄 ملاحظة</th>
+      <th>🛠️ الحالة</th>
     </tr>
   </thead>
-  <tbody id="ordersBody"></tbody>
+  <tbody id="ordersBody">
+    <tr><td colspan="12">⏳ جاري التحميل...</td></tr>
+  </tbody>
 </table>
 
 <div id="pagination" style="text-align:center; margin-top:20px;"></div>
 
-  <h1>📋 جميع الطلبات</h1>
+<div style="text-align: center;">
+  <a href="tahalaid.html" class="back-btn">🔙 رجوع إلى لوحة التحكم</a>
+</div>
 
-  <div style="text-align: center;">
-    <a href="tahalaid.html" class="back-btn">🔙 رجوع إلى لوحة التحكم</a>
-  </div>
-
-  <table id="ordersTable">
-    <thead>
-      <tr>
-        <th>📆 التاريخ</th>
-        <th>الاسم</th>
-        <th>📞 الهاتف</th>
-        <th>نوع الإطار</th>
-        <th>رقم الإطار</th>
-        <th>السعر</th>
-        <th>الولاية</th>
-        <th>📍 العنوان</th>
-        <th>🚚 توصيل</th>
-        <th>💰 المجموع</th>
-        <th>📄 ملاحظة</th>
-      </tr>
-    </thead>
-    <tbody id="ordersBody">
-      <tr><td colspan="11">⏳ جاري التحميل...</td></tr>
-    </tbody>
-  </table>
-
-  <script>
-    const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTyCRa-FUh6a62brIHe7tg4YImWLVEuEjsaYtIQGeAxrqt8-dQzcfoH-uQ5H8YHG36soStv6Zuwbd4a/pub?output=csv";
-
-    fetch(sheetURL)
-      .then(res => res.text())
-      .then(text => {
-        const rows = text.trim().split('\n').slice(1); // تخطي العنوان
-        const tbody = document.getElementById("ordersBody");
-        tbody.innerHTML = "";
-        rows.forEach(row => {
-          const cells = row.split(",");
-          const tr = document.createElement("tr");
-          cells.forEach(cell => {
-            const td = document.createElement("td");
-            td.textContent = cell;
-            tr.appendChild(td);
-          });
-          tbody.appendChild(tr);
-        });
-      })
-      .catch(error => {
-        document.getElementById("ordersBody").innerHTML = '<tr><td colspan="11" style="color:red;">❌ تعذر تحميل الطلبات</td></tr>';
-        console.error(error);
-      });
-  </script>
 <script>
 const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTyCRa-FUh6a62brIHe7tg4YImWLVEuEjsaYtIQGeAxrqt8-dQzcfoH-uQ5H8YHG36soStv6Zuwbd4a/pub?output=csv";
 let allRows = [];
-let rowsPerPage = 10;
+const rowsPerPage = 10;
 let currentPage = 1;
 
 fetch(csvUrl)
@@ -149,6 +120,10 @@ fetch(csvUrl)
     allRows = lines.slice(1).map(line => line.split(','));
     showPage(1);
     renderPagination();
+  })
+  .catch(err => {
+    console.error(err);
+    document.getElementById("ordersBody").innerHTML = '<tr><td colspan="12">❌ تعذر تحميل الطلبات</td></tr>';
   });
 
 function showPage(page) {
@@ -162,15 +137,15 @@ function showPage(page) {
 
   pageRows.forEach(row => {
     const tr = document.createElement("tr");
-    row.forEach((cell, index) => {
+    for (let i = 0; i < 11; i++) {
       const td = document.createElement("td");
-      td.textContent = cell;
+      td.textContent = row[i] || "";
       tr.appendChild(td);
-    });
+    }
 
-    // عمود الحالة (أنت تعدله لاحقًا يدويًا)
+    // عرض الحالة إذا كانت موجودة، أو "قيد المعالجة"
     const statusCell = document.createElement("td");
-    statusCell.textContent = "قيد المعالجة"; // ← حالة مبدئية
+    statusCell.textContent = row[11] || "قيد المعالجة";
     tr.appendChild(statusCell);
 
     tbody.appendChild(tr);
@@ -185,26 +160,27 @@ function renderPagination() {
   for (let i = 1; i <= totalPages; i++) {
     const btn = document.createElement("button");
     btn.textContent = i;
-    btn.style.margin = "0 5px";
     btn.onclick = () => showPage(i);
     container.appendChild(btn);
   }
 }
-  function printTable() {
-  const printContents = document.getElementById("ordersTable").outerHTML;
+
+function printTable() {
+  const tableHTML = document.getElementById("ordersTable").outerHTML;
   const win = window.open('', '', 'height=700,width=900');
-  win.document.write('<html><head><title>طباعة الطلبيات</title>');
-  win.document.write('<style>table { width: 100%; border-collapse: collapse; text-align: center; } th, td { border: 1px solid #000; padding: 5px; }</style>');
+  win.document.write('<html><head><title>طباعة الطلبات</title>');
+  win.document.write('<style>table{width:100%;border-collapse:collapse;text-align:center;}th,td{border:1px solid #000;padding:5px;}</style>');
   win.document.write('</head><body>');
   win.document.write('<h2 style="text-align:center;">📦 قائمة الطلبات</h2>');
-  win.document.write(printContents);
+  win.document.write(tableHTML);
   win.document.write('</body></html>');
   win.document.close();
   win.print();
 }
+
 function exportToWord() {
-  const header = "<html xmlns:o='urn:schemas-microsoft-com:office:office' " +
-                 "xmlns:w='urn:schemas-microsoft-com:office:word' " +
+  const header = "<html xmlns:o='urn:schemas-microsoft-com:office:office'" +
+                 "xmlns:w='urn:schemas-microsoft-com:office:word'" +
                  "xmlns='http://www.w3.org/TR/REC-html40'>" +
                  "<head><meta charset='utf-8'><title>تصدير إلى Word</title></head><body>";
   const footer = "</body></html>";
@@ -219,9 +195,7 @@ function exportToWord() {
   fileDownload.click();
   document.body.removeChild(fileDownload);
 }
-
 </script>
-  
 
 </body>
 </html>
