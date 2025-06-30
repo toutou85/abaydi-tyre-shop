@@ -5,14 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>إدارة المنتجات - laidtaha</title>
   <script>
-  if (!sessionStorage.getItem("loggedIn")) {
-    window.location.href = "login.html";
-  }
-</script>
-
+    if (!sessionStorage.getItem("loggedIn")) {
+      window.location.href = "login.html";
+    }
+  </script>
   <style>
     body { font-family: Tahoma, sans-serif; background: #f5f5f5; padding: 20px; }
-    .container { max-width: 900px; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+    .container { max-width: 1000px; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
     h2 { text-align: center; }
     input, button { padding: 10px; margin: 5px 0; width: 100%; border: 1px solid #ccc; border-radius: 5px; }
     table { width: 100%; border-collapse: collapse; margin-top: 20px; }
@@ -20,7 +19,8 @@
     th { background: #007bff; color: white; }
     button { background: #28a745; color: white; border: none; cursor: pointer; }
     .delete-btn { background: #dc3545; }
-    #searchBar { width: 100%; padding: 10px; margin-top: 10px; margin-bottom: 20px; border: 1px solid #aaa; border-radius: 5px; }
+    .qty-input { width: 60px; text-align: center; }
+    #searchBar { padding: 10px; margin-top: 10px; margin-bottom: 20px; border: 1px solid #aaa; border-radius: 5px; width: 100%; }
   </style>
 </head>
 <body>
@@ -32,6 +32,7 @@
     <input type="text" name="brand" placeholder="العلامة التجارية" required>
     <input type="text" name="price" placeholder="السعر دج" required>
     <input type="url" name="img" placeholder="رابط الصورة (URL)" required>
+    <input type="number" name="quantity" placeholder="الكمية" required>
     <button type="submit">➕ إضافة منتج</button>
   </form>
 
@@ -44,18 +45,20 @@
         <th>العلامة</th>
         <th>السعر</th>
         <th>الصورة</th>
+        <th>الكمية</th>
         <th>تحكم</th>
       </tr>
     </thead>
     <tbody id="productList">
-      <tr><td colspan="5">⏳ جاري التحميل...</td></tr>
+      <tr><td colspan="6">⏳ جاري التحميل...</td></tr>
     </tbody>
   </table>
 </div>
 
 <script>
-const sheetURL = "https://https://docs.google.com/spreadsheets/d/e/2PACX-1vQBz1iucjkuwAG78fd6m1zE4oXKuaZzlgVGO7cK1uts7UkTFgT0nxpqXA-ovj8iOa9FhujqCSpxHrXw/pub?output=csv";
-const addURL = "https://script.google.com/macros/s/1gpUsObi2l8InrvJ2Npm8zcTfhUm3oOLACyMQ3iQWN3I/exec"; // 🔁 استبدل YOUR_SCRIPT_ID بالرابط الفعلي للسكريبت
+const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQBz1iucjkuwAG78fd6m1zE4oXKuaZzlgVGO7cK1uts7UkTFgT0nxpqXA-ovj8iOa9FhujqCSpxHrXw/pub?output=csv";
+const addURL = "https://script.google.com/macros/s/1gpUsObi2l8InrvJ2Npm8zcTfhUm3oOLACyMQ3iQWN3I/exec"; // Google Apps Script
+
 let allProducts = [];
 
 function loadProducts() {
@@ -63,14 +66,14 @@ function loadProducts() {
     .then(res => res.text())
     .then(text => {
       const rows = text.trim().split("\n").slice(1);
-      allProducts = rows.map(row => {
-        const [number, brand, price, img] = row.split(",");
-        return { number, brand, price, img };
+      allProducts = rows.map((row, index) => {
+        const [number, brand, price, img, quantity] = row.split(",");
+        return { index, number, brand, price, img, quantity };
       });
       renderProducts(allProducts);
     })
     .catch(err => {
-      document.getElementById("productList").innerHTML = '<tr><td colspan="5" style="color:red">⚠️ فشل التحميل</td></tr>';
+      document.getElementById("productList").innerHTML = '<tr><td colspan="6" style="color:red">⚠️ فشل التحميل</td></tr>';
     });
 }
 
@@ -78,9 +81,10 @@ function renderProducts(products) {
   const container = document.getElementById("productList");
   container.innerHTML = "";
   if (products.length === 0) {
-    container.innerHTML = '<tr><td colspan="5" style="color:gray">لا توجد نتائج</td></tr>';
+    container.innerHTML = '<tr><td colspan="6" style="color:gray">لا توجد نتائج</td></tr>';
     return;
   }
+
   products.forEach(p => {
     const tr = document.createElement("tr");
     tr.innerHTML = `
@@ -88,6 +92,9 @@ function renderProducts(products) {
       <td>${p.brand}</td>
       <td>${p.price} دج</td>
       <td><img src="${p.img}" width="50"></td>
+      <td>
+        <input type="number" class="qty-input" min="0" value="${p.quantity}" onchange="updateQuantity(${p.index}, this.value)">
+      </td>
       <td><button class="delete-btn" onclick="alert('❌ حذف غير مفعل بعد')">🗑 حذف</button></td>
     `;
     container.appendChild(tr);
@@ -103,7 +110,22 @@ function filterProducts() {
   renderProducts(filtered);
 }
 
-loadProducts();
+function updateQuantity(rowIndex, newQty) {
+  const scriptURL = "https://script.google.com/macros/s/1gpUsObi2l8InrvJ2Npm8zcTfhUm3oOLACyMQ3iQWN3I/exec";
+  const data = new FormData();
+  data.append("action", "update");
+  data.append("row", rowIndex + 2); // تخطي رأس الجدول
+  data.append("column", 5);         // العمود الخامس = الكمية
+  data.append("value", newQty);
+
+  fetch(scriptURL, { method: "POST", body: data })
+    .then(res => res.text())
+    .then(() => {
+      alert("✅ تم تحديث الكمية");
+      loadProducts();
+    })
+    .catch(() => alert("❌ فشل في تحديث الكمية"));
+}
 
 document.getElementById("productForm").addEventListener("submit", function(e) {
   e.preventDefault();
@@ -120,6 +142,8 @@ document.getElementById("productForm").addEventListener("submit", function(e) {
   })
   .catch(() => alert("❌ فشل الإضافة"));
 });
+
+loadProducts();
 </script>
 </body>
 </html>
