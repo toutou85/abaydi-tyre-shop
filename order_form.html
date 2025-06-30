@@ -3,196 +3,139 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>عبايدي للعجلات</title>
+  <title>نموذج طلب إطار</title>
   <style>
-    body { font-family: Arial, sans-serif; background: #f2f2f2; margin: 0; padding: 0; }
-    header { background-color: #007bff; color: white; padding: 1rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; }
-    header img { height: 40px; margin-left: 10px; }
-    nav { display: flex; gap: 10px; }
-    nav a { color: white; text-decoration: none; background: #0056b3; padding: 5px 10px; border-radius: 5px; }
-    footer { background: #007bff; color: white; text-align: center; padding: 1rem; margin-top: 2rem; font-size: 1rem; }
-    footer a { color: white; margin-top: 10px; display: inline-block; }
-    #searchBar { width: 80%; margin: 1rem auto; display: block; padding: 0.5rem; font-size: 1rem; border: 1px solid #ccc; border-radius: 5px; }
-    .products { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; padding: 1rem; }
-    .product { background: white; padding: 1rem; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); text-align: center; }
-    .product img { width: 100%; height: auto; border-radius: 10px; }
-    .pagination { text-align: center; margin-bottom: 2rem; }
-    .pagination button { margin: 0 5px; padding: 0.5rem 1rem; border: none; background: #007bff; color: white; border-radius: 5px; cursor: pointer; }
+    body { font-family: Arial, sans-serif; background: #f9f9f9; padding: 20px; }
+    form { max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+    input, select, textarea { width: 100%; padding: 10px; margin-bottom: 10px; border-radius: 5px; border: 1px solid #ccc; }
+    button { background: #28a745; color: white; padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer; }
+    h2 { text-align: center; }
+    #totalPrice { font-weight: bold; color: #007bff; text-align: center; }
+    .note { color: red; font-size: 0.9em; text-align: center; }
   </style>
 </head>
 <body>
 
-<header>
-  <div style="display: flex; align-items: center;">
-    <img src="logo.png" alt="شعار المتجر">
-    <span>متجر عبايدي للعجلات</span>
-  </div>
-  <div id="dateTimeBox" style="text-align: center; flex: 1;">
-    <div id="gregorianDate" style="font-size: 0.85rem;"></div>
-    <div id="hijriDate" style="font-size: 0.85rem;"></div>
-    <div id="clock" style="font-weight: bold;"></div>
-  </div>
-  <nav>
-    <a href="tools.html">🛠️ أدوات الميشلان</a>
-    <a href="accessories.html">🚗 ملحقات السيارات</a>
-  </nav>
-</header>
+<h2>📦 نموذج طلب إطار</h2>
+<form id="orderForm">
+  <input type="text" name="fullName" placeholder="الاسم واللقب" required>
+  <input type="tel" name="phone" placeholder="رقم الهاتف" required>
+  <input type="text" name="tireType" placeholder="نوع الإطار" required>
+  <input type="text" name="tireNumber" placeholder="رقم الإطار" required>
+  <input type="number" name="tirePrice" placeholder="سعر الإطار (دج)" required>
 
-<!-- ✅ زر طلب شامل (عام في الأعلى) -->
-<div style="text-align: center; margin: 20px;">
-  <a href="order_form.html" target="_blank" style="display:inline-block; padding:10px 20px; background:#28a745; color:white; border-radius:8px; text-decoration:none; font-size:1.1rem;">
-    📦 اطلب الآن
-  </a>
-</div>
+  <select name="wilaya" id="wilaya" required onchange="updateDelivery()">
+    <option value="">اختر الولاية</option>
+  </select>
 
-<input type="text" id="searchBar" placeholder="🔍 ابحث عن إطار مثال: 175 / 70 R 13" oninput="filterProducts()">
-<section class="products" id="productList"></section>
-<div class="pagination" id="pagination"></div>
+  <select id="deliveryMethod" onchange="updateDelivery()" required>
+    <option value="home">🚚 إلى المنزل</option>
+    <option value="office">🏢 مكتب الاستلام</option>
+  </select>
 
-<footer>
-  <div>🚚 التوصيل متوفر لـ 58 ولاية | 🕒 العمل على مدار الأسبوع | 💵 الدفع عند الاستلام</div>
-  <div>📞 واتساب: <a href="https://wa.me/21356450486" target="_blank">+21356450486</a> | <a href="https://wa.me/213698749015" target="_blank">+213698749015</a></div>
-  <a href="https://www.facebook.com/share/1AZpipVeFa/" target="_blank">
-    <img src="https://cdn-icons-png.flaticon.com/512/124/124010.png" alt="فيسبوك" width="30">
-  </a>
-</footer>
+  <input type="text" name="address" placeholder="العنوان الكامل" required>
+  <textarea name="note" placeholder="ملاحظة (اختياري)"></textarea>
+  <input type="text" name="date" readonly value="2025-06-29">
 
-<!-- ✅ سكربت التاريخ والساعة -->
+  <p id="deliveryPriceText">سعر التوصيل: - دج</p>
+  <p id="totalPrice">المجموع: - دج</p>
+  <p class="note">💡 ملاحظة: الوزن الزائد للعجلات يمكن أن يؤدي إلى زيادة في سعر التوصيل.</p>
+
+  <button type="submit">إرسال الطلب</button>
+</form>
+
 <script>
-function updateClock() {
-  const now = new Date();
-  const options = { timeZone: 'Africa/Algiers', weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-  const timeOptions = { timeZone: 'Africa/Algiers', hour: '2-digit', minute: '2-digit', second: '2-digit' };
+// أسعار التوصيل حسب الولاية
+const deliveryPrices = {
+  "أدرار": [600, 1650], "الشلف": [600, 900], "الأغواط": [450, 850], "أم البواقي": [450, 850],
+  "باتنة": [450, 850], "بجاية": [450, 850], "بسكرة": [450, 850], "بشار": [600, 1650],
+  "البليدة": [450, 850], "بويرة": [450, 850], "تمنراست": [800, 1650], "تبسة": [450, 850],
+  "تلمسان": [600, 900], "تيارت": [450, 850], "تيزي وزو": [450, 850], "الجزائر": [450, 850],
+  "الجلفة": [450, 850], "جيجل": [450, 850], "سطيف": [450, 850], "صيدا": [450, 850],
+  "سكيكدة": [450, 850], "سيدي بلعباس": [500, 900], "عنابة": [450, 850], "قالمة": [450, 850],
+  "قسطنطين": [450, 850], "ميديا": [450, 850], "مستغانم": [450, 900], "مسيلة": [450, 850],
+  "ماسكارا": [500, 900], "ورقلة": [450, 650], "وهران": [450, 900], "البيض": [500, 850],
+  "إليزي": [500, 1000], "برج بوعريريج": [450, 850], "بومرداس": [500, 900], "الطارف": [800, 900],
+  "تندوف": [800, 1650], "تيسمسيلت": [450, 850], "الواد": [450, 650], "خنشلة": [450, 850],
+  "سوق أهراس": [450, 850], "تيبازة": [500, 900], "ميلا": [450, 750], "عين الدفلى": [600, 900],
+  "نعمة": [600, 900], "عين تموشنت": [500, 900], "غرداية": [450, 850], "غليزان": [500, 900],
+  "تيميمون": [500, 900], "برج باجي مختار": [1000, 2000], "أولاد جلال": [450, 850],
+  "بني عباس": [850, 1650], "في صلاح": [850, 1650], "في قزام": [700, 1400], "تقرت": [300, 500],
+  "جانت": [1200, 2000], "المغير": [450, 600], "المنيعة": [500, 850]
+};
 
-  document.getElementById('gregorianDate').textContent = `📅 ${new Intl.DateTimeFormat('ar-DZ', options).format(now)}`;
-  document.getElementById('clock').textContent = `🕒 ${new Intl.DateTimeFormat('ar-DZ', timeOptions).format(now)}`;
-
-  const day = now.getDate();
-  const month = now.getMonth() + 1;
-  const year = now.getFullYear();
-
-  fetch(`https://api.aladhan.com/v1/gToH?date=${day}-${month}-${year}`)
-    .then(res => res.json())
-    .then(data => {
-      if (data && data.data && data.data.hijri) {
-        const hijri = data.data.hijri;
-        document.getElementById('hijriDate').textContent = `📆 هجري: ${hijri.weekday.ar} ${hijri.day} ${hijri.month.ar} ${hijri.year}`;
-      }
-    });
+// تعبئة قائمة الولايات
+const wilayaSelect = document.getElementById("wilaya");
+for (const wilaya in deliveryPrices) {
+  const opt = document.createElement("option");
+  opt.value = wilaya;
+  opt.textContent = wilaya;
+  wilayaSelect.appendChild(opt);
 }
-updateClock();
-setInterval(updateClock, 1000);
-</script>
 
-<!-- ✅ سكربت تحميل وعرض المنتجات -->
-<script>
-let products = [];
+// حساب سعر التوصيل والمجموع
+function updateDelivery() {
+  const wilaya = document.getElementById("wilaya").value;
+  const method = document.getElementById("deliveryMethod").value;
+  const deliveryPriceText = document.getElementById("deliveryPriceText");
+  const tirePrice = parseFloat(document.querySelector('[name="tirePrice"]').value) || 0;
+  const totalDisplay = document.getElementById("totalPrice");
 
-fetch("https://script.google.com/macros/s/AKfycbwGmmfpKat7m6ZBScZNbyGSALQxhOWAOX76OKYMphTIikmun4gqNhKOxAJqn5L7OLru/exec")
-  .then(response => response.json())
-  .then(data => {
-    products = data.map(p => ({
-      number: p.number || "غير معروف",
-      brand: p.brand || "بدون علامة",
-      price: p.price || "0",
-      quantity: p.quantity || "0",
-      img: p.img || 'https://via.placeholder.com/250x200'
-    }));
+  if (deliveryPrices[wilaya]) {
+    const price = method === "home" ? deliveryPrices[wilaya][0] : deliveryPrices[wilaya][1];
+    deliveryPriceText.textContent = "سعر التوصيل: " + price + " دج";
+    totalDisplay.textContent = "المجموع: " + (price + tirePrice) + " دج";
+  } else {
+    deliveryPriceText.textContent = "سعر التوصيل: - دج";
+    totalDisplay.textContent = "المجموع: - دج";
+  }
+}
 
-    const perPage = 20;
-    let currentPage = 1;
+// إرسال البيانات إلى Google Sheets
+document.getElementById("orderForm").addEventListener("submit", function(e) {
+  e.preventDefault();
+  const form = e.target;
+  const data = Object.fromEntries(new FormData(form).entries());
 
-    function displayProducts() {
-      const productList = document.getElementById('productList');
-      productList.innerHTML = '';
-      const start = (currentPage - 1) * perPage;
-      const end = start + perPage;
-      products.slice(start, end).forEach(p => {
-        const div = document.createElement('div');
-        div.className = 'product';
-        const available = parseInt(p.quantity) > 0;
-        const availabilityText = available
-          ? '✅ متوفر'
-          : '❌ غير متوفر، يرجى ملء الطلب وترك ملاحظة عند توفره نتصل بك';
-        div.innerHTML = `
-          <img src="${p.img}" alt="إطار ${p.number}">
-          <h3>إطار ${p.number} - ${p.brand}</h3>
-          <p>السعر: ${p.price} دج</p>
-          <p>${availabilityText}</p>
-          <a href="order_form.html?number=${encodeURIComponent(p.number)}&brand=${encodeURIComponent(p.brand)}&price=${encodeURIComponent(p.price)}" 
-             target="_blank"
-             style="display:inline-block;margin-top:10px;padding:8px 14px;background:#28a745;color:white;border-radius:5px;text-decoration:none;">
-             📦 اطلب الآن
-          </a>
-        `;
-        productList.appendChild(div);
-      });
-      updatePagination();
-    }
+  data.deliveryMethod = document.getElementById("deliveryMethod").value;
+  const wilaya = data.wilaya;
+  const price = deliveryPrices[wilaya]
+    ? (data.deliveryMethod === "home" ? deliveryPrices[wilaya][0] : deliveryPrices[wilaya][1])
+    : 0;
+  data.deliveryPrice = price;
+  data.total = parseInt(data.tirePrice || 0) + price;
 
-    function updatePagination() {
-      const totalPages = Math.ceil(products.length / perPage);
-      const pagination = document.getElementById('pagination');
-      pagination.innerHTML = '';
-      for (let i = 1; i <= totalPages; i++) {
-        const btn = document.createElement('button');
-        btn.innerText = i;
-        btn.onclick = () => {
-          currentPage = i;
-          displayProducts();
-        };
-        btn.style.background = (i === currentPage) ? "#0056b3" : "#007bff";
-        pagination.appendChild(btn);
-      }
-    }
-
-    window.filterProducts = function () {
-      const input = document.getElementById('searchBar').value.toLowerCase();
-      const filtered = products.filter(p =>
-        p.number.toLowerCase().includes(input) ||
-        p.brand.toLowerCase().includes(input)
-      );
-
-      const productList = document.getElementById('productList');
-      productList.innerHTML = '';
-
-      if (filtered.length === 0) {
-        productList.innerHTML = "<p style='text-align:center;color:red;'>⚠️ لا توجد نتائج مطابقة.</p>";
-        document.getElementById('pagination').innerHTML = '';
-        return;
-      }
-
-      filtered.forEach(p => {
-        const div = document.createElement('div');
-        div.className = 'product';
-        const available = parseInt(p.quantity) > 0;
-        const availabilityText = available
-          ? '✅ متوفر'
-          : '❌ غير متوفر، يرجى ملء الطلب وترك ملاحظة عند توفره نتصل بك';
-        div.innerHTML = `
-          <img src="${p.img}" alt="إطار ${p.number}">
-          <h3>إطار ${p.number} - ${p.brand}</h3>
-          <p>السعر: ${p.price} دج</p>
-          <p>${availabilityText}</p>
-          <a href="order_form.html?number=${encodeURIComponent(p.number)}&brand=${encodeURIComponent(p.brand)}&price=${encodeURIComponent(p.price)}" 
-             target="_blank"
-             style="display:inline-block;margin-top:10px;padding:8px 14px;background:#28a745;color:white;border-radius:5px;text-decoration:none;">
-             📦 اطلب الآن
-          </a>
-        `;
-        productList.appendChild(div);
-      });
-
-      document.getElementById('pagination').innerHTML = '';
-    }
-
-    displayProducts();
+  fetch("https://script.google.com/macros/s/AKfycbwGmmfpKat7m6ZBScZNbyGSALQxhOWAOX76OKYMphTIikmun4gqNhKOxAJqn5L7OLru/exec", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data)
   })
-  .catch(error => {
-    console.error("حدث خطأ في تحميل البيانات:", error);
-    document.getElementById('productList').innerHTML = "<p style='text-align:center;color:red;'>⚠️ تعذر تحميل المنتجات، يرجى المحاولة لاحقًا.</p>";
+  .then(res => res.json())
+  .then(resp => {
+    alert("✅ تم إرسال الطلب بنجاح");
+    form.reset();
+    document.getElementById("deliveryPriceText").textContent = "سعر التوصيل: - دج";
+    document.getElementById("totalPrice").textContent = "المجموع: - دج";
+  })
+  .catch(err => {
+    console.error(err);
+    alert("❌ فشل في إرسال الطلب");
   });
+});
 </script>
 
+<!-- تلقّي البيانات من صفحة المنتجات -->
+<script>
+window.onload = function () {
+  const url = new URL(window.location.href);
+  const number = url.searchParams.get("number");
+  const brand = url.searchParams.get("brand");
+  const price = url.searchParams.get("price");
+
+  if (number) document.querySelector('[name="tireNumber"]').value = number;
+  if (brand) document.querySelector('[name="tireType"]').value = brand;
+  if (price) document.querySelector('[name="tirePrice"]').value = price;
+}
+</script>
 </body>
 </html>
