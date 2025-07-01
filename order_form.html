@@ -115,7 +115,8 @@ function updateDelivery() {
   const quantity = parseInt(document.getElementById("quantity").value) || 1;
   const tirePrice = parseFloat(document.getElementById("tirePrice").value) || 0;
   const delivery = deliveryPrices[wilaya] ? (method === "home" ? deliveryPrices[wilaya][0] : deliveryPrices[wilaya][1]) : 0;
-  const total = (tirePrice * quantity) + delivery;
+
+  const total = (tirePrice + delivery) * quantity;
 
   document.getElementById("deliveryPriceText").textContent = `سعر التوصيل: ${delivery} دج`;
   document.getElementById("totalPrice").textContent = `المجموع: ${total} دج`;
@@ -141,7 +142,6 @@ document.getElementById("orderForm").addEventListener("submit", function(e) {
   const tirePrice = parseFloat(form.tirePrice.value) || 0;
   const quantity = parseInt(document.getElementById("quantity").value) || 1;
   const total = (tirePrice * quantity) + delivery;
-
   formData.append("deliveryPrice", delivery);
   formData.append("total", total);
   formData.append("quantity", quantity);
