@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>📦 طلباتي</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
       font-family: Tahoma, sans-serif;
@@ -24,8 +24,8 @@
       padding: 10px;
       margin-bottom: 10px;
       font-size: 16px;
-      border-radius: 5px;
       border: 1px solid #ccc;
+      border-radius: 5px;
     }
     button {
       padding: 10px 15px;
@@ -35,130 +35,24 @@
       border-radius: 5px;
       font-size: 16px;
       cursor: pointer;
+    }
+    table {
       width: 100%;
+      border-collapse: collapse;
+      margin-top: 30px;
+      font-size: 14px;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px;
+    }
+    th {
+      background: #007bff;
+      color: white;
     }
     .error {
       color: red;
       font-size: 14px;
       margin-top: 10px;
     }
-    #ordersSection {
-      margin-top: 30px;
-      overflow-x: auto;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 14px;
-    }
-    th, td {
-      border: 1px solid #ccc;
-      padding: 6px;
-    }
-    th {
-      background: #007bff;
-      color: white;
-    }
-  </style>
-</head>
-<body>
-
-<div class="box">
-  <h2>📦 عرض طلبياتك</h2>
-  <input type="tel" id="phoneInput" placeholder="أدخل رقم هاتفك (مثال: 065...)">
-  <button onclick="fetchMyOrders()">🔍 عرض طلباتي</button>
-  <p class="error" id="errorMsg"></p>
-</div>
-
-<div id="ordersSection" style="display:none;">
-  <h3>📋 قائمة الطلبيات</h3>
-  <table>
-    <thead>
-      <tr>
-        <th>الاسم</th>
-        <th>الهاتف</th>
-        <th>نوع الإطار</th>
-        <th>رقم الإطار</th>
-        <th>السعر</th>
-        <th>الكمية</th>
-        <th>الولاية</th>
-        <th>نوع التوصيل</th>
-        <th>سعر التوصيل</th>
-        <th>المجموع</th>
-        <th>العنوان</th>
-        <th>ملاحظة</th>
-        <th>التاريخ</th>
-        <th>الحالة</th>
-      </tr>
-    </thead>
-    <tbody id="ordersTable"></tbody>
-  </table>
-</div>
-
-<script>
-const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTyCRa-FUh6a62brIHe7tg4YImWLVEuEjsaYtIQGeAxrqt8-dQzcfoH-uQ5H8YHG36soStv6Zuwbd4a/pub?output=csv";
-
-function validatePhone(phone) {
-  return /^0(5|6|7)\d{8}$/.test(phone);
-}
-
-function fetchMyOrders() {
-  const phone = document.getElementById("phoneInput").value.trim();
-  const errorMsg = document.getElementById("errorMsg");
-  const ordersSection = document.getElementById("ordersSection");
-  const ordersTable = document.getElementById("ordersTable");
-
-  if (!validatePhone(phone)) {
-    errorMsg.textContent = "⚠️ رقم الهاتف غير صحيح. يجب أن يكون 10 أرقام ويبدأ بـ 05 أو 06 أو 07.";
-    ordersSection.style.display = "none";
-    return;
-  }
-
-  errorMsg.textContent = "⏳ جاري تحميل الطلبات...";
-
-  fetch(sheetURL)
-    .then(res => res.text())
-    .then(csv => {
-      const lines = csv.trim().split("\n");
-      const rows = lines.slice(1).map(line => line.split(","));
-      const myOrders = rows.filter(row => row[2] === phone); // العمود C = رقم الهاتف
-
-      if (myOrders.length === 0) {
-        errorMsg.textContent = "❌ لا توجد طلبات مرتبطة بهذا الرقم.";
-        ordersSection.style.display = "none";
-        return;
-      }
-
-      errorMsg.textContent = "";
-      ordersTable.innerHTML = "";
-      myOrders.forEach(row => {
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${row[1]}</td>  <!-- الاسم -->
-          <td>${row[2]}</td>  <!-- الهاتف -->
-          <td>${row[3]}</td>  <!-- نوع الإطار -->
-          <td>${row[4]}</td>  <!-- رقم الإطار -->
-          <td>${row[5]}</td>  <!-- السعر -->
-          <td>${row[6]}</td>  <!-- الكمية -->
-          <td>${row[7]}</td>  <!-- الولاية -->
-          <td>${row[8]}</td>  <!-- نوع التوصيل -->
-          <td>${row[9]}</td>  <!-- سعر التوصيل -->
-          <td>${row[10]}</td> <!-- المجموع -->
-          <td>${row[11]}</td> <!-- العنوان -->
-          <td>${row[12]}</td> <!-- ملاحظة -->
-          <td>${row[13]}</td> <!-- التاريخ -->
-          <td>${row[14] || "قيد المعالجة"}</td> <!-- حالة الطلب -->
-        `;
-        ordersTable.appendChild(tr);
-      });
-      ordersSection.style.display = "block";
-    })
-    .catch(err => {
-      errorMsg.textContent = "❌ حدث خطأ أثناء تحميل البيانات.";
-      console.error(err);
-    });
-}
-</script>
-
-</body>
-</html>
+    @media (max-width
