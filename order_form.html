@@ -11,32 +11,33 @@
     h2 { text-align: center; }
     #totalPrice { font-weight: bold; color: #007bff; text-align: center; }
     .note { color: red; font-size: 0.9em; text-align: center; }
-#popupOverlay {
-  position: fixed;
-  top: 0; right: 0; bottom: 0; left: 0;
-  background: rgba(0,0,0,0.3);
-  display: none;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
-}
 
-#popupBox {
-  background: white;
-  padding: 20px 30px;
-  border-radius: 12px;
-  box-shadow: 0 0 15px rgba(0,0,0,0.2);
-  font-size: 22px;
-  color: #28a745;
-  animation: pulse 1.2s infinite;
-  text-align: center;
-}
+    #popupOverlay {
+      position: fixed;
+      top: 0; right: 0; bottom: 0; left: 0;
+      background: rgba(0,0,0,0.3);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    }
 
-@keyframes pulse {
-  0% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.05); opacity: 0.7; }
-  100% { transform: scale(1); opacity: 1; }
-}
+    #popupBox {
+      background: white;
+      padding: 20px 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.2);
+      font-size: 22px;
+      color: #28a745;
+      animation: pulse 1.2s infinite;
+      text-align: center;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.05); opacity: 0.7; }
+      100% { transform: scale(1); opacity: 1; }
+    }
   </style>
 </head>
 <body>
@@ -76,25 +77,30 @@
   <button type="submit">إرسال الطلب</button>
 </form>
 
+<!-- الرسالة المنبثقة -->
+<div id="popupOverlay">
+  <div id="popupBox">⏳ استغفر الله...</div>
+</div>
+
 <script>
-const deliveryPrices = {  
-  "أدرار": [1650, 600], "الشلف": [1650, 600], "الأغواط": [850, 450], "أم البواقي": [850, 450],  
-  "باتنة": [850, 450], "بجاية": [850, 450], "بسكرة": [850, 450], "بشار": [1650, 600],  
-  "البليدة": [850, 450], "بويرة": [850, 450], "تمنراست": [1650, 800], "تبسة": [850, 450],  
-  "تلمسان": [900, 600], "تيارت": [850, 450], "تيزي وزو": [850, 450], "الجزائر": [850, 450],  
-  "الجلفة": [850, 450], "جيجل": [850, 450], "سطيف": [850, 450], "صيدا": [850, 450],  
-  "سكيكدة": [850, 450], "سيدي بلعباس": [900, 500], "عنابة": [850, 450], "قالمة": [850, 450],  
-  "قسطنطين": [850, 450], "ميديا": [850, 450], "مستغانم": [900, 450], "مسيلة": [850, 450],  
-  "ماسكارا": [900, 500], "ورقلة": [650, 450], "وهران": [900, 450], "البيض": [850, 500],  
-  "إليزي": [1000, 500], "برج بوعريريج": [850, 450], "بومرداس": [900, 500], "الطارف": [900, 800],  
-  "تندوف": [1650, 800], "تيسمسيلت": [850, 450], "الواد": [650, 450], "خنشلة": [850, 450],  
-  "سوق أهراس": [850, 450], "تيبازة": [900, 500], "ميلا": [750, 450], "عين الدفلى": [900, 600],  
-  "نعمة": [900, 600], "عين تموشنت": [900, 500], "غرداية": [850, 450], "غليزان": [900, 500],  
-  "تيميمون": [900, 500], "برج باجي مختار": [2000, 1000], "أولاد جلال": [850, 450],  
-  "بني عباس": [1650, 850], "في صلاح": [1650, 850], "في قزام": [1400, 700], "تقرت": [500, 300],  
-  "جانت": [2000, 1200], "المغير": [600, 450], "المنيعة": [850, 500]  
-};  
-// ملء قائمة الولايات
+const deliveryPrices = {
+  "أدرار": [1650, 600], "الشلف": [1650, 600], "الأغواط": [850, 450], "أم البواقي": [850, 450],
+  "باتنة": [850, 450], "بجاية": [850, 450], "بسكرة": [850, 450], "بشار": [1650, 600],
+  "البليدة": [850, 450], "بويرة": [850, 450], "تمنراست": [1650, 800], "تبسة": [850, 450],
+  "تلمسان": [900, 600], "تيارت": [850, 450], "تيزي وزو": [850, 450], "الجزائر": [850, 450],
+  "الجلفة": [850, 450], "جيجل": [850, 450], "سطيف": [850, 450], "صيدا": [850, 450],
+  "سكيكدة": [850, 450], "سيدي بلعباس": [900, 500], "عنابة": [850, 450], "قالمة": [850, 450],
+  "قسطنطين": [850, 450], "ميديا": [850, 450], "مستغانم": [900, 450], "مسيلة": [850, 450],
+  "ماسكارا": [900, 500], "ورقلة": [650, 450], "وهران": [900, 450], "البيض": [850, 500],
+  "إليزي": [1000, 500], "برج بوعريريج": [850, 450], "بومرداس": [900, 500], "الطارف": [900, 800],
+  "تندوف": [1650, 800], "تيسمسيلت": [850, 450], "الواد": [650, 450], "خنشلة": [850, 450],
+  "سوق أهراس": [850, 450], "تيبازة": [900, 500], "ميلا": [750, 450], "عين الدفلى": [900, 600],
+  "نعمة": [900, 600], "عين تموشنت": [900, 500], "غرداية": [850, 450], "غليزان": [900, 500],
+  "تيميمون": [900, 500], "برج باجي مختار": [2000, 1000], "أولاد جلال": [850, 450],
+  "بني عباس": [1650, 850], "في صلاح": [1650, 850], "في قزام": [1400, 700], "تقرت": [500, 300],
+  "جانت": [2000, 1200], "المغير": [600, 450], "المنيعة": [850, 500]
+};
+
 const wilayaSelect = document.getElementById("wilaya");
 for (const wilaya in deliveryPrices) {
   const opt = document.createElement("option");
@@ -103,7 +109,6 @@ for (const wilaya in deliveryPrices) {
   wilayaSelect.appendChild(opt);
 }
 
-// تحديث المجموع
 function updateDelivery() {
   const wilaya = document.getElementById("wilaya").value;
   const method = document.getElementById("deliveryMethod").value;
@@ -124,7 +129,6 @@ function changeQty(delta) {
   updateDelivery();
 }
 
-// إرسال الطلب
 document.getElementById("orderForm").addEventListener("submit", function(e) {
   e.preventDefault();
   const form = e.target;
@@ -149,18 +153,19 @@ document.getElementById("orderForm").addEventListener("submit", function(e) {
     body: formData
   })
   .then(res => res.text())
-  ..then(() => {
-  document.getElementById("popupOverlay").style.display = "none";
-  window.location.href = `myorders.html?phone=${encodeURIComponent(phone)}`;
-})
-  .catch(() => {
-  document.getElementById("popupBox").textContent = "❌ فشل في الإرسال.";
-  setTimeout(() => {
+  .then(() => {
     document.getElementById("popupOverlay").style.display = "none";
-  }, 3000);
-}); });
+    window.location.href = `myorders.html?phone=${encodeURIComponent(phone)}`;
+  })
+  .catch(() => {
+    document.getElementById("popupBox").textContent = "❌ فشل في الإرسال.";
+    setTimeout(() => {
+      document.getElementById("popupOverlay").style.display = "none";
+    }, 3000);
+  });
+});
 
-// تعبئة البيانات من الرابط وتحديث التاريخ
+// تعبئة بيانات الإطار من الرابط وتحديث التاريخ
 window.onload = function () {
   const url = new URL(window.location.href);
   const number = url.searchParams.get("number");
@@ -176,9 +181,6 @@ window.onload = function () {
   document.getElementById("orderDate").value = new Date().toISOString().split("T")[0];
   updateDelivery();
 };
-<div id="popupOverlay">
-  <div id="popupBox">⏳ استغفر الله...</div>
-</div>
 </script>
 </body>
 </html>
