@@ -1,135 +1,139 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
   <title>📦 طلباتي</title>
   <style>
-    body { font-family: Tahoma, sans-serif; background: #f9f9f9; padding: 20px; }
-    .container { max-width: 800px; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-    h2 { text-align: center; margin-bottom: 20px; }
-    input[type="tel"] {
-      width: 100%; padding: 10px; font-size: 16px;
-      border: 1px solid #ccc; border-radius: 5px;
+    body {
+      font-family: Tahoma, sans-serif;
+      background: #f5f5f5;
+      padding: 20px;
+      text-align: center;
+    }
+    .box {
+      max-width: 400px;
+      background: white;
+      margin: auto;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+      font-size: 16px;
     }
     button {
-      padding: 10px 20px; font-size: 16px;
-      background: #007bff; color: white; border: none;
-      border-radius: 5px; cursor: pointer; margin-top: 10px;
+      padding: 10px 15px;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
     }
-    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 30px;
+    }
     th, td {
-      padding: 10px; border: 1px solid #ccc; text-align: center;
+      border: 1px solid #ccc;
+      padding: 8px;
     }
-    th { background-color: #007bff; color: white; }
-    .error { color: red; text-align: center; margin-top: 10px; }
+    th {
+      background: #007bff;
+      color: white;
+    }
+    .error {
+      color: red;
+      font-size: 14px;
+      margin-top: 10px;
+    }
   </style>
 </head>
 <body>
 
-<div class="container">
+<div class="box">
   <h2>📦 عرض طلبياتك</h2>
+  <input type="tel" id="phoneInput" placeholder="أدخل رقم هاتفك (مثال: 065...)">
+  <button onclick="fetchMyOrders()">🔍 عرض طلباتي</button>
+  <p class="error" id="errorMsg"></p>
+</div>
 
-  <input type="tel" id="phoneInput" placeholder="📱 أدخل رقم هاتفك (مثال: 0770123456)">
-  <button onclick="loadOrders()">🔍 عرض طلباتي</button>
-  <div id="errorMsg" class="error"></div>
-
-  <table id="ordersTable" style="display:none;">
+<div id="ordersSection" style="display:none;">
+  <h3>📋 قائمة الطلبيات</h3>
+  <table>
     <thead>
       <tr>
-        <th>📆 التاريخ</th>
-        <th>الإطار</th>
-        <th>العلامة</th>
+        <th>التاريخ</th>
+        <th>نوع الإطار</th>
+        <th>العدد</th>
         <th>السعر</th>
-        <th>الكمية</th>
-        <th>الولاية</th>
-        <th>📍 العنوان</th>
-        <th>🚚 التوصيل</th>
-        <th>💰 المجموع</th>
-        <th>🛠️ الحالة</th>
+        <th>المجموع</th>
+        <th>حالة الطلب</th>
       </tr>
     </thead>
-    <tbody id="ordersBody"></tbody>
+    <tbody id="ordersTable"></tbody>
   </table>
 </div>
 
 <script>
-const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTyCRa-FUh6a62brIHe7tg4YImWLVEuEjsaYtIQGeAxrqt8-dQzcfoH-uQ5H8YHG36soStv6Zuwbd4a/pub?gid=0&single=true&output=csv
+const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTyCRa-FUh6a62brIHe7tg4YImWLVEuEjsaYtIQGeAxrqt8-dQzcfoH-uQ5H8YHG36soStv6Zuwbd4a/pub?output=csv";
 
-";
-
-function isValidPhone(phone) {
-  return /^(05|06|07)\d{8}$/.test(phone);
+function validatePhone(phone) {
+  return /^0(5|6|7)\d{8}$/.test(phone);
 }
 
-function loadOrders() {
+function fetchMyOrders() {
   const phone = document.getElementById("phoneInput").value.trim();
-  const errorDiv = document.getElementById("errorMsg");
-  const table = document.getElementById("ordersTable");
-  const tbody = document.getElementById("ordersBody");
+  const errorMsg = document.getElementById("errorMsg");
+  const ordersSection = document.getElementById("ordersSection");
+  const ordersTable = document.getElementById("ordersTable");
 
-  if (!isValidPhone(phone)) {
-    errorDiv.textContent = "⚠️ يرجى إدخال رقم صحيح يتكون من 10 أرقام ويبدأ بـ 05 أو 06 أو 07.";
-    table.style.display = "none";
+  if (!validatePhone(phone)) {
+    errorMsg.textContent = "⚠️ رقم الهاتف غير صحيح. يجب أن يكون 10 أرقام ويبدأ بـ 05 أو 06 أو 07.";
+    ordersSection.style.display = "none";
     return;
   }
 
-  errorDiv.textContent = "⏳ جاري التحميل...";
+  errorMsg.textContent = "⏳ جاري تحميل الطلبات...";
+
   fetch(sheetURL)
     .then(res => res.text())
     .then(csv => {
-  const lines = csv.trim().split('\n').slice(1);
-  const orders = lines.map(line => {
-    const row = line.split(',');
-    return {
-      name: row[1],
-      phone: row[2],          // ✅ العمود C
-      tireType: row[3],       // ✅ العمود D
-      tireNumber: row[4],     // ✅ العمود E
-      tirePrice: row[5],      // ✅ العمود F
-      wilaya: row[6],         // ✅ العمود G
-      deliveryMethod: row[7], // ✅ العمود H
-      deliveryPrice: row[8],  // ✅ العمود I
-      total: row[9],          // ✅ العمود J
-      address: row[10],       // ✅ العمود K
-      note: row[11],          // ✅ العمود L
-      date: row[12],          // ✅ العمود M
-    };
-  });
-      if (filtered.length === 0) {
-        errorDiv.textContent = "⚠️ لا توجد طلبات مسجلة بهذا الرقم.";
-        table.style.display = "none";
+      const lines = csv.trim().split("\n");
+      const rows = lines.slice(1).map(line => line.split(","));
+      const myOrders = rows.filter(row => row[2] === phone); // العمود 3 = الهاتف
+
+      if (myOrders.length === 0) {
+        errorMsg.textContent = "❌ لا توجد طلبات مرتبطة بهذا الرقم.";
+        ordersSection.style.display = "none";
         return;
       }
 
-      tbody.innerHTML = "";
-      filtered.forEach(cols => {
-        const row = `
-          <tr>
-            <td>${cols[10]}</td>
-            <td>${cols[3]}</td>
-            <td>${cols[2]}</td>
-            <td>${cols[4]} دج</td>
-            <td>${cols[5]}</td>
-            <td>${cols[6]}</td>
-            <td>${cols[7]}</td>
-            <td>${cols[8]} دج</td>
-            <td>${cols[9]} دج</td>
-            <td>${cols[11] || "قيد المعالجة"}</td>
-          </tr>
+      errorMsg.textContent = "";
+      ordersTable.innerHTML = "";
+      myOrders.forEach(row => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${row[13]}</td>
+          <td>${row[3]}</td>
+          <td>${row[5]}</td>
+          <td>${row[4]}</td>
+          <td>${row[9]}</td>
+          <td>${row[14] || "قيد المعالجة"}</td>
         `;
-        tbody.innerHTML += row;
+        ordersTable.appendChild(tr);
       });
-
-      errorDiv.textContent = "";
-      table.style.display = "table";
+      ordersSection.style.display = "block";
     })
-    .catch(() => {
-      errorDiv.textContent = "❌ فشل في تحميل البيانات. حاول لاحقًا.";
-      table.style.display = "none";
+    .catch(err => {
+      errorMsg.textContent = "❌ حدث خطأ أثناء تحميل البيانات.";
+      console.error(err);
     });
 }
 </script>
-
 </body>
 </html>
