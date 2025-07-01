@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>📦 طلباتي</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     body {
       font-family: Tahoma, sans-serif;
@@ -23,6 +24,8 @@
       padding: 10px;
       margin-bottom: 10px;
       font-size: 16px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
     }
     button {
       padding: 10px 15px;
@@ -32,24 +35,29 @@
       border-radius: 5px;
       font-size: 16px;
       cursor: pointer;
-    }
-    table {
       width: 100%;
-      border-collapse: collapse;
-      margin-top: 30px;
-    }
-    th, td {
-      border: 1px solid #ccc;
-      padding: 8px;
-    }
-    th {
-      background: #007bff;
-      color: white;
     }
     .error {
       color: red;
       font-size: 14px;
       margin-top: 10px;
+    }
+    #ordersSection {
+      margin-top: 30px;
+      overflow-x: auto;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 6px;
+    }
+    th {
+      background: #007bff;
+      color: white;
     }
   </style>
 </head>
@@ -67,19 +75,20 @@
   <table>
     <thead>
       <tr>
-          <th>الاسم</th>
-        <th>رقم الهاتف</th>
+        <th>الاسم</th>
+        <th>الهاتف</th>
         <th>نوع الإطار</th>
-        <th>رقم الايطار</th>
-        <th>سعر الإيطار</th>
+        <th>رقم الإطار</th>
+        <th>السعر</th>
+        <th>الكمية</th>
         <th>الولاية</th>
-        <th>نوع توصيل</th>
+        <th>نوع التوصيل</th>
         <th>سعر التوصيل</th>
         <th>المجموع</th>
-        <th> العنوان</th>
+        <th>العنوان</th>
         <th>ملاحظة</th>
         <th>التاريخ</th>
-        <th>حالة الطلب</th>
+        <th>الحالة</th>
       </tr>
     </thead>
     <tbody id="ordersTable"></tbody>
@@ -112,7 +121,7 @@ function fetchMyOrders() {
     .then(csv => {
       const lines = csv.trim().split("\n");
       const rows = lines.slice(1).map(line => line.split(","));
-      const myOrders = rows.filter(row => row[2] === phone); // العمود 3 = الهاتف
+      const myOrders = rows.filter(row => row[2] === phone); // العمود C = رقم الهاتف
 
       if (myOrders.length === 0) {
         errorMsg.textContent = "❌ لا توجد طلبات مرتبطة بهذا الرقم.";
@@ -124,20 +133,21 @@ function fetchMyOrders() {
       ordersTable.innerHTML = "";
       myOrders.forEach(row => {
         const tr = document.createElement("tr");
-        tr.innerHTML = 
-          <td>${row[1]}</td>
-          <td>${row[11]}</td>
-          <td>${row[10]}</td>
-          <td>${row[9]}</td>
-          <td>${row[8]}</td>
-          <td>${row[7]}</td>
-          <td>${row[6]}</td>
-          <td>${row[5]}</td>
-          <td>${row[4]}</td>
-          <td>${row[3]}</td>
-          <td>${row[2]}</td>
-          <td>${row[1]}</td>
-          <td>${row[14] || "قيد المعالجة"}</td>
+        tr.innerHTML = `
+          <td>${row[1]}</td>  <!-- الاسم -->
+          <td>${row[2]}</td>  <!-- الهاتف -->
+          <td>${row[3]}</td>  <!-- نوع الإطار -->
+          <td>${row[4]}</td>  <!-- رقم الإطار -->
+          <td>${row[5]}</td>  <!-- السعر -->
+          <td>${row[6]}</td>  <!-- الكمية -->
+          <td>${row[7]}</td>  <!-- الولاية -->
+          <td>${row[8]}</td>  <!-- نوع التوصيل -->
+          <td>${row[9]}</td>  <!-- سعر التوصيل -->
+          <td>${row[10]}</td> <!-- المجموع -->
+          <td>${row[11]}</td> <!-- العنوان -->
+          <td>${row[12]}</td> <!-- ملاحظة -->
+          <td>${row[13]}</td> <!-- التاريخ -->
+          <td>${row[14] || "قيد المعالجة"}</td> <!-- حالة الطلب -->
         `;
         ordersTable.appendChild(tr);
       });
@@ -149,5 +159,6 @@ function fetchMyOrders() {
     });
 }
 </script>
+
 </body>
 </html>
