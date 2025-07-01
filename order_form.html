@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <title>شراء اطار مطاطي</title>
+  <title>شراء إطار مطاطي</title>
   <style>
     body { font-family: Arial, sans-serif; background: #f9f9f9; padding: 20px; }
     form { max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
@@ -18,7 +18,7 @@
 <h2>📦 نموذج طلب إطار</h2>
 <form id="orderForm">
   <input type="text" name="fullName" placeholder="الاسم واللقب" required>
- <input type="tel" name="phone" placeholder="رقم الهاتف" pattern="(05|06|07)[0-9]{8}" required title="رقم الهاتف يجب أن يكون 10 أرقام ويبدأ بـ 05 أو 06 أو 07">
+  <input type="tel" name="phone" placeholder="رقم الهاتف" pattern="^(05|06|07)[0-9]{8}$" required title="رقم الهاتف يجب أن يكون 10 أرقام ويبدأ بـ 05 أو 06 أو 07">
   <input type="text" name="tireType" placeholder="نوع الإطار" required>
   <input type="text" name="tireNumber" placeholder="رقم الإطار" required>
   <input type="number" name="tirePrice" id="tirePrice" placeholder="سعر الإطار (دج)" readonly required>
@@ -26,7 +26,7 @@
   <label for="quantity">الكمية:</label>
   <div style="display: flex; align-items: center; gap: 10px; max-width: 200px;">
     <button type="button" onclick="changeQty(-1)" style="padding:5px 10px;">➖</button>
-    <input type="number" id="quantity" name="quantity" value="1" min="1" style="text-align:center; width: 60px;" required>
+    <input type="number" id="quantity" name="quantity" value="1" min="1" style="text-align:center; width: 60px;" required readonly>
     <button type="button" onclick="changeQty(1)" style="padding:5px 10px;">➕</button>
   </div>
 
@@ -34,7 +34,7 @@
     <option value="">اختر الولاية</option>
   </select>
 
-  <select id="deliveryMethod" required onchange="updateDelivery()">
+  <select id="deliveryMethod" name="deliveryMethod" required onchange="updateDelivery()">
     <option value="home">🚚 إلى المنزل</option>
     <option value="office">🏢 مكتب الاستلام</option>
   </select>
@@ -45,31 +45,30 @@
 
   <p id="deliveryPriceText">سعر التوصيل: - دج</p>
   <p id="totalPrice">المجموع: - دج</p>
-  <p class="note">💡 الوزن الزائد للعجلات قد يؤدي إلى زيادة في سعر التوصيل.</p>
+  <p class="note" id="loadingMsg"></p>
 
   <button type="submit">إرسال الطلب</button>
 </form>
 
 <script>
-// ✅ تصحيح الأسعار
-const deliveryPrices = {
-  "أدرار": [1650, 600], "الشلف": [1650, 600], "الأغواط": [850, 450], "أم البواقي": [850, 450],
-  "باتنة": [850, 450], "بجاية": [850, 450], "بسكرة": [850, 450], "بشار": [1650, 600],
-  "البليدة": [850, 450], "بويرة": [850, 450], "تمنراست": [1650, 800], "تبسة": [850, 450],
-  "تلمسان": [900, 600], "تيارت": [850, 450], "تيزي وزو": [850, 450], "الجزائر": [850, 450],
-  "الجلفة": [850, 450], "جيجل": [850, 450], "سطيف": [850, 450], "صيدا": [850, 450],
-  "سكيكدة": [850, 450], "سيدي بلعباس": [900, 500], "عنابة": [850, 450], "قالمة": [850, 450],
-  "قسطنطين": [850, 450], "ميديا": [850, 450], "مستغانم": [900, 450], "مسيلة": [850, 450],
-  "ماسكارا": [900, 500], "ورقلة": [650, 450], "وهران": [900, 450], "البيض": [850, 500],
-  "إليزي": [1000, 500], "برج بوعريريج": [850, 450], "بومرداس": [900, 500], "الطارف": [900, 800],
-  "تندوف": [1650, 800], "تيسمسيلت": [850, 450], "الواد": [650, 450], "خنشلة": [850, 450],
-  "سوق أهراس": [850, 450], "تيبازة": [900, 500], "ميلا": [750, 450], "عين الدفلى": [900, 600],
-  "نعمة": [900, 600], "عين تموشنت": [900, 500], "غرداية": [850, 450], "غليزان": [900, 500],
-  "تيميمون": [900, 500], "برج باجي مختار": [2000, 1000], "أولاد جلال": [850, 450],
-  "بني عباس": [1650, 850], "في صلاح": [1650, 850], "في قزام": [1400, 700], "تقرت": [500, 300],
-  "جانت": [2000, 1200], "المغير": [600, 450], "المنيعة": [850, 500]
-};
-
+const deliveryPrices = {  
+  "أدرار": [1650, 600], "الشلف": [1650, 600], "الأغواط": [850, 450], "أم البواقي": [850, 450],  
+  "باتنة": [850, 450], "بجاية": [850, 450], "بسكرة": [850, 450], "بشار": [1650, 600],  
+  "البليدة": [850, 450], "بويرة": [850, 450], "تمنراست": [1650, 800], "تبسة": [850, 450],  
+  "تلمسان": [900, 600], "تيارت": [850, 450], "تيزي وزو": [850, 450], "الجزائر": [850, 450],  
+  "الجلفة": [850, 450], "جيجل": [850, 450], "سطيف": [850, 450], "صيدا": [850, 450],  
+  "سكيكدة": [850, 450], "سيدي بلعباس": [900, 500], "عنابة": [850, 450], "قالمة": [850, 450],  
+  "قسطنطين": [850, 450], "ميديا": [850, 450], "مستغانم": [900, 450], "مسيلة": [850, 450],  
+  "ماسكارا": [900, 500], "ورقلة": [650, 450], "وهران": [900, 450], "البيض": [850, 500],  
+  "إليزي": [1000, 500], "برج بوعريريج": [850, 450], "بومرداس": [900, 500], "الطارف": [900, 800],  
+  "تندوف": [1650, 800], "تيسمسيلت": [850, 450], "الواد": [650, 450], "خنشلة": [850, 450],  
+  "سوق أهراس": [850, 450], "تيبازة": [900, 500], "ميلا": [750, 450], "عين الدفلى": [900, 600],  
+  "نعمة": [900, 600], "عين تموشنت": [900, 500], "غرداية": [850, 450], "غليزان": [900, 500],  
+  "تيميمون": [900, 500], "برج باجي مختار": [2000, 1000], "أولاد جلال": [850, 450],  
+  "بني عباس": [1650, 850], "في صلاح": [1650, 850], "في قزام": [1400, 700], "تقرت": [500, 300],  
+  "جانت": [2000, 1200], "المغير": [600, 450], "المنيعة": [850, 500]  
+};  
+// ملء قائمة الولايات
 const wilayaSelect = document.getElementById("wilaya");
 for (const wilaya in deliveryPrices) {
   const opt = document.createElement("option");
@@ -78,58 +77,47 @@ for (const wilaya in deliveryPrices) {
   wilayaSelect.appendChild(opt);
 }
 
+// تحديث المجموع
 function updateDelivery() {
   const wilaya = document.getElementById("wilaya").value;
   const method = document.getElementById("deliveryMethod").value;
-  const price = deliveryPrices[wilaya] ? (method === "home" ? deliveryPrices[wilaya][0] : deliveryPrices[wilaya][1]) : 0;
-
   const quantity = parseInt(document.getElementById("quantity").value) || 1;
   const tirePrice = parseFloat(document.getElementById("tirePrice").value) || 0;
-  const total = (tirePrice * quantity) + price;
+  const delivery = deliveryPrices[wilaya] ? (method === "home" ? deliveryPrices[wilaya][0] : deliveryPrices[wilaya][1]) : 0;
+  const total = (tirePrice * quantity) + delivery;
 
-  document.getElementById("deliveryPriceText").textContent = `سعر التوصيل: ${price} دج`;
+  document.getElementById("deliveryPriceText").textContent = `سعر التوصيل: ${delivery} دج`;
   document.getElementById("totalPrice").textContent = `المجموع: ${total} دج`;
 }
 
 function changeQty(delta) {
   const input = document.getElementById("quantity");
   let value = parseInt(input.value) || 1;
-  value += delta;
-  if (value < 1) value = 1;
+  value = Math.max(1, value + delta);
   input.value = value;
   updateDelivery();
 }
 
-// إرسال البيانات
+// إرسال الطلب
 document.getElementById("orderForm").addEventListener("submit", function(e) {
   e.preventDefault();
   const form = e.target;
   const formData = new FormData(form);
   const phone = form.querySelector('[name="phone"]').value.trim();
 
-  // إظهار الرسالة المتحركة
-  const loading = document.createElement("p");
-  loading.textContent = "⏳ استغفر الله...";
-  loading.style.color = "green";
-  loading.id = "loadingMsg";
-  form.appendChild(loading);
-
-  // سعر التوصيل
-  const wilaya = form.querySelector('[name="wilaya"]').value;
-  const method = document.getElementById("deliveryMethod").value;
-  const deliveryPrice = deliveryPrices[wilaya]
-    ? (method === "home" ? deliveryPrices[wilaya][0] : deliveryPrices[wilaya][1])
-    : 0;
-
-  // السعر النهائي
+  const wilaya = form.wilaya.value;
+  const method = form.deliveryMethod.value;
+  const delivery = deliveryPrices[wilaya] ? (method === "home" ? deliveryPrices[wilaya][0] : deliveryPrices[wilaya][1]) : 0;
+  const tirePrice = parseFloat(form.tirePrice.value) || 0;
   const quantity = parseInt(document.getElementById("quantity").value) || 1;
-  const tirePrice = parseInt(form.querySelector('[name="tirePrice"]').value) || 0;
-  const total = (tirePrice * quantity) + deliveryPrice;
+  const total = (tirePrice * quantity) + delivery;
 
-  formData.append("deliveryMethod", method);
-  formData.append("deliveryPrice", deliveryPrice);
+  formData.append("deliveryPrice", delivery);
   formData.append("total", total);
   formData.append("quantity", quantity);
+
+  const msg = document.getElementById("loadingMsg");
+  msg.textContent = "⏳ استغفر الله...";
 
   fetch("https://script.google.com/macros/s/AKfycbyLHKAilcWDDmx3-1Vw5XmyJ8Zq13kp79OauvKzy-DJkU75kRpXHd5x-M9bTC32rRNX/exec", {
     method: "POST",
@@ -137,49 +125,15 @@ document.getElementById("orderForm").addEventListener("submit", function(e) {
   })
   .then(res => res.text())
   .then(() => {
-    // حذف الرسالة
-    document.getElementById("loadingMsg").remove();
-    // إعادة التوجيه مع الرقم
+    msg.textContent = "";
     window.location.href = `myorders.html?phone=${encodeURIComponent(phone)}`;
   })
   .catch(() => {
-    document.getElementById("loadingMsg").textContent = "❌ فشل الإرسال.";
+    msg.textContent = "❌ فشل في الإرسال. حاول مرة أخرى.";
   });
 });
-  e.preventDefault();
-  const form = e.target;
-  const formData = new FormData(form);
 
-  const wilaya = form.querySelector('[name="wilaya"]').value;
-  const method = document.getElementById("deliveryMethod").value;
-  const deliveryPrice = deliveryPrices[wilaya] ? (method === "home" ? deliveryPrices[wilaya][0] : deliveryPrices[wilaya][1]) : 0;
-  const quantity = parseInt(document.getElementById("quantity").value) || 1;
-  const tirePrice = parseInt(document.getElementById("tirePrice").value) || 0;
-  const total = tirePrice * quantity + deliveryPrice;
-
-  formData.append("deliveryMethod", method);
-  formData.append("deliveryPrice", deliveryPrice);
-  formData.append("total", total);
-  formData.append("quantity", quantity);
-
-  fetch("https://script.google.com/macros/s/AKfycbyLHKAilcWDDmx3-1Vw5XmyJ8Zq13kp79OauvKzy-DJkU75kRpXHd5x-M9bTC32rRNX/exec", {
-    method: "POST",
-    body: formData
-  })
-  .then(res => res.text())
-  .then(() => {
-    alert("✅ تم إرسال الطلب بنجاح!");
-    form.reset();
-    document.getElementById("deliveryPriceText").textContent = "سعر التوصيل: - دج";
-    document.getElementById("totalPrice").textContent = "المجموع: - دج";
-  })
-  .catch(() => alert("❌ فشل في الإرسال."));
-});
-
-// تعيين التاريخ تلقائيًا
-document.getElementById("orderDate").value = new Date().toISOString().split("T")[0];
-
-// تعبئة البيانات من الرابط
+// تعبئة البيانات من الرابط وتحديث التاريخ
 window.onload = function () {
   const url = new URL(window.location.href);
   const number = url.searchParams.get("number");
@@ -189,11 +143,12 @@ window.onload = function () {
   if (number) document.querySelector('[name="tireNumber"]').value = decodeURIComponent(number);
   if (brand) document.querySelector('[name="tireType"]').value = decodeURIComponent(brand);
   if (price) {
-    const input = document.querySelector('[name="tirePrice"]');
-    input.value = decodeURIComponent(price);
-    updateDelivery();
+    document.getElementById("tirePrice").value = decodeURIComponent(price);
   }
-}
+
+  document.getElementById("orderDate").value = new Date().toISOString().split("T")[0];
+  updateDelivery();
+};
 </script>
 </body>
 </html>
