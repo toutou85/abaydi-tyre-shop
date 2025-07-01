@@ -149,13 +149,15 @@ document.getElementById("orderForm").addEventListener("submit", function(e) {
     body: formData
   })
   .then(res => res.text())
-  .then(() => {
-    msg.textContent = "";
-    window.location.href = `myorders.html?phone=${encodeURIComponent(phone)}`;
-  })
+  ..then(() => {
+  document.getElementById("popupOverlay").style.display = "none";
+  window.location.href = `myorders.html?phone=${encodeURIComponent(phone)}`;
+})
   .catch(() => {
-    msg.textContent = "❌ فشل في الإرسال. حاول مرة أخرى.";
-  });
+  document.getElementById("popupBox").textContent = "❌ فشل في الإرسال.";
+  setTimeout(() => {
+    document.getElementById("popupOverlay").style.display = "none";
+  }, 3000);
 });
 
 // تعبئة البيانات من الرابط وتحديث التاريخ
