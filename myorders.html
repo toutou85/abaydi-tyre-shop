@@ -3,156 +3,114 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>📦 طلباتي - Abaydi Shop</title>
+  <title>📦 طلباتي</title>
   <style>
-    body {
-      font-family: Tahoma, sans-serif;
-      background: #f9f9f9;
-      padding: 20px;
-    }
-    h2 {
-      text-align: center;
-      color: #007bff;
-    }
-    #searchSection {
-      text-align: center;
-      margin-bottom: 20px;
-    }
-    input {
-      padding: 10px;
-      width: 250px;
-      max-width: 90%;
-      border: 1px solid #ccc;
-      border-radius: 5px;
+    body { font-family: Tahoma, sans-serif; background: #f9f9f9; padding: 20px; }
+    .container { max-width: 800px; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+    h2 { text-align: center; margin-bottom: 20px; }
+    input[type="tel"] {
+      width: 100%; padding: 10px; font-size: 16px;
+      border: 1px solid #ccc; border-radius: 5px;
     }
     button {
-      padding: 10px 20px;
-      background-color: #28a745;
-      border: none;
-      border-radius: 5px;
-      color: white;
-      margin-right: 10px;
-      cursor: pointer;
+      padding: 10px 20px; font-size: 16px;
+      background: #007bff; color: white; border: none;
+      border-radius: 5px; cursor: pointer; margin-top: 10px;
     }
-    button.logout {
-      background-color: #dc3545;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 20px;
-      direction: rtl;
-    }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
     th, td {
-      border: 1px solid #ccc;
-      padding: 8px;
-      text-align: center;
+      padding: 10px; border: 1px solid #ccc; text-align: center;
     }
-    th {
-      background-color: #007bff;
-      color: white;
-    }
-    tr:nth-child(even) {
-      background-color: #f2f2f2;
-    }
-    #noResults {
-      color: red;
-      text-align: center;
-      margin-top: 20px;
-    }
+    th { background-color: #007bff; color: white; }
+    .error { color: red; text-align: center; margin-top: 10px; }
   </style>
 </head>
 <body>
 
-  <h2>📦 طلباتي</h2>
+<div class="container">
+  <h2>📦 عرض طلبياتك</h2>
 
-
-
-  <div id="searchSection">
-    <input type="tel" id="phoneInput" placeholder="📞 أدخل رقم هاتفك لعرض الطلبات">
-    <button onclick="loadMyOrders()">🔍 عرض طلباتي</button>
-    <button class="logout" onclick="logout()">🔓 تغيير الرقم</button>
-  </div>
-
-  <div id="noResults" style="display:none;">❌ لا توجد طلبات بهذا الرقم.</div>
+  <input type="tel" id="phoneInput" placeholder="📱 أدخل رقم هاتفك (مثال: 0770123456)">
+  <button onclick="loadOrders()">🔍 عرض طلباتي</button>
+  <div id="errorMsg" class="error"></div>
 
   <table id="ordersTable" style="display:none;">
     <thead>
       <tr>
         <th>📆 التاريخ</th>
-        <th>نوع الإطار</th>
-        <th>رقم الإطار</th>
-        <th>الكمية</th>
+        <th>الإطار</th>
+        <th>العلامة</th>
         <th>السعر</th>
+        <th>الكمية</th>
         <th>الولاية</th>
         <th>📍 العنوان</th>
         <th>🚚 التوصيل</th>
         <th>💰 المجموع</th>
-        <th>📄 ملاحظة</th>
         <th>🛠️ الحالة</th>
       </tr>
     </thead>
     <tbody id="ordersBody"></tbody>
   </table>
+</div>
 
 <script>
-const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTyCRa-FUh6a62brIHe7tg4YImWLVEuEjsaYtIQGeAxrqt8-dQzcfoH-uQ5H8YHG36soStv6Zuwbd4a/pub?gid=0&single=true&output=csv";
+const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTyCRa-FUh6a62brIHe7tg4YImWLVEuEjsaYtIQGeAxrqt8-dQzcfoH-uQ5H8YHG36soStv6Zuwbd4a/pub?output=csv";
 
-function loadMyOrders() {
+function isValidPhone(phone) {
+  return /^(05|06|07)\d{8}$/.test(phone);
+}
+
+function loadOrders() {
   const phone = document.getElementById("phoneInput").value.trim();
-  if (!phone) {
-    alert("⚠️ يرجى إدخال رقم الهاتف");
+  const errorDiv = document.getElementById("errorMsg");
+  const table = document.getElementById("ordersTable");
+  const tbody = document.getElementById("ordersBody");
+
+  if (!isValidPhone(phone)) {
+    errorDiv.textContent = "⚠️ يرجى إدخال رقم صحيح يتكون من 10 أرقام ويبدأ بـ 05 أو 06 أو 07.";
+    table.style.display = "none";
     return;
   }
 
-  localStorage.setItem("userPhone", phone); // حفظ الرقم
-
+  errorDiv.textContent = "⏳ جاري التحميل...";
   fetch(sheetURL)
     .then(res => res.text())
     .then(csv => {
-      const lines = csv.trim().split("\n").slice(1); // إزالة العنوان
-      const orders = lines.map(line => line.split(","));
-      const filtered = orders.filter(order => order[1] === phone); // تطابق رقم الهاتف
-
-      const tbody = document.getElementById("ordersBody");
-      tbody.innerHTML = "";
+      const rows = csv.trim().split("\n").slice(1);
+      const filtered = rows.map(row => row.split(",")).filter(cols => cols[1] === phone);
 
       if (filtered.length === 0) {
-        document.getElementById("ordersTable").style.display = "none";
-        document.getElementById("noResults").style.display = "block";
+        errorDiv.textContent = "⚠️ لا توجد طلبات مسجلة بهذا الرقم.";
+        table.style.display = "none";
         return;
       }
 
-      document.getElementById("noResults").style.display = "none";
-      document.getElementById("ordersTable").style.display = "table";
-
-      filtered.forEach(row => {
-        const tr = document.createElement("tr");
-        for (let i = 9; i >= 2; i--) {
-          const td = document.createElement("td");
-          td.textContent = row[i] || "-";
-          tr.appendChild(td);
-        }
-        tbody.appendChild(tr);
+      tbody.innerHTML = "";
+      filtered.forEach(cols => {
+        const row = `
+          <tr>
+            <td>${cols[10]}</td>
+            <td>${cols[3]}</td>
+            <td>${cols[2]}</td>
+            <td>${cols[4]} دج</td>
+            <td>${cols[5]}</td>
+            <td>${cols[6]}</td>
+            <td>${cols[7]}</td>
+            <td>${cols[8]} دج</td>
+            <td>${cols[9]} دج</td>
+            <td>${cols[11] || "قيد المعالجة"}</td>
+          </tr>
+        `;
+        tbody.innerHTML += row;
       });
+
+      errorDiv.textContent = "";
+      table.style.display = "table";
     })
-    .catch(err => {
-      console.error("فشل في تحميل الطلبات:", err);
-      alert("❌ حدث خطأ أثناء تحميل الطلبات");
+    .catch(() => {
+      errorDiv.textContent = "❌ فشل في تحميل البيانات. حاول لاحقًا.";
+      table.style.display = "none";
     });
-}
-
-function logout() {
-  localStorage.removeItem("userPhone");
-  location.reload();
-}
-
-window.onload = function () {
-  const savedPhone = localStorage.getItem("userPhone");
-  if (savedPhone) {
-    document.getElementById("phoneInput").value = savedPhone;
-    loadMyOrders();
-  }
 }
 </script>
 
