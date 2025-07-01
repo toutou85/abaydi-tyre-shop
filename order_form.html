@@ -11,6 +11,32 @@
     h2 { text-align: center; }
     #totalPrice { font-weight: bold; color: #007bff; text-align: center; }
     .note { color: red; font-size: 0.9em; text-align: center; }
+#popupOverlay {
+  position: fixed;
+  top: 0; right: 0; bottom: 0; left: 0;
+  background: rgba(0,0,0,0.3);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+#popupBox {
+  background: white;
+  padding: 20px 30px;
+  border-radius: 12px;
+  box-shadow: 0 0 15px rgba(0,0,0,0.2);
+  font-size: 22px;
+  color: #28a745;
+  animation: pulse 1.2s infinite;
+  text-align: center;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.05); opacity: 0.7; }
+  100% { transform: scale(1); opacity: 1; }
+}
   </style>
 </head>
 <body>
@@ -116,8 +142,7 @@ document.getElementById("orderForm").addEventListener("submit", function(e) {
   formData.append("total", total);
   formData.append("quantity", quantity);
 
-  const msg = document.getElementById("loadingMsg");
-  msg.textContent = "⏳ استغفر الله...";
+  document.getElementById("popupOverlay").style.display = "flex";
 
   fetch("https://script.google.com/macros/s/AKfycbyLHKAilcWDDmx3-1Vw5XmyJ8Zq13kp79OauvKzy-DJkU75kRpXHd5x-M9bTC32rRNX/exec", {
     method: "POST",
@@ -149,6 +174,9 @@ window.onload = function () {
   document.getElementById("orderDate").value = new Date().toISOString().split("T")[0];
   updateDelivery();
 };
+<div id="popupOverlay">
+  <div id="popupBox">⏳ استغفر الله...</div>
+</div>
 </script>
 </body>
 </html>
