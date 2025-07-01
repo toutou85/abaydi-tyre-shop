@@ -105,6 +105,50 @@ document.getElementById("orderForm").addEventListener("submit", function(e) {
   e.preventDefault();
   const form = e.target;
   const formData = new FormData(form);
+  const phone = form.querySelector('[name="phone"]').value.trim();
+
+  // إظهار الرسالة المتحركة
+  const loading = document.createElement("p");
+  loading.textContent = "⏳ استغفر الله...";
+  loading.style.color = "green";
+  loading.id = "loadingMsg";
+  form.appendChild(loading);
+
+  // سعر التوصيل
+  const wilaya = form.querySelector('[name="wilaya"]').value;
+  const method = document.getElementById("deliveryMethod").value;
+  const deliveryPrice = deliveryPrices[wilaya]
+    ? (method === "home" ? deliveryPrices[wilaya][0] : deliveryPrices[wilaya][1])
+    : 0;
+
+  // السعر النهائي
+  const quantity = parseInt(document.getElementById("quantity").value) || 1;
+  const tirePrice = parseInt(form.querySelector('[name="tirePrice"]').value) || 0;
+  const total = (tirePrice * quantity) + deliveryPrice;
+
+  formData.append("deliveryMethod", method);
+  formData.append("deliveryPrice", deliveryPrice);
+  formData.append("total", total);
+  formData.append("quantity", quantity);
+
+  fetch("https://script.google.com/macros/s/AKfycbyLHKAilcWDDmx3-1Vw5XmyJ8Zq13kp79OauvKzy-DJkU75kRpXHd5x-M9bTC32rRNX/exec", {
+    method: "POST",
+    body: formData
+  })
+  .then(res => res.text())
+  .then(() => {
+    // حذف الرسالة
+    document.getElementById("loadingMsg").remove();
+    // إعادة التوجيه مع الرقم
+    window.location.href = `myorders.html?phone=${encodeURIComponent(phone)}`;
+  })
+  .catch(() => {
+    document.getElementById("loadingMsg").textContent = "❌ فشل الإرسال.";
+  });
+});
+  e.preventDefault();
+  const form = e.target;
+  const formData = new FormData(form);
 
   const wilaya = form.querySelector('[name="wilaya"]').value;
   const method = document.getElementById("deliveryMethod").value;
