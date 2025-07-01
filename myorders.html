@@ -124,12 +124,19 @@ function fetchMyOrders() {
       ordersTable.innerHTML = "";
       myOrders.forEach(row => {
         const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${row[13]}</td>
-          <td>${row[3]}</td>
+        tr.innerHTML = 
+          <td>${row[12]}</td>
+          <td>${row[11]}</td>
+          <td>${row[10]}</td>
+          <td>${row[9]}</td>
+          <td>${row[8]}</td>
+          <td>${row[7]}</td>
+          <td>${row[6]}</td>
           <td>${row[5]}</td>
           <td>${row[4]}</td>
-          <td>${row[9]}</td>
+          <td>${row[3]}</td>
+          <td>${row[2]}</td>
+          <td>${row[1]}</td>
           <td>${row[14] || "قيد المعالجة"}</td>
         `;
         ordersTable.appendChild(tr);
