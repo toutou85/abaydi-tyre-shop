@@ -18,7 +18,7 @@
 <h2>📦 نموذج طلب إطار</h2>
 <form id="orderForm">
   <input type="text" name="fullName" placeholder="الاسم واللقب" required>
-  <input type="tel" name="phone" placeholder="رقم الهاتف" required>
+ <input type="tel" name="phone" placeholder="رقم الهاتف" pattern="(05|06|07)[0-9]{8}" required title="رقم الهاتف يجب أن يكون 10 أرقام ويبدأ بـ 05 أو 06 أو 07">
   <input type="text" name="tireType" placeholder="نوع الإطار" required>
   <input type="text" name="tireNumber" placeholder="رقم الإطار" required>
   <input type="number" name="tirePrice" id="tirePrice" placeholder="سعر الإطار (دج)" readonly required>
