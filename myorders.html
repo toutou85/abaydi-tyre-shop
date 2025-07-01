@@ -76,9 +76,24 @@ function loadOrders() {
   fetch(sheetURL)
     .then(res => res.text())
     .then(csv => {
-      const rows = csv.trim().split("\n").slice(1);
-      const filtered = rows.map(row => row.split(",")).filter(cols => cols[1] === phone);
-
+  const lines = csv.trim().split('\n').slice(1);
+  const orders = lines.map(line => {
+    const row = line.split(',');
+    return {
+      name: row[1],
+      phone: row[2],          // ✅ العمود C
+      tireType: row[3],       // ✅ العمود D
+      tireNumber: row[4],     // ✅ العمود E
+      tirePrice: row[5],      // ✅ العمود F
+      wilaya: row[6],         // ✅ العمود G
+      deliveryMethod: row[7], // ✅ العمود H
+      deliveryPrice: row[8],  // ✅ العمود I
+      total: row[9],          // ✅ العمود J
+      address: row[10],       // ✅ العمود K
+      note: row[11],          // ✅ العمود L
+      date: row[12],          // ✅ العمود M
+    };
+  });
       if (filtered.length === 0) {
         errorDiv.textContent = "⚠️ لا توجد طلبات مسجلة بهذا الرقم.";
         table.style.display = "none";
