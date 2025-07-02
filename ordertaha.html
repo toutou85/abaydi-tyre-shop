@@ -116,7 +116,7 @@ let currentPage = 1;
 fetch(csvUrl)
   .then(res => res.text())
   .then(csv => {
-    const lines = csv.trim().split('\n');
+    const rows = text.trim().split('\n').slice(1).reverse();
     allRows = lines.slice(1).map(line => line.split(','));
     showPage(1);
     renderPagination();
