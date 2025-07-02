@@ -1,4 +1,4 @@
-صحح حسب تعديلات  <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
@@ -64,8 +64,9 @@ function fetchMyOrders() {
   fetch(sheetURL)
     .then(res => res.text())
     .then(text => {
-     const rows = text.trim().split('\n').slice(1).reverse();
-      const myOrders = rows.filter(r => r[2] === phone).reverse();
+      const rows = text.trim().split('\n').slice(1).map(row => row.split(",")).reverse(); // آخر طلب أولاً
+      const myOrders = rows.filter(r => r[2].replace(/^'/, "") === phone); // إزالة ' من الرقم في CSV
+
       if (myOrders.length === 0) {
         errorMsg.textContent = "❌ لم يتم العثور على أي طلبات.";
         section.style.display = "none";
@@ -79,9 +80,20 @@ function fetchMyOrders() {
       myOrders.forEach(row => {
         const tr = document.createElement("tr");
         tr.innerHTML = `
-          <td>${row[0]}</td><td>${row[2]}</td><td>${row[3]}</td><td>${row[4]}</td><td>${row[5]}</td>
-          <td>${row[12] || "1"}</td><td>${row[6]}</td><td>${row[13]}</td><td>${row[14]}</td>
-          <td>${row[15]}</td><td>${row[7]}</td><td>${row[8]}</td><td>${row[9]}</td><td>${row[16] || "قيد المعالجة"}</td>
+          <td>${row[1]}</td>  <!-- الاسم -->
+          <td>${row[2]}</td>  <!-- الهاتف -->
+          <td>${row[3]}</td>  <!-- نوع الإطار -->
+          <td>${row[4]}</td>  <!-- رقم الإطار -->
+          <td>${row[5]}</td>  <!-- سعر الإطار -->
+          <td>${row[6]}</td>  <!-- الكمية -->
+          <td>${row[7]}</td>  <!-- الولاية -->
+          <td>${row[8]}</td>  <!-- نوع التوصيل -->
+          <td>${row[9]}</td>  <!-- سعر التوصيل -->
+          <td>${row[10]}</td> <!-- المجموع -->
+          <td>${row[11]}</td> <!-- العنوان -->
+          <td>${row[12]}</td> <!-- ملاحظة -->
+          <td>${row[13]}</td> <!-- التاريخ -->
+          <td>${row[14]}</td> <!-- الحالة -->
         `;
         table.appendChild(tr);
       });
