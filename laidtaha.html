@@ -35,7 +35,7 @@
     <button type="submit">➕ إضافة منتج</button>
   </form>
 
-  <input type="text" id="searchBar" placeholder="🔍 ابحث عن منتج...">
+  <input type="text" id="searchBar" placeholder="🔍 ابحث عن منتج..." oninput="filterProducts()">
 
   <table>
     <thead>
@@ -55,12 +55,15 @@
   <div class="pagination" id="pagination"></div>
 </div>
 
+<audio id="notifSound" src="https://notificationsounds.com/storage/sounds/file-sounds-1153-pristine.mp3" preload="auto"></audio>
+
 <script>
 const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQBz1iucjkuwAG78fd6m1zE4oXKuaZzlgVGO7cK1uts7UkTFgT0nxpqXA-ovj8iOa9FhujqCSpxHrXw/pub?output=csv";
 const addURL = "https://script.google.com/macros/s/AKfycbzrSTgZntbRMQmlosRQoHGeJXKOIF-yl4SLqnE-DYlzlYjxez-4EaxslwyDRy1KeRdx/exec";
+const ordersSheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTyCRa-FUh6a62brIHe7tg4YImWLVEuEjsaYtIQGeAxrqt8-dQzcfoH-uQ5H8YHG36soStv6Zuwbd4a/pub?output=csv";
 
 let allProducts = [];
-let originalProducts = [];
+let fullProducts = [];
 let perPage = 10;
 let currentPage = 1;
 
@@ -69,11 +72,11 @@ function loadProducts() {
     .then(res => res.text())
     .then(text => {
       const rows = text.trim().split("\n").slice(1);
-      originalProducts = rows.map(row => {
+      allProducts = rows.map(row => {
         const [number, brand, price, quantity, img] = row.split(",");
         return { number, brand, price, quantity, img };
       });
-      allProducts = [...originalProducts];
+      fullProducts = [...allProducts];
       renderProducts();
       renderPagination();
     });
@@ -162,21 +165,15 @@ function renderPagination() {
   }
 }
 
-// ⏳ بحث تلقائي مع تحسين الأداء
-let debounceTimer;
-document.getElementById("searchBar").addEventListener("input", () => {
-  clearTimeout(debounceTimer);
-  debounceTimer = setTimeout(() => {
-    const input = document.getElementById("searchBar").value.toLowerCase();
-    allProducts = originalProducts.filter(p =>
-      p.number.toLowerCase().includes(input) ||
-      p.brand.toLowerCase().includes(input)
-    );
-    currentPage = 1;
-    renderProducts();
-    renderPagination();
-  }, 300); // ← تأخير 300ms لتحسين الأداء
-});
+function filterProducts() {
+  const input = document.getElementById("searchBar").value.toLowerCase();
+  allProducts = fullProducts.filter(p =>
+    p.number.toLowerCase().includes(input) || p.brand.toLowerCase().includes(input)
+  );
+  currentPage = 1;
+  renderProducts();
+  renderPagination();
+}
 
 document.getElementById("productForm").addEventListener("submit", function(e) {
   e.preventDefault();
@@ -195,7 +192,53 @@ document.getElementById("productForm").addEventListener("submit", function(e) {
   .catch(() => alert("❌ فشل في الإضافة"));
 });
 
-window.onload = loadProducts;
+// 🔔 إشعار بالطلبات الجديدة
+function checkNewOrders(auto = false) {
+  fetch(ordersSheetURL)
+    .then(res => res.text())
+    .then(text => {
+      const lines = text.trim().split("\n");
+      const totalOrders = lines.length - 1;
+      const lastCount = parseInt(localStorage.getItem("lastOrderCount")) || 0;
+
+      if (totalOrders > lastCount) {
+        showOrderNotification(totalOrders - lastCount);
+        playNotifSound();
+      }
+
+      localStorage.setItem("lastOrderCount", totalOrders);
+    });
+}
+
+function showOrderNotification(diff) {
+  const notif = document.createElement("div");
+  notif.style = `
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    background: #28a745;
+    color: white;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    font-size: 16px;
+    z-index: 9999;
+  `;
+  notif.innerHTML = `📦 لديك ${diff} طلب جديد!`;
+  document.body.appendChild(notif);
+  setTimeout(() => notif.remove(), 6000);
+}
+
+function playNotifSound() {
+  const sound = document.getElementById("notifSound");
+  sound.play().catch(() => {});
+}
+
+window.onload = () => {
+  loadProducts();
+  checkNewOrders();
+  setInterval(() => checkNewOrders(true), 60000);
+};
 </script>
 </body>
 </html>
