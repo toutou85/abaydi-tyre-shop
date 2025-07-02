@@ -2,20 +2,14 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>📋 قائمة الطلبات - Abaydi Shop</title>
-  <script>
-    if (!sessionStorage.getItem("loggedIn")) {
-      window.location.href = "login.html";
-    }
-  </script>
+  <title>📋 إدارة الطلبات - Abaydi Shop</title>
   <style>
     body {
       font-family: Tahoma, sans-serif;
       background: #f2f2f2;
       padding: 20px;
     }
-    h1, h2 {
+    h2 {
       text-align: center;
       color: #333;
     }
@@ -23,58 +17,55 @@
       width: 100%;
       border-collapse: collapse;
       margin-top: 20px;
-      direction: rtl;
     }
     th, td {
-      padding: 10px;
       border: 1px solid #ccc;
+      padding: 8px;
       text-align: center;
+      font-size: 14px;
     }
     th {
       background-color: #007bff;
       color: white;
     }
-    tr:nth-child(even) {
-      background-color: #f9f9f9;
-    }
-    .back-btn {
-      display: inline-block;
-      margin: 20px auto;
-      background: #28a745;
-      color: white;
-      padding: 10px 20px;
-      text-decoration: none;
-      border-radius: 8px;
-    }
-    .pagination button {
-      margin: 0 5px;
-      padding: 5px 10px;
-      background-color: #007bff;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-    .controls {
+    .btns {
       text-align: center;
       margin-bottom: 20px;
     }
-    .controls button {
-      margin: 0 10px;
-      padding: 8px 16px;
-      background: #333;
+    .btns button {
+      margin: 5px;
+      padding: 8px 12px;
+      font-size: 14px;
+      background: #007bff;
       color: white;
       border: none;
       border-radius: 5px;
       cursor: pointer;
     }
+    .pagination {
+      text-align: center;
+      margin-top: 20px;
+    }
+    .pagination button {
+      margin: 3px;
+      padding: 5px 10px;
+      border: none;
+      background: #007bff;
+      color: white;
+      border-radius: 4px;
+    }
   </style>
+  <script>
+    if (!sessionStorage.getItem("loggedIn")) {
+      window.location.href = "login.html";
+    }
+  </script>
 </head>
 <body>
 
-<h2>📦 قائمة الطلبات</h2>
+<h2>📋 جميع الطلبات</h2>
 
-<div class="controls">
+<div class="btns">
   <button onclick="printTable()">🖨️ طباعة</button>
   <button onclick="exportToWord()">📄 تحميل Word</button>
 </div>
@@ -82,49 +73,45 @@
 <table id="ordersTable">
   <thead>
     <tr>
-      <th>📆 التاريخ</th>
       <th>الاسم</th>
-      <th>📞 الهاتف</th>
+      <th>الهاتف</th>
       <th>نوع الإطار</th>
       <th>رقم الإطار</th>
+      <th>الكمية</th>
       <th>السعر</th>
       <th>الولاية</th>
-      <th>📍 العنوان</th>
-      <th>🚚 توصيل</th>
-      <th>💰 المجموع</th>
-      <th>📄 ملاحظة</th>
-      <th>🛠️ الحالة</th>
+      <th>نوع التوصيل</th>
+      <th>سعر التوصيل</th>
+      <th>المجموع</th>
+      <th>العنوان</th>
+      <th>ملاحظة</th>
+      <th>التاريخ</th>
+      <th>الحالة</th>
     </tr>
   </thead>
   <tbody id="ordersBody">
-    <tr><td colspan="12">⏳ جاري التحميل...</td></tr>
+    <tr><td colspan="14">⏳ جاري التحميل...</td></tr>
   </tbody>
 </table>
 
-<div id="pagination" style="text-align:center; margin-top:20px;"></div>
-
-<div style="text-align: center;">
-  <a href="tahalaid.html" class="back-btn">🔙 رجوع إلى لوحة التحكم</a>
-</div>
+<div class="pagination" id="pagination"></div>
 
 <script>
 const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTyCRa-FUh6a62brIHe7tg4YImWLVEuEjsaYtIQGeAxrqt8-dQzcfoH-uQ5H8YHG36soStv6Zuwbd4a/pub?output=csv";
 let allRows = [];
-const rowsPerPage = 10;
+let rowsPerPage = 10;
 let currentPage = 1;
 
-fetch(csvUrl)
-  .then(res => res.text())
-  .then(csv => {
-    const rows = text.trim().split('\n').slice(1).reverse();
-    allRows = lines.slice(1).map(line => line.split(','));
-    showPage(1);
-    renderPagination();
-  })
-  .catch(err => {
-    console.error(err);
-    document.getElementById("ordersBody").innerHTML = '<tr><td colspan="12">❌ تعذر تحميل الطلبات</td></tr>';
-  });
+function fetchOrders() {
+  fetch(csvUrl)
+    .then(res => res.text())
+    .then(csv => {
+      const lines = csv.trim().split("\n").slice(1).reverse(); // الأحدث أولاً
+      allRows = lines.map(row => row.split(","));
+      showPage(1);
+      renderPagination();
+    });
+}
 
 function showPage(page) {
   currentPage = page;
@@ -137,17 +124,22 @@ function showPage(page) {
 
   pageRows.forEach(row => {
     const tr = document.createElement("tr");
-    for (let i = 0; i < 11; i++) {
-      const td = document.createElement("td");
-      td.textContent = row[i] || "";
-      tr.appendChild(td);
-    }
-
-    // عرض الحالة إذا كانت موجودة، أو "قيد المعالجة"
-    const statusCell = document.createElement("td");
-    statusCell.textContent = row[11] || "قيد المعالجة";
-    tr.appendChild(statusCell);
-
+    tr.innerHTML = `
+      <td>${row[1]}</td>
+      <td>${row[2]}</td>
+      <td>${row[3]}</td>
+      <td>${row[4]}</td>
+      <td>${row[11]}</td>
+      <td>${row[5]}</td>
+      <td>${row[6]}</td>
+      <td>${row[7]}</td>
+      <td>${row[8]}</td>
+      <td>${row[9]}</td>
+      <td>${row[10]}</td>
+      <td>${row[12]}</td>
+      <td>${row[13]}</td>
+      <td contenteditable="true">${row[14] || "⏳ قيد المعالجة"}</td>
+    `;
     tbody.appendChild(tr);
   });
 }
@@ -156,33 +148,33 @@ function renderPagination() {
   const totalPages = Math.ceil(allRows.length / rowsPerPage);
   const container = document.getElementById("pagination");
   container.innerHTML = "";
-
   for (let i = 1; i <= totalPages; i++) {
     const btn = document.createElement("button");
     btn.textContent = i;
+    if (i === currentPage) btn.style.background = "#0056b3";
     btn.onclick = () => showPage(i);
     container.appendChild(btn);
   }
 }
 
 function printTable() {
-  const tableHTML = document.getElementById("ordersTable").outerHTML;
+  const printContents = document.getElementById("ordersTable").outerHTML;
   const win = window.open('', '', 'height=700,width=900');
-  win.document.write('<html><head><title>طباعة الطلبات</title>');
-  win.document.write('<style>table{width:100%;border-collapse:collapse;text-align:center;}th,td{border:1px solid #000;padding:5px;}</style>');
+  win.document.write('<html><head><title>طباعة الطلبيات</title>');
+  win.document.write('<style>table { width: 100%; border-collapse: collapse; } th, td { border: 1px solid #000; padding: 5px; }</style>');
   win.document.write('</head><body>');
-  win.document.write('<h2 style="text-align:center;">📦 قائمة الطلبات</h2>');
-  win.document.write(tableHTML);
+  win.document.write('<h2 style="text-align:center;">📦 جميع الطلبات</h2>');
+  win.document.write(printContents);
   win.document.write('</body></html>');
   win.document.close();
   win.print();
 }
 
 function exportToWord() {
-  const header = "<html xmlns:o='urn:schemas-microsoft-com:office:office'" +
-                 "xmlns:w='urn:schemas-microsoft-com:office:word'" +
+  const header = "<html xmlns:o='urn:schemas-microsoft-com:office:office' " +
+                 "xmlns:w='urn:schemas-microsoft-com:office:word' " +
                  "xmlns='http://www.w3.org/TR/REC-html40'>" +
-                 "<head><meta charset='utf-8'><title>تصدير إلى Word</title></head><body>";
+                 "<head><meta charset='utf-8'><title>تصدير الطلبات</title></head><body>";
   const footer = "</body></html>";
   const tableHTML = document.getElementById("ordersTable").outerHTML;
   const sourceHTML = header + tableHTML + footer;
@@ -191,11 +183,12 @@ function exportToWord() {
   const fileDownload = document.createElement("a");
   document.body.appendChild(fileDownload);
   fileDownload.href = source;
-  fileDownload.download = 'الطلبيات.doc';
+  fileDownload.download = 'طلبات_abaydi.doc';
   fileDownload.click();
   document.body.removeChild(fileDownload);
 }
-</script>
 
+window.onload = fetchOrders;
+</script>
 </body>
 </html>
