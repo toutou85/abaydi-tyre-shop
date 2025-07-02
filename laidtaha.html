@@ -20,9 +20,40 @@
     button { background: #28a745; color: white; border: none; cursor: pointer; }
     .pagination button { margin: 5px; padding: 5px 10px; border: none; background: #007bff; color: white; border-radius: 5px; }
     #searchBar { width: 100%; padding: 10px; margin-top: 10px; border: 1px solid #aaa; border-radius: 5px; }
+
+    #notifButton {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      background: #007bff;
+      color: white;
+      font-size: 24px;
+      border: none;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+      cursor: pointer;
+      z-index: 9999;
+    }
+
+    #orderNotif {
+      display: none;
+      position: fixed;
+      top: 70px;
+      left: 20px;
+      background: #007bff;
+      color: white;
+      padding: 15px 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.3);
+      font-size: 16px;
+      z-index: 9999;
+    }
   </style>
 </head>
 <body>
+
 <div class="container">
   <h2>🛒 إدارة المنتجات</h2>
 
@@ -54,86 +85,15 @@
   </table>
   <div class="pagination" id="pagination"></div>
 </div>
-<!-- صوت الإشعار -->
+
+<!-- 🔔 زر إشعارات دائم -->
+<button id="notifButton" onclick="openOrders()" title="عرض الطلبيات الجديدة">🔔</button>
+
+<!-- 📢 صوت الإشعار -->
 <audio id="notifSound" src="https://ia803407.us.archive.org/33/items/sumsung_galaxy_s4/sumsung_galaxy_s4.mp3" preload="auto"></audio>
 
-<script>
-const ordersSheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTyCRa-FUh6a62brIHe7tg4YImWLVEuEjsaYtIQGeAxrqt8-dQzcfoH-uQ5H8YHG36soStv6Zuwbd4a/pub?output=csv";
-
-// التحقق من الطلبات الجديدة كل دقيقة
-function checkNewOrders() {
-  fetch(ordersSheetURL)
-    .then(res => res.text())
-    .then(text => {
-      const lines = text.trim().split("\n");
-      const currentCount = lines.length - 1;
-      const lastCount = parseInt(localStorage.getItem("lastOrderCount")) || 0;
-
-      if (currentCount > lastCount) {
-        const newOrders = currentCount - lastCount;
-        showOrderNotification(newOrders);
-        playNotifSound();
-      }
-
-      localStorage.setItem("lastOrderCount", currentCount);
-    });
-}
-
-// تشغيل صوت الإشعار
-function playNotifSound() {
-  const sound = document.getElementById("notifSound");
-  if (sound) sound.play().catch(() => {});
-}
-
-// عرض الإشعار مع زر
-function showOrderNotification(diff) {
-  if (document.getElementById("orderNotif")) return; // لا تكرر الإشعار
-
-  const notif = document.createElement("div");
-  notif.id = "orderNotif";
-  notif.style = `
-    position: fixed;
-    top: 20px;
-    left: 20px;
-    background: #007bff;
-    color: white;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 0 15px rgba(0,0,0,0.3);
-    font-size: 16px;
-    z-index: 9999;
-    text-align: center;
-  `;
-
-  notif.innerHTML = `
-    <p>📦 تم استلام <strong>${diff}</strong> طلب جديد!</p>
-    <button id="goToOrdersBtn" style="
-      margin-top: 10px;
-      background: white;
-      color: #007bff;
-      border: none;
-      padding: 8px 14px;
-      border-radius: 5px;
-      cursor: pointer;
-      font-weight: bold;
-    ">عرض الطلبيات 📝</button>
-  `;
-
-  document.body.appendChild(notif);
-
-  // عند الضغط على الزر
-  document.getElementById("goToOrdersBtn").addEventListener("click", function () {
-    document.getElementById("orderNotif").remove(); // إزالة الإشعار
-    window.open("ordertaha.html", "_blank"); // الانتقال إلى صفحة الطلبيات
-  });
-}
-
-// تشغيل التحقق عند تحميل الصفحة وكل دقيقة
-window.addEventListener("load", () => {
-  checkNewOrders();
-  setInterval(checkNewOrders, 60000); // كل دقيقة
-});
-</script>
+<!-- 💬 إشعار منبثق -->
+<div id="orderNotif">📦 تم استلام طلب جديد!</div>
 
 <script>
 const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQBz1iucjkuwAG78fd6m1zE4oXKuaZzlgVGO7cK1uts7UkTFgT0nxpqXA-ovj8iOa9FhujqCSpxHrXw/pub?output=csv";
@@ -164,7 +124,6 @@ function renderProducts() {
   const start = (currentPage - 1) * perPage;
   const end = start + perPage;
   const products = allProducts.slice(start, end);
-
   const container = document.getElementById("productList");
   container.innerHTML = "";
 
@@ -179,10 +138,7 @@ function renderProducts() {
       <td>${p.number}</td>
       <td>${p.brand}</td>
       <td><input type="number" value="${p.price}" id="price-${index}" style="width: 70px;"></td>
-      <td>
-        <img src="${p.img}" width="50"><br>
-        <input type="text" value="${p.img}" id="img-${index}" style="width: 90%;">
-      </td>
+      <td><img src="${p.img}" width="50"><br><input type="text" value="${p.img}" id="img-${index}" style="width: 90%;"></td>
       <td>
         <div style="display: flex; align-items: center; justify-content: center; gap: 5px;">
           <button onclick="changeQty(${index}, -1)">➖</button>
@@ -207,7 +163,6 @@ function saveChanges(index, number) {
   const price = document.getElementById(`price-${index}`).value;
   const img = document.getElementById(`img-${index}`).value;
   const quantity = document.getElementById(`qty-${index}`).textContent;
-
   const formData = new FormData();
   formData.append("action", "update");
   formData.append("number", number);
@@ -253,6 +208,45 @@ function filterProducts() {
   renderPagination();
 }
 
+// 🔔 الإشعار
+function playNotifSound() {
+  const sound = document.getElementById("notifSound");
+  sound.play().catch(() => {});
+}
+
+function showNotifPopup() {
+  const popup = document.getElementById("orderNotif");
+  popup.style.display = "block";
+  playNotifSound();
+  setTimeout(() => {
+    popup.style.display = "none";
+  }, 7000);
+}
+
+function openOrders() {
+  window.open("ordertaha.html", "_blank");
+}
+
+function checkNewOrders() {
+  fetch(ordersSheetURL)
+    .then(res => res.text())
+    .then(text => {
+      const rows = text.trim().split("\n");
+      const current = rows.length - 1;
+      const last = parseInt(localStorage.getItem("lastOrderCount")) || 0;
+      if (current > last) {
+        showNotifPopup();
+      }
+      localStorage.setItem("lastOrderCount", current);
+    });
+}
+
+window.onload = () => {
+  loadProducts();
+  checkNewOrders();
+  setInterval(checkNewOrders, 60000);
+};
+
 document.getElementById("productForm").addEventListener("submit", function(e) {
   e.preventDefault();
   const formData = new FormData(this);
@@ -269,155 +263,7 @@ document.getElementById("productForm").addEventListener("submit", function(e) {
   })
   .catch(() => alert("❌ فشل في الإضافة"));
 });
-
-// 🔔 إشعار بالطلبات الجديدة
-function checkNewOrders() {
-  fetch(ordersSheetURL)
-    .then(res => res.text())
-    .then(text => {
-      const lines = text.trim().split("\n");
-      const totalOrders = lines.length - 1;
-      const lastCount = parseInt(localStorage.getItem("lastOrderCount")) || 0;
-
-      if (totalOrders > lastCount) {
-        showOrderNotification(totalOrders - lastCount);
-        playNotifSound();
-      }
-
-      localStorage.setItem("lastOrderCount", totalOrders);
-    });
-}
-
-function showOrderNotification(diff) {
-  const notif = document.createElement("div");
-  notif.id = "orderNotif";
-  notif.style = `
-    position: fixed;
-    top: 20px;
-    left: 20px;
-    background: #007bff;
-    color: white;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 0 15px rgba(0,0,0,0.2);
-    font-size: 16px;
-    z-index: 9999;
-    text-align: center;
-  `;
-  notif.innerHTML = `
-    <p>📦 تم استلام <strong>${diff}</strong> طلب جديد!</p>
-    <button onclick="hideNotifAndGo()" style="margin-top: 10px; background: white; color: #007bff; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer;">
-      عرض الطلبيات 📝
-    </button>
-  `;
-  document.body.appendChild(notif);
-}
-
-function hideNotifAndGo() {
-  const notif = document.getElementById("orderNotif");
-  if (notif) notif.remove();
-  window.open("ordertaha.html", "_blank");
-}
-
-function playNotifSound() {
-  const sound = document.getElementById("notifSound");
-  sound.play().catch(() => {});
-}
-
-window.onload = () => {
-  loadProducts();
-  checkNewOrders();
-  setInterval(() => checkNewOrders(), 60000); // كل دقيقة
-};
 </script>
-<!-- زر الإشعارات -->
-<button id="notifButton" onclick="openOrders()" title="عرض الطلبات الجديدة">🔔</button>
 
-<!-- صوت الإشعار -->
-<audio id="notifSound" src="https://ia803407.us.archive.org/33/items/sumsung_galaxy_s4/sumsung_galaxy_s4.mp3" preload="auto"></audio>
-
-<!-- إشعار منبثق -->
-<div id="orderNotif" style="
-  display: none;
-  position: fixed;
-  top: 70px;
-  left: 20px;
-  background: #007bff;
-  color: white;
-  padding: 15px 20px;
-  border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0,0,0,0.3);
-  font-size: 16px;
-  z-index: 9999;
-">
-  📦 تم استلام طلب جديد!
-</div>
-
-<style>
-#notifButton {
-  position: fixed;
-  bottom: 20px;
-  left: 20px;
-  background: #007bff;
-  color: white;
-  font-size: 24px;
-  border: none;
-  border-radius: 50%;
-  width: 50px;
-  height: 50px;
-  box-shadow: 0 0 10px rgba(0,0,0,0.2);
-  cursor: pointer;
-  z-index: 9999;
-}
-</style>
-
-<script>
-const ordersSheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTyCRa-FUh6a62brIHe7tg4YImWLVEuEjsaYtIQGeAxrqt8-dQzcfoH-uQ5H8YHG36soStv6Zuwbd4a/pub?output=csv";
-
-// تشغيل صوت
-function playNotifSound() {
-  const sound = document.getElementById("notifSound");
-  sound.play().catch(() => {});
-}
-
-// عرض الإشعار
-function showNotifPopup() {
-  const popup = document.getElementById("orderNotif");
-  popup.style.display = "block";
-  playNotifSound();
-
-  setTimeout(() => {
-    popup.style.display = "none";
-  }, 8000); // إخفاء الإشعار بعد 8 ثواني
-}
-
-// الانتقال إلى صفحة الطلبيات
-function openOrders() {
-  window.open("ordertaha.html", "_blank");
-}
-
-// التحقق من طلبات جديدة
-function checkNewOrders() {
-  fetch(ordersSheetURL)
-    .then(res => res.text())
-    .then(csv => {
-      const rows = csv.trim().split("\n");
-      const current = rows.length - 1;
-      const last = parseInt(localStorage.getItem("lastOrderCount")) || 0;
-
-      if (current > last) {
-        showNotifPopup();
-      }
-
-      localStorage.setItem("lastOrderCount", current);
-    });
-}
-
-// عند تحميل الصفحة
-window.addEventListener("load", () => {
-  checkNewOrders();
-  setInterval(checkNewOrders, 60000); // كل دقيقة
-});
-</script>
 </body>
 </html>
