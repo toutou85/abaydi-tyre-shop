@@ -330,5 +330,94 @@ window.onload = () => {
   setInterval(() => checkNewOrders(), 60000); // كل دقيقة
 };
 </script>
+<!-- زر الإشعارات -->
+<button id="notifButton" onclick="openOrders()" title="عرض الطلبات الجديدة">🔔</button>
+
+<!-- صوت الإشعار -->
+<audio id="notifSound" src="https://ia803407.us.archive.org/33/items/sumsung_galaxy_s4/sumsung_galaxy_s4.mp3" preload="auto"></audio>
+
+<!-- إشعار منبثق -->
+<div id="orderNotif" style="
+  display: none;
+  position: fixed;
+  top: 70px;
+  left: 20px;
+  background: #007bff;
+  color: white;
+  padding: 15px 20px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.3);
+  font-size: 16px;
+  z-index: 9999;
+">
+  📦 تم استلام طلب جديد!
+</div>
+
+<style>
+#notifButton {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  background: #007bff;
+  color: white;
+  font-size: 24px;
+  border: none;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.2);
+  cursor: pointer;
+  z-index: 9999;
+}
+</style>
+
+<script>
+const ordersSheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTyCRa-FUh6a62brIHe7tg4YImWLVEuEjsaYtIQGeAxrqt8-dQzcfoH-uQ5H8YHG36soStv6Zuwbd4a/pub?output=csv";
+
+// تشغيل صوت
+function playNotifSound() {
+  const sound = document.getElementById("notifSound");
+  sound.play().catch(() => {});
+}
+
+// عرض الإشعار
+function showNotifPopup() {
+  const popup = document.getElementById("orderNotif");
+  popup.style.display = "block";
+  playNotifSound();
+
+  setTimeout(() => {
+    popup.style.display = "none";
+  }, 8000); // إخفاء الإشعار بعد 8 ثواني
+}
+
+// الانتقال إلى صفحة الطلبيات
+function openOrders() {
+  window.open("ordertaha.html", "_blank");
+}
+
+// التحقق من طلبات جديدة
+function checkNewOrders() {
+  fetch(ordersSheetURL)
+    .then(res => res.text())
+    .then(csv => {
+      const rows = csv.trim().split("\n");
+      const current = rows.length - 1;
+      const last = parseInt(localStorage.getItem("lastOrderCount")) || 0;
+
+      if (current > last) {
+        showNotifPopup();
+      }
+
+      localStorage.setItem("lastOrderCount", current);
+    });
+}
+
+// عند تحميل الصفحة
+window.addEventListener("load", () => {
+  checkNewOrders();
+  setInterval(checkNewOrders, 60000); // كل دقيقة
+});
+</script>
 </body>
 </html>
