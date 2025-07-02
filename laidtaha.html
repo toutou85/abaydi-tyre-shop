@@ -55,7 +55,8 @@
   <div class="pagination" id="pagination"></div>
 </div>
 
-<audio id="notifSound" src="https://notificationsounds.com/storage/sounds/file-sounds-1153-pristine.mp3" preload="auto"></audio>
+<!-- صوت الإشعار -->
+<audio id="notifSound" src="https://ia803407.us.archive.org/33/items/sumsung_galaxy_s4/sumsung_galaxy_s4.mp3" preload="auto"></audio>
 
 <script>
 const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQBz1iucjkuwAG78fd6m1zE4oXKuaZzlgVGO7cK1uts7UkTFgT0nxpqXA-ovj8iOa9FhujqCSpxHrXw/pub?output=csv";
@@ -193,7 +194,7 @@ document.getElementById("productForm").addEventListener("submit", function(e) {
 });
 
 // 🔔 إشعار بالطلبات الجديدة
-function checkNewOrders(auto = false) {
+function checkNewOrders() {
   fetch(ordersSheetURL)
     .then(res => res.text())
     .then(text => {
@@ -212,21 +213,33 @@ function checkNewOrders(auto = false) {
 
 function showOrderNotification(diff) {
   const notif = document.createElement("div");
+  notif.id = "orderNotif";
   notif.style = `
     position: fixed;
     top: 20px;
     left: 20px;
-    background: #28a745;
+    background: #007bff;
     color: white;
-    padding: 15px;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.2);
     font-size: 16px;
     z-index: 9999;
+    text-align: center;
   `;
-  notif.innerHTML = `📦 لديك ${diff} طلب جديد!`;
+  notif.innerHTML = `
+    <p>📦 تم استلام <strong>${diff}</strong> طلب جديد!</p>
+    <button onclick="hideNotifAndGo()" style="margin-top: 10px; background: white; color: #007bff; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer;">
+      عرض الطلبيات 📝
+    </button>
+  `;
   document.body.appendChild(notif);
-  setTimeout(() => notif.remove(), 6000);
+}
+
+function hideNotifAndGo() {
+  const notif = document.getElementById("orderNotif");
+  if (notif) notif.remove();
+  window.open("ordertaha.html", "_blank");
 }
 
 function playNotifSound() {
@@ -237,7 +250,7 @@ function playNotifSound() {
 window.onload = () => {
   loadProducts();
   checkNewOrders();
-  setInterval(() => checkNewOrders(true), 60000);
+  setInterval(() => checkNewOrders(), 60000); // كل دقيقة
 };
 </script>
 </body>
