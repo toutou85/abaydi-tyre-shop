@@ -9,38 +9,87 @@
     }
   </script>
   <style>
-    body { font-family: Tahoma, sans-serif; background: #f5f5f5; padding: 20px; }
-    .container { max-width: 1000px; margin: auto; background: white; padding: 20px; border-radius: 10px; }
-    h2 { text-align: center; }
-    input, button { padding: 10px; margin: 5px 0; border: 1px solid #ccc; border-radius: 5px; }
-    input[type="text"], input[type="url"] { width: 100%; }
-    table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 14px; }
-    th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
-    th { background: #007bff; color: white; }
-    button { background: #28a745; color: white; border: none; cursor: pointer; }
-    .pagination button { margin: 5px; padding: 5px 10px; border: none; background: #007bff; color: white; border-radius: 5px; }
-    #searchBar { width: 100%; padding: 10px; margin-top: 10px; border: 1px solid #aaa; border-radius: 5px; }
-
+    body {
+      font-family: Tahoma, sans-serif;
+      background: #f5f5f5;
+      padding: 20px;
+    }
+    .container {
+      max-width: 1000px;
+      margin: auto;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+    }
+    h2 {
+      text-align: center;
+    }
+    input, button {
+      padding: 10px;
+      margin: 5px 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    input[type="text"], input[type="url"] {
+      width: 100%;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      font-size: 14px;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      text-align: center;
+    }
+    th {
+      background: #007bff;
+      color: white;
+    }
+    button {
+      background: #28a745;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    .pagination button {
+      margin: 5px;
+      padding: 5px 10px;
+      border: none;
+      background: #007bff;
+      color: white;
+      border-radius: 5px;
+    }
+    #searchBar {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      border: 1px solid #aaa;
+      border-radius: 5px;
+    }
+    /* زر الإشعار */
     #notifButton {
       position: fixed;
-      bottom: 20px;
+      top: 20px;
       left: 20px;
       background: #007bff;
       color: white;
-      font-size: 24px;
+      font-size: 28px;
       border: none;
       border-radius: 50%;
-      width: 50px;
-      height: 50px;
+      width: 60px;
+      height: 60px;
       box-shadow: 0 0 10px rgba(0,0,0,0.2);
       cursor: pointer;
       z-index: 9999;
     }
-
+    /* إشعار منبثق */
     #orderNotif {
       display: none;
       position: fixed;
-      top: 70px;
+      top: 90px;
       left: 20px;
       background: #007bff;
       color: white;
@@ -53,7 +102,6 @@
   </style>
 </head>
 <body>
-
 <div class="container">
   <h2>🛒 إدارة المنتجات</h2>
 
@@ -86,14 +134,14 @@
   <div class="pagination" id="pagination"></div>
 </div>
 
-<!-- 🔔 زر إشعارات دائم -->
-<button id="notifButton" onclick="openOrders()" title="عرض الطلبيات الجديدة">🔔</button>
+<!-- 🔔 زر الإشعار -->
+<button id="notifButton" onclick="openOrders()" title="عرض الطلبات الجديدة">🔔</button>
 
-<!-- 📢 صوت الإشعار -->
-<audio id="notifSound" src="https://ia803407.us.archive.org/33/items/sumsung_galaxy_s4/sumsung_galaxy_s4.mp3" preload="auto"></audio>
-
-<!-- 💬 إشعار منبثق -->
+<!-- 💬 الإشعار المنبثق -->
 <div id="orderNotif">📦 تم استلام طلب جديد!</div>
+
+<!-- 🎵 صوت الإشعار -->
+<audio id="notifSound" src="https://ia803407.us.archive.org/33/items/sumsung_galaxy_s4/sumsung_galaxy_s4.mp3" preload="auto"></audio>
 
 <script>
 const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQBz1iucjkuwAG78fd6m1zE4oXKuaZzlgVGO7cK1uts7UkTFgT0nxpqXA-ovj8iOa9FhujqCSpxHrXw/pub?output=csv";
@@ -138,7 +186,10 @@ function renderProducts() {
       <td>${p.number}</td>
       <td>${p.brand}</td>
       <td><input type="number" value="${p.price}" id="price-${index}" style="width: 70px;"></td>
-      <td><img src="${p.img}" width="50"><br><input type="text" value="${p.img}" id="img-${index}" style="width: 90%;"></td>
+      <td>
+        <img src="${p.img}" width="50"><br>
+        <input type="text" value="${p.img}" id="img-${index}" style="width: 90%;">
+      </td>
       <td>
         <div style="display: flex; align-items: center; justify-content: center; gap: 5px;">
           <button onclick="changeQty(${index}, -1)">➖</button>
@@ -163,6 +214,7 @@ function saveChanges(index, number) {
   const price = document.getElementById(`price-${index}`).value;
   const img = document.getElementById(`img-${index}`).value;
   const quantity = document.getElementById(`qty-${index}`).textContent;
+
   const formData = new FormData();
   formData.append("action", "update");
   formData.append("number", number);
@@ -201,51 +253,13 @@ function renderPagination() {
 function filterProducts() {
   const input = document.getElementById("searchBar").value.toLowerCase();
   allProducts = fullProducts.filter(p =>
-    p.number.toLowerCase().includes(input) || p.brand.toLowerCase().includes(input)
+    p.number.toLowerCase().includes(input) ||
+    p.brand.toLowerCase().includes(input)
   );
   currentPage = 1;
   renderProducts();
   renderPagination();
 }
-
-// 🔔 الإشعار
-function playNotifSound() {
-  const sound = document.getElementById("notifSound");
-  sound.play().catch(() => {});
-}
-
-function showNotifPopup() {
-  const popup = document.getElementById("orderNotif");
-  popup.style.display = "block";
-  playNotifSound();
-  setTimeout(() => {
-    popup.style.display = "none";
-  }, 7000);
-}
-
-function openOrders() {
-  window.open("ordertaha.html", "_blank");
-}
-
-function checkNewOrders() {
-  fetch(ordersSheetURL)
-    .then(res => res.text())
-    .then(text => {
-      const rows = text.trim().split("\n");
-      const current = rows.length - 1;
-      const last = parseInt(localStorage.getItem("lastOrderCount")) || 0;
-      if (current > last) {
-        showNotifPopup();
-      }
-      localStorage.setItem("lastOrderCount", current);
-    });
-}
-
-window.onload = () => {
-  loadProducts();
-  checkNewOrders();
-  setInterval(checkNewOrders, 60000);
-};
 
 document.getElementById("productForm").addEventListener("submit", function(e) {
   e.preventDefault();
@@ -263,7 +277,45 @@ document.getElementById("productForm").addEventListener("submit", function(e) {
   })
   .catch(() => alert("❌ فشل في الإضافة"));
 });
-</script>
 
+// إشعار الطلبيات الجديدة
+function checkNewOrders() {
+  fetch(ordersSheetURL)
+    .then(res => res.text())
+    .then(csv => {
+      const rows = csv.trim().split("\n");
+      const current = rows.length - 1;
+      const last = parseInt(localStorage.getItem("lastOrderCount")) || 0;
+
+      if (current > last) {
+        showNotifPopup();
+      }
+
+      localStorage.setItem("lastOrderCount", current);
+    });
+}
+
+function showNotifPopup() {
+  const popup = document.getElementById("orderNotif");
+  popup.style.display = "block";
+  playNotifSound();
+  setTimeout(() => popup.style.display = "none", 8000);
+}
+
+function openOrders() {
+  window.open("ordertaha.html", "_blank");
+}
+
+function playNotifSound() {
+  const sound = document.getElementById("notifSound");
+  sound.play().catch(() => {});
+}
+
+window.addEventListener("load", () => {
+  loadProducts();
+  checkNewOrders();
+  setInterval(checkNewOrders, 60000);
+});
+</script>
 </body>
 </html>
