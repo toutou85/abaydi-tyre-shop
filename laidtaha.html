@@ -4,10 +4,10 @@
   <meta charset="UTF-8">
   <title>إدارة المنتجات - laidtaha</title>
   <script>
-  if (!sessionStorage.getItem("loggedIn")) {
-    window.location.href = "login.html";
-  }
-</script>
+    if (!sessionStorage.getItem("loggedIn")) {
+      window.location.href = "login.html";
+    }
+  </script>
   <style>
     body { font-family: Tahoma, sans-serif; background: #f5f5f5; padding: 20px; }
     .container { max-width: 1000px; margin: auto; background: white; padding: 20px; border-radius: 10px; }
@@ -35,7 +35,7 @@
     <button type="submit">➕ إضافة منتج</button>
   </form>
 
-  <input type="text" id="searchBar" placeholder="🔍 ابحث عن منتج..." oninput="filterProducts()">
+  <input type="text" id="searchBar" placeholder="🔍 ابحث عن منتج...">
 
   <table>
     <thead>
@@ -60,6 +60,7 @@ const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQBz1iucjkuwAG
 const addURL = "https://script.google.com/macros/s/AKfycbzrSTgZntbRMQmlosRQoHGeJXKOIF-yl4SLqnE-DYlzlYjxez-4EaxslwyDRy1KeRdx/exec";
 
 let allProducts = [];
+let originalProducts = [];
 let perPage = 10;
 let currentPage = 1;
 
@@ -68,10 +69,11 @@ function loadProducts() {
     .then(res => res.text())
     .then(text => {
       const rows = text.trim().split("\n").slice(1);
-      allProducts = rows.map(row => {
+      originalProducts = rows.map(row => {
         const [number, brand, price, quantity, img] = row.split(",");
         return { number, brand, price, quantity, img };
       });
+      allProducts = [...originalProducts];
       renderProducts();
       renderPagination();
     });
@@ -160,17 +162,21 @@ function renderPagination() {
   }
 }
 
-function filterProducts() {
-  const input = document.getElementById("searchBar").value.toLowerCase();
-  const filtered = allProducts.filter(p =>
-    p.number.toLowerCase().includes(input) ||
-    p.brand.toLowerCase().includes(input)
-  );
-  allProducts = filtered;
-  currentPage = 1;
-  renderProducts();
-  renderPagination();
-}
+// ⏳ بحث تلقائي مع تحسين الأداء
+let debounceTimer;
+document.getElementById("searchBar").addEventListener("input", () => {
+  clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(() => {
+    const input = document.getElementById("searchBar").value.toLowerCase();
+    allProducts = originalProducts.filter(p =>
+      p.number.toLowerCase().includes(input) ||
+      p.brand.toLowerCase().includes(input)
+    );
+    currentPage = 1;
+    renderProducts();
+    renderPagination();
+  }, 300); // ← تأخير 300ms لتحسين الأداء
+});
 
 document.getElementById("productForm").addEventListener("submit", function(e) {
   e.preventDefault();
