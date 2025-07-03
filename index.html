@@ -3,6 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- إعدادات PWA -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#007bff">
+
+<!-- تسجيل service worker -->
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('service-worker.js')
+      .then(reg => console.log("✅ Service Worker مسجل"))
+      .catch(err => console.error("❌ فشل تسجيل Service Worker", err));
+  }
+</script>
+
   <title>عبايدي للعجلات</title>
   <style>
     body { font-family: Arial, sans-serif; background: #f2f2f2; margin: 0; padding: 0; }
