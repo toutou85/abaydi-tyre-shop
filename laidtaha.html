@@ -1,5 +1,4 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<!DOCTYPE html><html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -15,134 +14,129 @@
       background: #f5f5f5;
       padding: 10px;
       margin: 0;
-    }
+    }.container {
+  max-width: 1000px;
+  margin: auto;
+  background: white;
+  padding: 15px;
+  border-radius: 10px;
+  box-sizing: border-box;
+}
 
-    .container {
-      max-width: 1000px;
-      margin: auto;
-      background: white;
-      padding: 15px;
-      border-radius: 10px;
-      box-sizing: border-box;
-    }
+h2 {
+  text-align: center;
+  font-size: 20px;
+}
 
-    h2 {
-      text-align: center;
-      font-size: 20px;
-    }
+form input, form button {
+  padding: 10px;
+  margin: 5px 0;
+  width: 100%;
+  font-size: 15px;
+  box-sizing: border-box;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
 
-    form input, form button {
-      padding: 10px;
-      margin: 5px 0;
-      width: 100%;
-      font-size: 15px;
-      box-sizing: border-box;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-    }
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  margin-top: 10px;
+  overflow-x: auto;
+}
 
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 13px;
-      margin-top: 10px;
-      overflow-x: auto;
-    }
+th, td {
+  border: 1px solid #ccc;
+  padding: 6px;
+  text-align: center;
+}
 
-    th, td {
-      border: 1px solid #ccc;
-      padding: 6px;
-      text-align: center;
-    }
+th {
+  background: #007bff;
+  color: white;
+}
 
-    th {
-      background: #007bff;
-      color: white;
-    }
+button {
+  background: #28a745;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
 
-    button {
-      background: #28a745;
-      color: white;
-      border: none;
-      cursor: pointer;
-    }
+.pagination button {
+  margin: 4px;
+  padding: 5px 10px;
+  background: #007bff;
+  color: white;
+  border-radius: 5px;
+}
 
-    .pagination button {
-      margin: 4px;
-      padding: 5px 10px;
-      background: #007bff;
-      color: white;
-      border-radius: 5px;
-    }
+.pagination button.active {
+  background-color: #0056b3;
+}
 
-    #searchBar {
-      width: 100%;
-      padding: 10px;
-      margin-top: 10px;
-      border: 1px solid #aaa;
-      border-radius: 5px;
-    }
+#searchBar {
+  width: 100%;
+  padding: 10px;
+  margin-top: 10px;
+  border: 1px solid #aaa;
+  border-radius: 5px;
+}
 
-    /* إشعار وزر */
-    #notifButton {
-      position: fixed;
-      top: 20px;
-      left: 20px;
-      background: #007bff;
-      color: white;
-      font-size: 26px;
-      border: none;
-      border-radius: 50%;
-      width: 55px;
-      height: 55px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.2);
-      cursor: pointer;
-      z-index: 9999;
-    }
+#notifButton {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  background: #007bff;
+  color: white;
+  font-size: 26px;
+  border: none;
+  border-radius: 50%;
+  width: 55px;
+  height: 55px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.2);
+  cursor: pointer;
+  z-index: 9999;
+}
 
-    #orderNotif {
-      display: none;
-      position: fixed;
-      top: 85px;
-      left: 20px;
-      background: #007bff;
-      color: white;
-      padding: 15px 20px;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.3);
-      font-size: 15px;
-      z-index: 9999;
-    }
+#orderNotif {
+  display: none;
+  position: fixed;
+  top: 85px;
+  left: 20px;
+  background: #007bff;
+  color: white;
+  padding: 15px 20px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.3);
+  font-size: 15px;
+  z-index: 9999;
+}
 
-    @media (max-width: 600px) {
-      table {
-        font-size: 12px;
-        display: block;
-        overflow-x: auto;
-      }
-      th, td {
-        white-space: nowrap;
-      }
-    }
+@media (max-width: 600px) {
+  table {
+    font-size: 12px;
+    display: block;
+    overflow-x: auto;
+  }
+  th, td {
+    white-space: nowrap;
+  }
+}
+
   </style>
 </head>
 <body>
-
 <div class="container">
-  <h2>🛒 إدارة المنتجات</h2>
-
-  <form id="productForm">
+  <h2>🛒 إدارة المنتجات</h2>  <form id="productForm">
     <input type="text" name="number" placeholder="رقم الإطار" required>
     <input type="text" name="brand" placeholder="العلامة التجارية" required>
     <input type="text" name="price" placeholder="السعر دج" required>
     <input type="text" name="quantity" placeholder="الكمية" required>
     <input type="url" name="img" placeholder="رابط الصورة (URL)" required>
     <button type="submit">➕ إضافة منتج</button>
-  </form>
-
-  <input type="text" id="searchBar" placeholder="🔍 ابحث عن منتج..." oninput="filterProducts()">
-
-  <table>
+  </form>  <input type="text" id="searchBar" placeholder="🔍 ابحث عن منتج..." oninput="filterProducts()">  <table>
     <thead>
       <tr>
         <th>رقم الإطار</th>
@@ -158,18 +152,10 @@
     </tbody>
   </table>
   <div class="pagination" id="pagination"></div>
-</div>
+</div><!-- الإشعارات والصوت --><button id="notifButton" onclick="openOrders()" title="عرض الطلبات الجديدة">🔔</button>
 
-<!-- زر الإشعار -->
-<button id="notifButton" onclick="openOrders()" title="عرض الطلبات الجديدة">🔔</button>
-
-<!-- إشعار -->
 <div id="orderNotif">📦 تم استلام طلب جديد!</div>
-
-<!-- صوت -->
-<audio id="notifSound" src="https://ia803407.us.archive.org/33/items/sumsung_galaxy_s4/sumsung_galaxy_s4.mp3" preload="auto"></audio>
-
-<script>
+<audio id="notifSound" src="https://ia803407.us.archive.org/33/items/sumsung_galaxy_s4/sumsung_galaxy_s4.mp3" preload="auto"></audio><script>
 const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQBz1iucjkuwAG78fd6m1zE4oXKuaZzlgVGO7cK1uts7UkTFgT0nxpqXA-ovj8iOa9FhujqCSpxHrXw/pub?output=csv";
 const addURL = "https://script.google.com/macros/s/AKfycbzrSTgZntbRMQmlosRQoHGeJXKOIF-yl4SLqnE-DYlzlYjxez-4EaxslwyDRy1KeRdx/exec";
 const ordersSheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTyCRa-FUh6a62brIHe7tg4YImWLVEuEjsaYtIQGeAxrqt8-dQzcfoH-uQ5H8YHG36soStv6Zuwbd4a/pub?output=csv";
@@ -178,6 +164,10 @@ let allProducts = [];
 let fullProducts = [];
 let perPage = 10;
 let currentPage = 1;
+
+function toWesternNumber(str) {
+  return String(str).replace(/[\u0660-\u0669]/g, d => '0123456789'['\u0660\u0661\u0662\u0663\u0664\u0665\u0666\u0667\u0668\u0669'.indexOf(d)]);
+}
 
 function loadProducts() {
   fetch(sheetURL)
@@ -208,23 +198,15 @@ function renderProducts() {
 
   products.forEach((p, index) => {
     const tr = document.createElement("tr");
-    function toWesternNumber(str) {
-  return String(str).replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d));
-}
-
-tr.innerHTML = `
-  <td>${toWesternNumber(p.number)}</td>
-  <td>${p.brand}</td>
-  <td><input type="number" value="${toWesternNumber(p.price)}" id="price-${index}" /></td>
-`; style="width: 70px;"></td>
-      <td>
-        <img src="${p.img}" width="50"><br>
-        <input type="text" value="${p.img}" id="img-${index}" style="width: 90%;">
-      </td>
+    tr.innerHTML = `
+      <td>${toWesternNumber(p.number)}</td>
+      <td>${p.brand}</td>
+      <td><input type="number" value="${toWesternNumber(p.price)}" id="price-${index}" /></td>
+      <td><img src="${p.img}" width="50"><br><input type="text" value="${p.img}" id="img-${index}" style="width: 90%;"></td>
       <td>
         <div style="display: flex; align-items: center; justify-content: center; gap: 5px;">
           <button onclick="changeQty(${index}, -1)">➖</button>
-          <span id="qty-${index}">${p.quantity}</span>
+          <span id="qty-${index}">${toWesternNumber(p.quantity)}</span>
           <button onclick="changeQty(${index}, 1)">➕</button>
         </div>
       </td>
@@ -272,11 +254,12 @@ function renderPagination() {
   for (let i = 1; i <= totalPages; i++) {
     const btn = document.createElement("button");
     btn.textContent = i;
+    btn.className = (i === currentPage) ? 'active' : '';
     btn.onclick = () => {
       currentPage = i;
       renderProducts();
+      renderPagination();
     };
-    if (i === currentPage) btn.style.background = "#0056b3";
     container.appendChild(btn);
   }
 }
@@ -291,12 +274,10 @@ function filterProducts() {
   renderPagination();
 }
 
-// زر الانتقال
 function openOrders() {
   window.open("ordertaha.html", "_blank");
 }
 
-// إشعار
 function showNotifPopup() {
   const popup = document.getElementById("orderNotif");
   popup.style.display = "block";
@@ -304,13 +285,11 @@ function showNotifPopup() {
   setTimeout(() => popup.style.display = "none", 8000);
 }
 
-// صوت
 function playNotifSound() {
   const sound = document.getElementById("notifSound");
   sound.play().catch(() => {});
 }
 
-// تحقق من الطلبيات الجديدة
 function checkNewOrders() {
   fetch(ordersSheetURL)
     .then(res => res.text())
@@ -332,6 +311,5 @@ window.addEventListener("load", () => {
   checkNewOrders();
   setInterval(checkNewOrders, 60000);
 });
-</script>
-</body>
+</script></body>
 </html>
