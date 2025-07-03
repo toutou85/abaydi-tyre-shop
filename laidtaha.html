@@ -14,6 +14,7 @@
       background: #f5f5f5;
       padding: 10px;
       margin: 0;
+      font-variant-numeric: lining-nums;
     }.container {
   max-width: 1000px;
   margin: auto;
@@ -166,7 +167,7 @@ let perPage = 10;
 let currentPage = 1;
 
 function toWesternNumber(str) {
-  return String(str).replace(/[\u0660-\u0669]/g, d => '0123456789'['\u0660\u0661\u0662\u0663\u0664\u0665\u0666\u0667\u0668\u0669'.indexOf(d)]);
+  return String(str).replace(/[٠-٩]/g, d => '0123456789'['٠١٢٣٤٥٦٧٨٩'.indexOf(d)]);
 }
 
 function loadProducts() {
@@ -201,7 +202,7 @@ function renderProducts() {
     tr.innerHTML = `
       <td>${toWesternNumber(p.number)}</td>
       <td>${p.brand}</td>
-      <td><input type="number" value="${toWesternNumber(p.price)}" id="price-${index}" /></td>
+      <td><input type="number" dir="ltr" inputmode="numeric" value="${toWesternNumber(p.price)}" id="price-${index}" /></td>
       <td><img src="${p.img}" width="50"><br><input type="text" value="${p.img}" id="img-${index}" style="width: 90%;"></td>
       <td>
         <div style="display: flex; align-items: center; justify-content: center; gap: 5px;">
