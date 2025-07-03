@@ -1,17 +1,55 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>شراء إطار مطاطي</title>
   <style>
-    body { font-family: Arial, sans-serif; background: #f9f9f9; padding: 20px; }
-    form { max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-    input, select, textarea { width: 100%; padding: 10px; margin-bottom: 10px; border-radius: 5px; border: 1px solid #ccc; }
-    button { background: #28a745; color: white; padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer; }
-    h2 { text-align: center; }
-    #totalPrice { font-weight: bold; color: #007bff; text-align: center; }
-    .note { color: red; font-size: 0.9em; text-align: center; }
-
+    body {
+      font-family: Arial, sans-serif;
+      background: #f9f9f9;
+      padding: 10px;
+      margin: 0;
+    }
+    form {
+      max-width: 600px;
+      margin: auto;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    input, select, textarea, button {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 10px;
+      font-size: 16px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+    }
+    button {
+      background: #28a745;
+      color: white;
+      border: none;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    #totalPrice {
+      font-weight: bold;
+      color: #007bff;
+      text-align: center;
+      margin-top: 10px;
+    }
+    .note {
+      color: red;
+      font-size: 0.9em;
+      text-align: center;
+    }
     #popupOverlay {
       position: fixed;
       top: 0; right: 0; bottom: 0; left: 0;
@@ -21,7 +59,6 @@
       justify-content: center;
       z-index: 9999;
     }
-
     #popupBox {
       background: white;
       padding: 20px 30px;
@@ -32,11 +69,40 @@
       animation: pulse 1.2s infinite;
       text-align: center;
     }
-
     @keyframes pulse {
       0% { transform: scale(1); opacity: 1; }
       50% { transform: scale(1.05); opacity: 0.7; }
       100% { transform: scale(1); opacity: 1; }
+    }
+
+    .quantity-box {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      max-width: 200px;
+      margin: auto;
+    }
+
+    .quantity-box button {
+      width: 40px;
+      padding: 10px;
+      background: #007bff;
+    }
+
+    .quantity-box input {
+      width: 60px;
+      text-align: center;
+      font-weight: bold;
+    }
+
+    @media (max-width: 480px) {
+      .quantity-box {
+        flex-direction: row;
+      }
+      button {
+        font-size: 15px;
+      }
     }
   </style>
 </head>
@@ -51,10 +117,10 @@
   <input type="number" name="tirePrice" id="tirePrice" placeholder="سعر الإطار (دج)" readonly required>
 
   <label for="quantity">الكمية:</label>
-  <div style="display: flex; align-items: center; gap: 10px; max-width: 200px;">
-    <button type="button" onclick="changeQty(-1)" style="padding:5px 10px;">➖</button>
-    <input type="number" id="quantity" name="quantity" value="1" min="1" style="text-align:center; width: 60px;" required readonly>
-    <button type="button" onclick="changeQty(1)" style="padding:5px 10px;">➕</button>
+  <div class="quantity-box">
+    <button type="button" onclick="changeQty(-1)">➖</button>
+    <input type="number" id="quantity" name="quantity" value="1" min="1" readonly required>
+    <button type="button" onclick="changeQty(1)">➕</button>
   </div>
 
   <select name="wilaya" id="wilaya" required onchange="updateDelivery()">
@@ -118,7 +184,7 @@ function updateDelivery() {
 
   const total = (tirePrice + delivery) * quantity;
 
-  document.getElementById("deliveryPriceText").textContent = `  سعر التوصيل للعجلة الواحدة: ${delivery} دج`;
+  document.getElementById("deliveryPriceText").textContent = `سعر التوصيل للعجلة الواحدة: ${delivery} دج`;
   document.getElementById("totalPrice").textContent = `المجموع: ${total} دج`;
 }
 
@@ -155,7 +221,7 @@ document.getElementById("orderForm").addEventListener("submit", function(e) {
   .then(res => res.text())
   .then(() => {
     document.getElementById("popupOverlay").style.display = "none";
-    window.location.href = `myorders.html?phone=${encodeURIComponent(phone)}`;
+    window.location.href = `myorders.html?phone=${encodeURIComponent(phone)}&wait=10`;
   })
   .catch(() => {
     document.getElementById("popupBox").textContent = "❌ فشل في الإرسال.";
@@ -165,7 +231,6 @@ document.getElementById("orderForm").addEventListener("submit", function(e) {
   });
 });
 
-// تعبئة بيانات الإطار من الرابط وتحديث التاريخ
 window.onload = function () {
   const url = new URL(window.location.href);
   const number = url.searchParams.get("number");
