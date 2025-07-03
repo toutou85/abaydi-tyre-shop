@@ -2,6 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>إدارة المنتجات - laidtaha</title>
   <script>
     if (!sessionStorage.getItem("loggedIn")) {
@@ -12,56 +13,68 @@
     body {
       font-family: Tahoma, sans-serif;
       background: #f5f5f5;
-      padding: 20px;
+      padding: 10px;
+      margin: 0;
     }
+
     .container {
       max-width: 1000px;
       margin: auto;
       background: white;
-      padding: 20px;
+      padding: 15px;
       border-radius: 10px;
+      box-sizing: border-box;
     }
+
     h2 {
       text-align: center;
+      font-size: 20px;
     }
-    input, button {
+
+    form input, form button {
       padding: 10px;
       margin: 5px 0;
+      width: 100%;
+      font-size: 15px;
+      box-sizing: border-box;
       border: 1px solid #ccc;
       border-radius: 5px;
     }
-    input[type="text"], input[type="url"] {
-      width: 100%;
-    }
+
     table {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 20px;
-      font-size: 14px;
+      font-size: 13px;
+      margin-top: 10px;
+      overflow-x: auto;
     }
+
     th, td {
       border: 1px solid #ccc;
-      padding: 8px;
+      padding: 6px;
       text-align: center;
     }
+
     th {
       background: #007bff;
       color: white;
     }
+
     button {
       background: #28a745;
       color: white;
       border: none;
       cursor: pointer;
     }
+
     .pagination button {
-      margin: 5px;
+      margin: 4px;
       padding: 5px 10px;
-      border: none;
       background: #007bff;
       color: white;
       border-radius: 5px;
     }
+
     #searchBar {
       width: 100%;
       padding: 10px;
@@ -69,39 +82,52 @@
       border: 1px solid #aaa;
       border-radius: 5px;
     }
-    /* زر الإشعار */
+
+    /* إشعار وزر */
     #notifButton {
       position: fixed;
-      top: 30px;
-      left: 30px;
+      top: 20px;
+      left: 20px;
       background: #007bff;
       color: white;
-      font-size: 28px;
+      font-size: 26px;
       border: none;
       border-radius: 50%;
-      width: 60px;
-      height: 60px;
+      width: 55px;
+      height: 55px;
       box-shadow: 0 0 10px rgba(0,0,0,0.2);
       cursor: pointer;
       z-index: 9999;
     }
-    /* إشعار منبثق */
+
     #orderNotif {
       display: none;
       position: fixed;
-      top: 90px;
+      top: 85px;
       left: 20px;
       background: #007bff;
       color: white;
       padding: 15px 20px;
       border-radius: 10px;
       box-shadow: 0 0 10px rgba(0,0,0,0.3);
-      font-size: 16px;
+      font-size: 15px;
       z-index: 9999;
+    }
+
+    @media (max-width: 600px) {
+      table {
+        font-size: 12px;
+        display: block;
+        overflow-x: auto;
+      }
+      th, td {
+        white-space: nowrap;
+      }
     }
   </style>
 </head>
 <body>
+
 <div class="container">
   <h2>🛒 إدارة المنتجات</h2>
 
@@ -134,13 +160,13 @@
   <div class="pagination" id="pagination"></div>
 </div>
 
-<!-- 🔔 زر الإشعار -->
+<!-- زر الإشعار -->
 <button id="notifButton" onclick="openOrders()" title="عرض الطلبات الجديدة">🔔</button>
 
-<!-- 💬 الإشعار المنبثق -->
+<!-- إشعار -->
 <div id="orderNotif">📦 تم استلام طلب جديد!</div>
 
-<!-- 🎵 صوت الإشعار -->
+<!-- صوت -->
 <audio id="notifSound" src="https://ia803407.us.archive.org/33/items/sumsung_galaxy_s4/sumsung_galaxy_s4.mp3" preload="auto"></audio>
 
 <script>
@@ -253,32 +279,33 @@ function renderPagination() {
 function filterProducts() {
   const input = document.getElementById("searchBar").value.toLowerCase();
   allProducts = fullProducts.filter(p =>
-    p.number.toLowerCase().includes(input) ||
-    p.brand.toLowerCase().includes(input)
+    p.number.toLowerCase().includes(input) || p.brand.toLowerCase().includes(input)
   );
   currentPage = 1;
   renderProducts();
   renderPagination();
 }
 
-document.getElementById("productForm").addEventListener("submit", function(e) {
-  e.preventDefault();
-  const formData = new FormData(this);
-  formData.append("action", "add");
-  fetch(addURL, {
-    method: "POST",
-    body: formData
-  })
-  .then(res => res.text())
-  .then(() => {
-    alert("✅ تمت الإضافة");
-    this.reset();
-    loadProducts();
-  })
-  .catch(() => alert("❌ فشل في الإضافة"));
-});
+// زر الانتقال
+function openOrders() {
+  window.open("ordertaha.html", "_blank");
+}
 
-// إشعار الطلبيات الجديدة
+// إشعار
+function showNotifPopup() {
+  const popup = document.getElementById("orderNotif");
+  popup.style.display = "block";
+  playNotifSound();
+  setTimeout(() => popup.style.display = "none", 8000);
+}
+
+// صوت
+function playNotifSound() {
+  const sound = document.getElementById("notifSound");
+  sound.play().catch(() => {});
+}
+
+// تحقق من الطلبيات الجديدة
 function checkNewOrders() {
   fetch(ordersSheetURL)
     .then(res => res.text())
@@ -293,22 +320,6 @@ function checkNewOrders() {
 
       localStorage.setItem("lastOrderCount", current);
     });
-}
-
-function showNotifPopup() {
-  const popup = document.getElementById("orderNotif");
-  popup.style.display = "block";
-  playNotifSound();
-  setTimeout(() => popup.style.display = "none", 8000);
-}
-
-function openOrders() {
-  window.open("ordertaha.html", "_blank");
-}
-
-function playNotifSound() {
-  const sound = document.getElementById("notifSound");
-  sound.play().catch(() => {});
 }
 
 window.addEventListener("load", () => {
