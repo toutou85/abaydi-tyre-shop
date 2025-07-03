@@ -208,10 +208,15 @@ function renderProducts() {
 
   products.forEach((p, index) => {
     const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${p.number}</td>
-      <td>${p.brand}</td>
-      <td><input type="number" value="${p.price}" id="price-${index}" style="width: 70px;"></td>
+    function toWesternNumber(str) {
+  return String(str).replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d));
+}
+
+tr.innerHTML = `
+  <td>${toWesternNumber(p.number)}</td>
+  <td>${p.brand}</td>
+  <td><input type="number" value="${toWesternNumber(p.price)}" id="price-${index}" /></td>
+`; style="width: 70px;"></td>
       <td>
         <img src="${p.img}" width="50"><br>
         <input type="text" value="${p.img}" id="img-${index}" style="width: 90%;">
