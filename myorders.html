@@ -11,6 +11,7 @@
     th, td { border: 1px solid #ccc; padding: 8px; font-size: 14px; }
     th { background: #007bff; color: white; }
     .error { color: red; font-size: 14px; margin-top: 10px; }
+    #countdown { font-size: 16px; color: #007bff; margin-top: 10px; }
   </style>
 </head>
 <body>
@@ -18,8 +19,9 @@
 <div class="box">
   <h2>📦 عرض طلبياتك</h2>
   <input type="tel" id="phoneInput" placeholder="أدخل رقم هاتفك (مثل: 065...)" />
-  <button onclick="fetchMyOrders()">🔍 عرض طلباتي</button>
+  <button id="fetchBtn" onclick="fetchMyOrders()">🔍 عرض طلباتي</button>
   <p class="error" id="errorMsg"></p>
+  <div id="countdown"></div>
 </div>
 
 <div id="ordersSection" style="display:none;">
@@ -36,23 +38,17 @@
 </div>
 
 <script>
-const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTyCRa-FUh6a62brIHe7tg4YImWLVEuEjsaYtIQGeAxrqt8-dQzcfoH-uQ5H8YHG36soStv6Zuwbd4a/pub?gid=0&single=true&output=csv";
+const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTyCRa-FUh6a62brIHe7tg4YImWLVEuEjsaYtIQGeAxrqt8-dQzcfoH-uQ5H8YHG36soStv6Zuwbd4a/pub?output=csv";
 
 function validatePhone(phone) {
   return /^0(5|6|7)\d{8}$/.test(phone);
 }
 
 function fetchMyOrders() {
-  let phone = document.getElementById("phoneInput").value.trim();
+  const phone = document.getElementById("phoneInput").value.trim();
   const errorMsg = document.getElementById("errorMsg");
   const table = document.getElementById("ordersTable");
   const section = document.getElementById("ordersSection");
-
-  const urlPhone = new URLSearchParams(window.location.search).get("phone");
-  if (!phone && urlPhone) {
-    phone = urlPhone;
-    document.getElementById("phoneInput").value = phone;
-  }
 
   if (!validatePhone(phone)) {
     errorMsg.textContent = "⚠️ رقم الهاتف غير صحيح. يجب أن يبدأ بـ 05 أو 06 أو 07 ويحتوي على 10 أرقام.";
@@ -64,8 +60,10 @@ function fetchMyOrders() {
   fetch(sheetURL)
     .then(res => res.text())
     .then(text => {
-      const rows = text.trim().split('\n').slice(1).map(row => row.split(",")).reverse(); // آخر طلب أولاً
-      const myOrders = rows.filter(r => r[2].replace(/^'/, "") === phone); // إزالة ' من الرقم في CSV
+      const rows = text.trim().split('\n').slice(1).reverse();
+      const myOrders = rows
+        .map(r => r.split(","))
+        .filter(r => r[2] === phone);
 
       if (myOrders.length === 0) {
         errorMsg.textContent = "❌ لم يتم العثور على أي طلبات.";
@@ -80,20 +78,9 @@ function fetchMyOrders() {
       myOrders.forEach(row => {
         const tr = document.createElement("tr");
         tr.innerHTML = `
-          <td>${row[1]}</td>  <!-- الاسم -->
-          <td>${row[2]}</td>  <!-- الهاتف -->
-          <td>${row[3]}</td>  <!-- نوع الإطار -->
-          <td>${row[4]}</td>  <!-- رقم الإطار -->
-          <td>${row[5]}</td>  <!-- سعر الإطار -->
-          <td>${row[6]}</td>  <!-- الكمية -->
-          <td>${row[7]}</td>  <!-- الولاية -->
-          <td>${row[8]}</td>  <!-- نوع التوصيل -->
-          <td>${row[9]}</td>  <!-- سعر التوصيل -->
-          <td>${row[10]}</td> <!-- المجموع -->
-          <td>${row[11]}</td> <!-- العنوان -->
-          <td>${row[12]}</td> <!-- ملاحظة -->
-          <td>${row[13]}</td> <!-- التاريخ -->
-          <td>${row[14]}</td> <!-- الحالة -->
+          <td>${row[1]}</td><td>${row[2]}</td><td>${row[3]}</td><td>${row[4]}</td><td>${row[5]}</td>
+          <td>${row[12] || "1"}</td><td>${row[6]}</td><td>${row[7]}</td><td>${row[8]}</td>
+          <td>${row[9]}</td><td>${row[10]}</td><td>${row[11]}</td><td>${row[0]}</td><td>${row[13] || "قيد المعالجة"}</td>
         `;
         table.appendChild(tr);
       });
@@ -104,7 +91,36 @@ function fetchMyOrders() {
     });
 }
 
-window.onload = fetchMyOrders;
+// ✅ تنفيذ تلقائي مع عد تنازلي
+window.onload = function () {
+  const url = new URL(window.location.href);
+  const phone = url.searchParams.get("phone");
+  const wait = parseInt(url.searchParams.get("wait"));
+
+  if (phone) {
+    document.getElementById("phoneInput").value = phone;
+
+    if (wait && wait > 0) {
+      let counter = wait;
+      const countdownEl = document.getElementById("countdown");
+      const fetchBtn = document.getElementById("fetchBtn");
+      fetchBtn.disabled = true;
+
+      const interval = setInterval(() => {
+        countdownEl.textContent = `⌛ الرجاء الانتظار ${counter} ثانية لتحميل الطلبيات...`;
+        counter--;
+        if (counter < 0) {
+          clearInterval(interval);
+          countdownEl.textContent = "";
+          fetchBtn.disabled = false;
+          fetchMyOrders();
+        }
+      }, 1000);
+    } else {
+      fetchMyOrders(); // لا حاجة للانتظار
+    }
+  }
+};
 </script>
 </body>
 </html>
