@@ -152,6 +152,8 @@ button {
       <tr><td colspan="6">⏳ جاري التحميل...</td></tr>
     </tbody>
   </table>
+  <p>👥 عدد الزوار: <strong id="visitorsCount">...</strong></p>
+
   <div class="pagination" id="pagination"></div>
 </div><!-- الإشعارات والصوت --><button id="notifButton" onclick="openOrders()" title="عرض الطلبات الجديدة">🔔</button>
 
@@ -312,5 +314,21 @@ window.addEventListener("load", () => {
   checkNewOrders();
   setInterval(checkNewOrders, 60000);
 });
-</script></body>
+</script>
+  <script>
+function fetchVisitorsCount() {
+  fetch("https://script.google.com/macros/s/AKfycbw8noHrJq07PnpAA5tA0NNSsr3TBFh-sXuJx9qEIP9_gk1t2fypV7MgMh2CIq3gLEK5/exec")
+    .then(res => res.text())
+    .then(count => {
+      document.getElementById("visitorsCount").textContent = count;
+    })
+    .catch(() => {
+      document.getElementById("visitorsCount").textContent = "❌";
+    });
+}
+
+window.onload = fetchVisitorsCount;
+</script>
+
+</body>
 </html>
