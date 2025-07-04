@@ -216,26 +216,12 @@ fetch("https://script.google.com/macros/s/AKfycbz2xj8XTW2BmK-CCOH-4TViDX1PaREnMZ
 </script>
 
 <script>
-// ✅ تسجيل الزائر مرة واحدة فقط باستخدام localStorage
-if (!localStorage.getItem("visitorLogged")) {
-  fetch("https://api.ipify.org?format=json")  // الحصول على IP
-    .then(res => res.json())
-    .then(ipData => {
-      const visitorData = {
-        ip: ipData.ip,
-        userAgent: navigator.userAgent
-      };
-
-      // أرسل البيانات إلى Google Apps Script الخاص بك
-      fetch("https://script.google.com/macros/s/AKfycbxOxs2f4IMpFsfolxF2OGO6Q5Ef3tTgtHxIKOdo63xr9z7S6ICuxFavXgeEMj0TbiZu/exec", {
-        method: "POST",
-        body: JSON.stringify(visitorData)
-      });
-
-      localStorage.setItem("visitorLogged", "true");
-    });
-}
+  // عند دخول الزبون للصفحة يتم تسجيل زيارة
+  fetch("https://script.google.com/macros/s/AKfycbwWc_AU5Xo1o5_oP0ahnlH0ayqY86jVaJozeLHGX32k7yxTtKElAc2YANPHgeicKOYu/exec", {
+    method: "POST"
+  });
 </script>
+
 
 </body>
 </html>
