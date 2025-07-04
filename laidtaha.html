@@ -315,20 +315,22 @@ window.addEventListener("load", () => {
   setInterval(checkNewOrders, 60000);
 });
 </script>
-  <script>
+
+<script>
 function fetchVisitorsCount() {
-  fetch("https://script.google.com/macros/s/AKfycbw8PP1aAvZKsUArBgAC03s4mywMEHYtc-GtYhrVXIUdHD8lFuYa3wxJ1XXIGgOrkHTP/exec")
+  fetch("https://script.google.com/macros/s/AKfycbzJjJax47Kk6Fots5oyPpzOQXVcQmHABiYsAaWlc2M6UkpRwTixYrbrLytAtjnreEx2/exec")
     .then(res => res.text())
     .then(count => {
       document.getElementById("visitorsCount").textContent = count;
     })
     .catch(() => {
-      document.getElementById("visitorsCount").textContent = "❌";
+      document.getElementById("visitorsCount").textContent = "❌ خطأ";
     });
 }
 
 window.onload = fetchVisitorsCount;
 </script>
+
 
 </body>
 </html>
