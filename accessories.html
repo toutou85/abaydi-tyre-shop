@@ -155,7 +155,7 @@ setInterval(updateClock, 1000);
 <script>
 let products = [];
 
-fetch("https://script.google.com/macros/s/AKfycbxcArzugjrfEa6cuMLdHQcGHSLIVKHR8ybB0gv_tAmc0cOSvxcKDusEBJrkgtrhihlj/exec")
+fetch("https://script.google.com/macros/s/AKfycbzL-vmPie1_xfpmTJzpEyGW9NiTIiQb3oUX3CQFuBRkXT3EDwMttnsAhGn_0LMgUtlr/exec")
   .then(response => response.json())
   .then(data => {
     products = data.filter(p => p.type === "a");
