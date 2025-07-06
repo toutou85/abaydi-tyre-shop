@@ -1,234 +1,74 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>ملحقات السيارات - عبايدي</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>إرسال منتج إلى Google Sheets</title>
   <style>
-    body { font-family: Arial, sans-serif; background: #f2f2f2; margin: 0; padding: 0; }
-    header {
-      background-color: #007bff;
-      color: white;
-      padding: 1rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
+    body {
+      font-family: Arial;
+      background: #f8f8f8;
+      padding: 20px;
     }
-    header img { height: 40px; margin-left: 10px; }
-    nav {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
+    form {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      max-width: 400px;
+      margin: auto;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
-    nav a {
-      color: white;
-      text-decoration: none;
-      padding: 8px 14px;
-      border-radius: 6px;
-      font-weight: bold;
-      background-color: #0056b3;
-      margin-left: 5px;
-    }
-    .tab-link.active {
-      background-color: #28a745;
-    }
-    footer {
-      background: #007bff;
-      color: white;
-      text-align: center;
-      padding: 1rem;
-      margin-top: 2rem;
-      font-size: 1rem;
-    }
-    footer a { color: white; margin-top: 10px; display: inline-block; }
-    #searchBar {
-      width: 80%;
-      margin: 1rem auto;
-      display: block;
-      padding: 0.5rem;
-      font-size: 1rem;
+    input, button {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 12px;
       border: 1px solid #ccc;
       border-radius: 5px;
     }
-    .products {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 1rem;
-      padding: 1rem;
-    }
-    .product {
-      background: white;
-      padding: 1rem;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      text-align: center;
-    }
-    .product img {
-      width: 100%;
-      height: auto;
-      border-radius: 10px;
-    }
-    .pagination {
-      text-align: center;
-      margin-bottom: 2rem;
-    }
-    .pagination button {
-      margin: 0 5px;
-      padding: 0.5rem 1rem;
-      border: none;
-      background: #007bff;
+    button {
+      background-color: #007bff;
       color: white;
-      border-radius: 5px;
+      font-weight: bold;
       cursor: pointer;
     }
   </style>
 </head>
 <body>
 
-<header>
-  <div style="display: flex; align-items: center;">
-    <img src="logo.png" alt="شعار المتجر">
-    <span>ملحقات السيارات - متجر عبايدي</span>
-  </div>
-  <div id="dateTimeBox" style="text-align: center; flex: 1;">
-    <div id="gregorianDate" style="font-size: 0.85rem;"></div>
-    <div id="hijriDate" style="font-size: 0.85rem;"></div>
-    <div id="clock" style="font-weight: bold;"></div>
-  </div>
-  <nav>
-    <a href="index.html" data-page="index" class="tab-link">🛞 الإطارات</a>
-    <a href="tools.html" data-page="tools" class="tab-link">🛠️ الأدوات</a>
-    <a href="accessories.html" data-page="accessories" class="tab-link">🚗 الملحقات</a>
-  </nav>
-</header>
+<h2 style="text-align:center;">📦 نموذج إضافة منتج</h2>
 
-<input type="text" id="searchBar" placeholder="🔍 ابحث عن ملحق" oninput="filterProducts()">
-<section class="products" id="productList"></section>
-<div class="pagination" id="pagination"></div>
+<form id="productForm">
+  <input type="text" name="number" placeholder="رقم المنتج" required>
+  <input type="text" name="brand" placeholder="العلامة التجارية" required>
+  <input type="number" name="price" placeholder="السعر (دج)" required>
+  <input type="number" name="quantity" placeholder="الكمية المتوفرة" required>
+  <input type="text" name="img" placeholder="رابط الصورة">
+  <input type="text" name="type" placeholder="نوع المنتج (a أو t)" required>
+  <button type="submit">📤 إرسال</button>
+</form>
 
-<footer>
-  <div>🚚 التوصيل متوفر لـ 58 ولاية | 🕒 العمل على مدار الأسبوع | 💵 الدفع عند الاستلام</div>
-  <div>📞 واتساب:
-    <a href="https://wa.me/21356450486" target="_blank">+21356450486</a> |
-    <a href="https://wa.me/213698749015" target="_blank">+213698749015</a>
-  </div>
-  <div>📍 <a href="https://maps.app.goo.gl/FscQmXPSfN6LBsze7?g_st=ac" target="_blank">موقعنا على الخريطة</a></div>
-</footer>
-
-<!-- تفعيل الزر النشط -->
 <script>
-  const currentPage = location.pathname.split('/').pop().replace('.html', '');
-  document.querySelectorAll('.tab-link').forEach(link => {
-    if (link.dataset.page === currentPage) {
-      link.classList.add('active');
-    }
-  });
-</script>
+  document.getElementById("productForm").addEventListener("submit", function(e) {
+    e.preventDefault();
 
-<!-- التاريخ والساعة -->
-<script>
-function updateClock() {
-  const now = new Date();
-  const options = { timeZone: 'Africa/Algiers', weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-  const timeOptions = { timeZone: 'Africa/Algiers', hour: '2-digit', minute: '2-digit', second: '2-digit' };
-  document.getElementById('gregorianDate').textContent = `📅 ${new Intl.DateTimeFormat('ar-DZ', options).format(now)}`;
-  document.getElementById('clock').textContent = `🕒 ${new Intl.DateTimeFormat('ar-DZ', timeOptions).format(now)}`;
+    const form = e.target;
+    const formData = new FormData(form);
 
-  const day = now.getDate();
-  const month = now.getMonth() + 1;
-  const year = now.getFullYear();
-  fetch(`https://api.aladhan.com/v1/gToH?date=${day}-${month}-${year}`)
-    .then(res => res.json())
+    fetch("https://script.google.com/macros/s/AKfycbySO2x6BtXtYrK95zpqA0sgFNtRImEZQ9m0D7oQMiaJjK11dbbYnErelklf4ykjCLuK/exec", {
+      method: "POST",
+      body: formData
+    })
+    .then(res => res.text())
     .then(data => {
-      if (data && data.data && data.data.hijri) {
-        const hijri = data.data.hijri;
-        document.getElementById('hijriDate').textContent = `📆 هجري: ${hijri.weekday.ar} ${hijri.day} ${hijri.month.ar} ${hijri.year}`;
-      }
+      alert("✅ تم إرسال المنتج بنجاح!");
+      form.reset();
+    })
+    .catch(err => {
+      console.error("❌ فشل في الإرسال:", err);
+      alert("❌ حدث خطأ أثناء إرسال البيانات.");
     });
-}
-updateClock();
-setInterval(updateClock, 1000);
-</script>
-
-<!-- تحميل وعرض الملحقات فقط --><script>
-let allProducts = [];
-let products = [];
-const perPage = 20;
-let currentPage = 1;
-
-fetch("https://script.google.com/macros/s/AKfycbwlbxux0XXTUi8w8FocqJRWvRpua1zlmaWExFHKOXROPATPgt_Trmw5Nv7SCIm4z2pe/exec")
-  .then(response => response.json())
-  .then(data => {
-    allProducts = data.filter(p => p.type === "a"); // فقط الملحقات
-    products = [...allProducts];
-    displayProducts();
-  })
-  .catch(error => {
-    console.error("فشل تحميل البيانات:", error);
-    document.getElementById('productList').innerHTML = "<p style='text-align:center;color:red;'>⚠️ تعذر تحميل الملحقات.</p>";
   });
-
-function displayProducts() {
-  const productList = document.getElementById('productList');
-  productList.innerHTML = '';
-  const start = (currentPage - 1) * perPage;
-  const end = start + perPage;
-  const pageProducts = products.slice(start, end);
-
-  if (pageProducts.length === 0) {
-    productList.innerHTML = "<p style='text-align:center;color:red;'>⚠️ لا توجد منتجات.</p>";
-    document.getElementById('pagination').innerHTML = '';
-    return;
-  }
-
-  pageProducts.forEach(p => {
-    const div = document.createElement('div');
-    div.className = 'product';
-    const available = parseInt(p.quantity) > 0;
-    const availabilityText = available ? '✅ متوفر' : '❌ غير متوفر';
-    div.innerHTML = `
-      <img src="${p.img || 'https://via.placeholder.com/250x200'}" alt="${p.number}">
-      <h3>${p.number} - ${p.brand}</h3>
-      <p>السعر: ${p.price} دج</p>
-      <p>${availabilityText}</p>
-      <a href="order_form.html?number=${encodeURIComponent(p.number)}&brand=${encodeURIComponent(p.brand)}&price=${encodeURIComponent(p.price)}" 
-         target="_blank"
-         style="display:inline-block;margin-top:10px;padding:8px 14px;background:#28a745;color:white;border-radius:5px;text-decoration:none;">
-         🛒 اطلب الآن
-      </a>`;
-    productList.appendChild(div);
-  });
-
-  updatePagination();
-}
-
-function updatePagination() {
-  const totalPages = Math.ceil(products.length / perPage);
-  const pagination = document.getElementById('pagination');
-  pagination.innerHTML = '';
-  for (let i = 1; i <= totalPages; i++) {
-    const btn = document.createElement('button');
-    btn.innerText = i;
-    btn.onclick = () => {
-      currentPage = i;
-      displayProducts();
-    };
-    btn.style.background = (i === currentPage) ? "#0056b3" : "#007bff";
-    pagination.appendChild(btn);
-  }
-}
-
-function filterProducts() {
-  const input = document.getElementById('searchBar').value.toLowerCase();
-  products = allProducts.filter(p =>
-    p.number.toLowerCase().includes(input) || p.brand.toLowerCase().includes(input)
-  );
-  currentPage = 1;
-  displayProducts();
-}
 </script>
 
 </body>
 </html>
-
