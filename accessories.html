@@ -151,17 +151,16 @@ updateClock();
 setInterval(updateClock, 1000);
 </script>
 
-<!-- تحميل وعرض الملحقات فقط -->
-<script>
+<!-- تحميل وعرض الملحقات فقط --><script>
 let allProducts = [];
 let products = [];
 const perPage = 20;
 let currentPage = 1;
 
-fetch("https://script.google.com/macros/s/AKfycbzdFRybSK2-Qw5FUo0Rb16-IAZujiLrRilY5g1QhTxOPFg9plIVOUdHZtkyE-PX14pt/exec")
+fetch("https://script.google.com/macros/s/AKfycbwlbxux0XXTUi8w8FocqJRWvRpua1zlmaWExFHKOXROPATPgt_Trmw5Nv7SCIm4z2pe/exec")
   .then(response => response.json())
   .then(data => {
-    allProducts = data.filter(p => p.type === "a");
+    allProducts = data.filter(p => p.type === "a"); // فقط الملحقات
     products = [...allProducts];
     displayProducts();
   })
@@ -189,7 +188,7 @@ function displayProducts() {
     const available = parseInt(p.quantity) > 0;
     const availabilityText = available ? '✅ متوفر' : '❌ غير متوفر';
     div.innerHTML = `
-      <img src="${p.img || 'https://via.placeholder.com/250x200'}" alt="ملحق ${p.number}">
+      <img src="${p.img || 'https://via.placeholder.com/250x200'}" alt="${p.number}">
       <h3>${p.number} - ${p.brand}</h3>
       <p>السعر: ${p.price} دج</p>
       <p>${availabilityText}</p>
