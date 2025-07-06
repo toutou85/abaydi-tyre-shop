@@ -158,7 +158,7 @@ let products = [];
 const perPage = 20;
 let currentPage = 1;
 
-fetch("https://script.google.com/macros/s/AKfycbzL-vmPie1_xfpmTJzpEyGW9NiTIiQb3oUX3CQFuBRkXT3EDwMttnsAhGn_0LMgUtlr/exec")
+fetch("https://script.google.com/macros/s/AKfycbzdFRybSK2-Qw5FUo0Rb16-IAZujiLrRilY5g1QhTxOPFg9plIVOUdHZtkyE-PX14pt/exec")
   .then(response => response.json())
   .then(data => {
     allProducts = data.filter(p => p.type === "a");
