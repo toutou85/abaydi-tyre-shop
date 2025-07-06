@@ -111,6 +111,8 @@ fetch("https://script.google.com/macros/s/AKfycbz2xj8XTW2BmK-CCOH-4TViDX1PaREnMZ
   .then(response => response.json())
   .then(data => {
    products = data
+  products = data
+
   .filter(p => p.number && p.brand && !p.number.toLowerCase().includes("nan"))
   .map(p => ({
     number: p.number,
@@ -118,7 +120,8 @@ fetch("https://script.google.com/macros/s/AKfycbz2xj8XTW2BmK-CCOH-4TViDX1PaREnMZ
     price: p.price,
     quantity: p.quantity,
     img: p.img || 'https://via.placeholder.com/250x200'
-  }));
+  }))
+  .sort(() => 0.5 - Math.random()); // 🔀 ترتيب عشوائي
 
     const perPage = 20;
     let currentPage = 1;
