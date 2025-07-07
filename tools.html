@@ -111,7 +111,7 @@
   <div>📍 <a href="https://maps.app.goo.gl/FscQmXPSfN6LBsze7?g_st=ac" target="_blank">موقعنا على الخريطة</a></div>
 </footer>
 
-<!-- تحميل وعرض الأدوات -->
+<!-- تحميل وعرض المنتجات بدون فلترة -->
 <script>
 let allProducts = [];
 let products = [];
@@ -121,20 +121,13 @@ let currentPage = 1;
 fetch("https://script.google.com/macros/s/AKfycbwvZFE5UgkUYiZrizC97-LUgFEMLFjYDR9DGAyS8YKoAWd6WB7Vg0uMB9rkZ9DmXkBj/exec")
   .then(response => response.json())
   .then(data => {
-    // جلب الأدوات فقط حسب الكلمة المفتاحية
-    allProducts = data.filter(p =>
-      p.number && p.brand && (
-        p.number.toLowerCase().includes("مفتاح") ||
-        p.brand.toLowerCase().includes("tool") ||
-        p.brand.toLowerCase().includes("kin")
-      )
-    );
+    allProducts = data;
     products = [...allProducts];
     displayProducts();
   })
   .catch(error => {
     console.error("فشل تحميل البيانات:", error);
-    document.getElementById('productList').innerHTML = "<p style='color:red;text-align:center;'>⚠️ تعذر تحميل الأدوات.</p>";
+    document.getElementById('productList').innerHTML = "<p style='color:red;text-align:center;'>⚠️ تعذر تحميل المنتجات.</p>";
   });
 
 function displayProducts() {
@@ -145,7 +138,7 @@ function displayProducts() {
   const pageProducts = products.slice(start, end);
 
   if (pageProducts.length === 0) {
-    productList.innerHTML = "<p style='text-align:center;color:red;'>⚠️ لا توجد أدوات.</p>";
+    productList.innerHTML = "<p style='text-align:center;color:red;'>⚠️ لا توجد منتجات.</p>";
     document.getElementById('pagination').innerHTML = '';
     return;
   }
