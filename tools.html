@@ -121,9 +121,13 @@ let currentPage = 1;
 fetch("https://script.google.com/macros/s/AKfycbwvZFE5UgkUYiZrizC97-LUgFEMLFjYDR9DGAyS8YKoAWd6WB7Vg0uMB9rkZ9DmXkBj/exec")
   .then(response => response.json())
   .then(data => {
-    // إذا كنت لا تستعمل عمود النوع، يمكنك هنا جلب الأدوات فقط حسب الاسم أو العلامة:
+    // جلب الأدوات فقط حسب الكلمة المفتاحية
     allProducts = data.filter(p =>
-      p.name && p.brand && (p.name.toLowerCase().includes("مفتاح") || p.brand.toLowerCase().includes("kin") || p.brand.toLowerCase().includes("tool"))
+      p.number && p.brand && (
+        p.number.toLowerCase().includes("مفتاح") ||
+        p.brand.toLowerCase().includes("tool") ||
+        p.brand.toLowerCase().includes("kin")
+      )
     );
     products = [...allProducts];
     displayProducts();
@@ -151,11 +155,11 @@ function displayProducts() {
     const div = document.createElement('div');
     div.className = 'product';
     div.innerHTML = `
-      <img src="${p.img || 'https://via.placeholder.com/250x200'}" alt="${p.name}">
-      <h3>${p.name} - ${p.brand}</h3>
+      <img src="${p.img || 'https://via.placeholder.com/250x200'}" alt="${p.number}">
+      <h3>${p.number} - ${p.brand}</h3>
       <p>السعر: ${p.price} دج</p>
       <p>${available ? "✅ متوفر" : "❌ غير متوفر"}</p>
-      <a href="order_form.html?number=${encodeURIComponent(p.name)}&brand=${encodeURIComponent(p.brand)}&price=${encodeURIComponent(p.price)}"
+      <a href="order_form.html?number=${encodeURIComponent(p.number)}&brand=${encodeURIComponent(p.brand)}&price=${encodeURIComponent(p.price)}"
          style="background:#28a745;color:white;padding:8px 14px;text-decoration:none;border-radius:5px;display:inline-block;margin-top:10px;">
          🛒 اطلب الآن
       </a>
@@ -185,7 +189,7 @@ function updatePagination() {
 function filterProducts() {
   const input = document.getElementById('searchBar').value.toLowerCase();
   products = allProducts.filter(p =>
-    p.name.toLowerCase().includes(input) || p.brand.toLowerCase().includes(input)
+    p.number.toLowerCase().includes(input) || p.brand.toLowerCase().includes(input)
   );
   currentPage = 1;
   displayProducts();
