@@ -219,10 +219,32 @@ document.getElementById("orderForm").addEventListener("submit", function(e) {
     body: formData
   })
   .then(res => res.text())
-  .then(() => {
-    document.getElementById("popupOverlay").style.display = "none";
-    window.location.href = `myorders.html?phone=${encodeURIComponent(phone)}&wait=10`;
-  })
+.then(() => {
+  document.body.innerHTML = `
+    <div style="text-align: center; padding: 2rem; font-family: Tahoma;">
+      <h2 style="color: green;">💚 شكراً جزيلاً لك!</h2>
+      <p>تم تأكيد طلبك بنجاح وسنتصل بك في أقرب وقت.</p>
+      <p>يمكنك متابعة حالة الطلب من خلال النقر على زر <strong>طلباتي</strong>.</p>
+      <br>
+      <a href="myorders.html?phone=${encodeURIComponent(phone)}" style="
+        display: inline-block;
+        background-color: #0a9396;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-size: 1rem;">📦 طلباتي</a>
+      <br><br>
+      <p style="color: gray;">سيتم توجيهك تلقائياً إلى صفحة المتجر خلال لحظات...</p>
+    </div>
+  `;
+
+  // التحويل التلقائي إلى صفحة المتجر بعد 5 ثوانٍ
+  setTimeout(() => {
+    window.location.href = "index.html";
+  }, 5000);
+})
+
   .catch(() => {
     document.getElementById("popupBox").textContent = "❌ فشل في الإرسال.";
     setTimeout(() => {
