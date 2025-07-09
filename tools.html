@@ -152,7 +152,7 @@ function displayProducts() {
       <h3>${p.number} - ${p.brand}</h3>
       <p>السعر: ${p.price} دج</p>
       <p>${available ? "✅ متوفر" : "❌ غير متوفر"}</p>
-      <a href="order_form.html?number=${encodeURIComponent(p.number)}&brand=${encodeURIComponent(p.brand)}&price=${encodeURIComponent(p.price)}"
+      <a href="order-form.html?number=${encodeURIComponent(p.number)}&brand=${encodeURIComponent(p.brand)}&price=${encodeURIComponent(p.price)}"
          style="background:#28a745;color:white;padding:8px 14px;text-decoration:none;border-radius:5px;display:inline-block;margin-top:10px;">
          🛒 اطلب الآن
       </a>
