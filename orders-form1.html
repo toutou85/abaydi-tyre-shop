@@ -179,7 +179,7 @@ function updateDelivery() {
   const tirePrice = parseFloat(document.getElementById("tirePrice").value) || 0;
   const delivery = deliveryPrices[wilaya] ? (method === "home" ? deliveryPrices[wilaya][0] : deliveryPrices[wilaya][1]) : 0;
   const total = (tirePrice + delivery) * quantity;
-  document.getElementById("deliveryPriceText").textContent = `سعر التوصيل للعجلة الواحدة: ${delivery} دج`;
+  document.getElementById("deliveryPriceText").textContent = `سعر التوصيل: ${delivery} دج`;
   document.getElementById("totalPrice").textContent = `المجموع: ${total} دج`;
 }
 
