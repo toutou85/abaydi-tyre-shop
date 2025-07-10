@@ -176,6 +176,7 @@ for (const wilaya in deliveryPrices) {
 }
 
 function updateDelivery() {
+  const form = document.getElementById("orderForm");
   const wilaya = form.wilaya.value;
   const method = form.deliveryMethod.value;
   const quantity = parseInt(document.getElementById("quantity").value) || 1;
@@ -186,7 +187,6 @@ function updateDelivery() {
   document.getElementById("deliveryPriceText").textContent = `سعر التوصيل الإجمالي: ${delivery} دج ( ${unitDelivery} دج × ${quantity} )`;
   document.getElementById("totalPrice").textContent = `المجموع: ${(tirePrice * quantity + delivery)} دج`;
 }
-
 
 function changeQty(delta) {
   const input = document.getElementById("quantity");
@@ -201,15 +201,14 @@ document.getElementById("orderForm").addEventListener("submit", function(e) {
   const form = e.target;
   const formData = new FormData(form);
   const phone = form.querySelector('[name="phone"]').value.trim();
-
   const wilaya = form.wilaya.value;
   const method = form.deliveryMethod.value;
- const unitDelivery = deliveryPrices[wilaya] ? (method === "home" ? deliveryPrices[wilaya][0] : deliveryPrices[wilaya][1]) : 0;
-const delivery = unitDelivery * quantity;
-
-  const tirePrice = parseFloat(form.tirePrice.value) || 0;
   const quantity = parseInt(document.getElementById("quantity").value) || 1;
+  const unitDelivery = deliveryPrices[wilaya] ? (method === "home" ? deliveryPrices[wilaya][0] : deliveryPrices[wilaya][1]) : 0;
+  const delivery = unitDelivery * quantity;
+  const tirePrice = parseFloat(form.tirePrice.value) || 0;
   const total = (tirePrice * quantity) + delivery;
+
   formData.append("deliveryPrice", delivery);
   formData.append("total", total);
   formData.append("quantity", quantity);
@@ -221,32 +220,29 @@ const delivery = unitDelivery * quantity;
     body: formData
   })
   .then(res => res.text())
-.then(() => {
-  document.body.innerHTML = `
-    <div style="text-align: center; padding: 2rem; font-family: Tahoma;">
-      <h2 style="color: green;">💚 شكراً جزيلاً لك!</h2>
-      <p>تم تأكيد طلبك بنجاح وسنتصل بك في أقرب وقت.</p>
-      <p>يمكنك متابعة حالة الطلب من خلال النقر على زر <strong>طلباتي</strong>.</p>
-      <br>
-      <a href="myorders.html?phone=${encodeURIComponent(phone)}" style="
-        display: inline-block;
-        background-color: #0a9396;
-        color: white;
-        padding: 10px 20px;
-        border-radius: 8px;
-        text-decoration: none;
-        font-size: 1rem;">📦 طلباتي</a>
-      <br><br>
-      <p style="color: gray;">سيتم توجيهك تلقائياً إلى صفحة المتجر خلال لحظات...</p>
-    </div>
-  `;
-
-  // التحويل التلقائي إلى صفحة المتجر بعد 5 ثوانٍ
-  setTimeout(() => {
-    window.location.href = "index.html";
-  }, 5000);
-})
-
+  .then(() => {
+    document.body.innerHTML = `
+      <div style="text-align: center; padding: 2rem; font-family: Tahoma;">
+        <h2 style="color: green;">💚 شكراً جزيلاً لك!</h2>
+        <p>تم تأكيد طلبك بنجاح وسنتصل بك في أقرب وقت.</p>
+        <p>يمكنك متابعة حالة الطلب من خلال النقر على زر <strong>طلباتي</strong>.</p>
+        <br>
+        <a href="myorders.html?phone=${encodeURIComponent(phone)}" style="
+          display: inline-block;
+          background-color: #0a9396;
+          color: white;
+          padding: 10px 20px;
+          border-radius: 8px;
+          text-decoration: none;
+          font-size: 1rem;">📦 طلباتي</a>
+        <br><br>
+        <p style="color: gray;">سيتم توجيهك تلقائياً إلى صفحة المتجر خلال لحظات...</p>
+      </div>
+    `;
+    setTimeout(() => {
+      window.location.href = "index.html";
+    }, 5000);
+  })
   .catch(() => {
     document.getElementById("popupBox").textContent = "❌ فشل في الإرسال.";
     setTimeout(() => {
@@ -263,16 +259,15 @@ window.onload = function () {
 
   if (number) document.querySelector('[name="tireNumber"]').value = decodeURIComponent(number);
   if (brand) document.querySelector('[name="tireType"]').value = decodeURIComponent(brand);
-  if (price) {
-    document.getElementById("tirePrice").value = decodeURIComponent(price);
-  }
+  if (price) document.getElementById("tirePrice").value = decodeURIComponent(price);
 
- const now = new Date();
-const dateTime = now.toLocaleString('ar-DZ', { hour12: false });
-document.getElementById("orderDate").value = dateTime;
+  const now = new Date();
+  const dateTime = now.toLocaleString('ar-DZ', { hour12: false });
+  document.getElementById("orderDate").value = dateTime;
 
   updateDelivery();
 };
 </script>
+
 </body>
 </html>
