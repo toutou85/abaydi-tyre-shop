@@ -180,11 +180,13 @@ function updateDelivery() {
   const method = document.getElementById("deliveryMethod").value;
   const quantity = parseInt(document.getElementById("quantity").value) || 1;
   const tirePrice = parseFloat(document.getElementById("tirePrice").value) || 0;
-  const delivery = deliveryPrices[wilaya] ? (method === "home" ? deliveryPrices[wilaya][0] : deliveryPrices[wilaya][1]) : 0;
 
-  const total = (tirePrice + delivery) * quantity;
+  const unitDelivery = deliveryPrices[wilaya] ? (method === "home" ? deliveryPrices[wilaya][0] : deliveryPrices[wilaya][1]) : 0;
+  const totalDelivery = unitDelivery * quantity;
 
-  document.getElementById("deliveryPriceText").textContent = `سعر التوصيل للعجلة الواحدة: ${delivery} دج`;
+  const total = (tirePrice * quantity) + totalDelivery;
+
+  document.getElementById("deliveryPriceText").textContent = `سعر التوصيل الإجمالي: ${totalDelivery} دج ( ${unitDelivery} دج × ${quantity} )`;
   document.getElementById("totalPrice").textContent = `المجموع: ${total} دج`;
 }
 
@@ -204,7 +206,9 @@ document.getElementById("orderForm").addEventListener("submit", function(e) {
 
   const wilaya = form.wilaya.value;
   const method = form.deliveryMethod.value;
-  const delivery = deliveryPrices[wilaya] ? (method === "home" ? deliveryPrices[wilaya][0] : deliveryPrices[wilaya][1]) : 0;
+ const unitDelivery = deliveryPrices[wilaya] ? (method === "home" ? deliveryPrices[wilaya][0] : deliveryPrices[wilaya][1]) : 0;
+const delivery = unitDelivery * quantity;
+
   const tirePrice = parseFloat(form.tirePrice.value) || 0;
   const quantity = parseInt(document.getElementById("quantity").value) || 1;
   const total = (tirePrice * quantity) + delivery;
