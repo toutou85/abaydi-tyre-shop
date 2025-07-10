@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>شراء </title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f9f9f9;
+      padding: 10px;
+      margin: 0;
+    }
+    form {
+      max-width: 600px;
+      margin: auto;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    input, select, textarea, button {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 10px;
+      font-size: 16px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+    }
+    button {
+      background: #28a745;
+      color: white;
+      border: none;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    #totalPrice {
+      font-weight: bold;
+      color: #007bff;
+      text-align: center;
+      margin-top: 10px;
+    }
+    .note {
+      color: red;
+      font-size: 0.9em;
+      text-align: center;
+    }
+    #popupOverlay {
+      position: fixed;
+      top: 0; right: 0; bottom: 0; left: 0;
+      background: rgba(0,0,0,0.3);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    }
+    #popupBox {
+      background: white;
+      padding: 20px 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.2);
+      font-size: 22px;
+      color: #28a745;
+      animation: pulse 1.2s infinite;
+      text-align: center;
+    }
+    @keyframes pulse {
+      0% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.05); opacity: 0.7; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .quantity-box {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      max-width: 200px;
+      margin: auto;
+    }
+
+    .quantity-box button {
+      width: 40px;
+      padding: 10px;
+      background: #007bff;
+    }
+
+    .quantity-box input {
+      width: 60px;
+      text-align: center;
+      font-weight: bold;
+    }
+
+    @media (max-width: 480px) {
+      .quantity-box {
+        flex-direction: row;
+      }
+      button {
+        font-size: 15px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h2>📦 نموذج طلب </h2>
+<form id="orderForm">
+  <input type="text" name="fullName" placeholder="الاسم واللقب" required>
+  <input type="tel" name="phone" placeholder="رقم الهاتف" pattern="^(05|06|07)[0-9]{8}$" required title="رقم الهاتف يجب أن يكون 10 أرقام ويبدأ بـ 05 أو 06 أو 07">
+  <input type="text" name="tireType" placeholder="نوع الإطار" required>
+  <input type="text" name="tireNumber" placeholder="رقم الإطار" required>
+  <input type="number" name="tirePrice" id="tirePrice" placeholder="سعر الإطار (دج)" readonly required>
+
+  <label for="quantity">الكمية:</label>
+  <div class="quantity-box">
+    <button type="button" onclick="changeQty(-1)">➖</button>
+    <input type="number" id="quantity" name="quantity" value="1" min="1" readonly required>
+    <button type="button" onclick="changeQty(1)">➕</button>
+  </div>
+
+  <select name="wilaya" id="wilaya" required onchange="updateDelivery()">
+    <option value="">اختر الولاية</option>
+  </select>
+
+  <select id="deliveryMethod" name="deliveryMethod" required onchange="updateDelivery()">
+    <option value="home">🚚 إلى المنزل</option>
+    <option value="office">🏢 مكتب الاستلام</option>
+  </select>
+
+  <input type="text" name="address" placeholder="العنوان الكامل" required>
+  <textarea name="note" placeholder="ملاحظة (اختياري)"></textarea>
+  <input type="text" name="date" readonly id="orderDate">
+
+  <p id="deliveryPriceText">سعر التوصيل: - دج</p>
+  <p id="totalPrice">المجموع: - دج</p>
+  <p class="note" id="loadingMsg"></p>
+
+  <button type="submit">إرسال الطلب</button>
+</form>
+
+<!-- الرسالة المنبثقة -->
+<div id="popupOverlay">
+  <div id="popupBox">⏳ استغفر الله...</div>
+</div>
+
+<script>
+const deliveryPrices = {
+  "أدرار": [1650, 600], "الشلف": [1650, 600], "الأغواط": [850, 450], "أم البواقي": [850, 450],
+  "باتنة": [850, 450], "بجاية": [850, 450], "بسكرة": [850, 450], "بشار": [1650, 600],
+  "البليدة": [850, 450], "بويرة": [850, 450], "تمنراست": [1650, 800], "تبسة": [850, 450],
+  "تلمسان": [900, 600], "تيارت": [850, 450], "تيزي وزو": [850, 450], "الجزائر": [850, 450],
+  "الجلفة": [850, 450], "جيجل": [850, 450], "سطيف": [850, 450], "صيدا": [850, 450],
+  "سكيكدة": [850, 450], "سيدي بلعباس": [900, 500], "عنابة": [850, 450], "قالمة": [850, 450],
+  "قسطنطين": [850, 450], "ميديا": [850, 450], "مستغانم": [900, 450], "مسيلة": [850, 450],
+  "ماسكارا": [900, 500], "ورقلة": [650, 450], "وهران": [900, 450], "البيض": [850, 500],
+  "إليزي": [1000, 500], "برج بوعريريج": [850, 450], "بومرداس": [900, 500], "الطارف": [900, 800],
+  "تندوف": [1650, 800], "تيسمسيلت": [850, 450], "الواد": [650, 450], "خنشلة": [850, 450],
+  "سوق أهراس": [850, 450], "تيبازة": [900, 500], "ميلا": [750, 450], "عين الدفلى": [900, 600],
+  "نعمة": [900, 600], "عين تموشنت": [900, 500], "غرداية": [850, 450], "غليزان": [900, 500],
+  "تيميمون": [900, 500], "برج باجي مختار": [2000, 1000], "أولاد جلال": [850, 450],
+  "بني عباس": [1650, 850], "في صلاح": [1650, 850], "في قزام": [1400, 700], "تقرت": [500, 300],
+  "جانت": [2000, 1200], "المغير": [600, 450], "المنيعة": [850, 500]
+};
+
+const wilayaSelect = document.getElementById("wilaya");
+for (const wilaya in deliveryPrices) {
+  const opt = document.createElement("option");
+  opt.value = wilaya;
+  opt.textContent = wilaya;
+  wilayaSelect.appendChild(opt);
+}
+
+function updateDelivery() {
+  const wilaya = document.getElementById("wilaya").value;
+  const method = document.getElementById("deliveryMethod").value;
+  const quantity = parseInt(document.getElementById("quantity").value) || 1;
+  const tirePrice = parseFloat(document.getElementById("tirePrice").value) || 0;
+  const now = new Date();
+const day = now.getDate().toString().padStart(2, '0');
+const month = (now.getMonth() + 1).toString().padStart(2, '0');
+const year = now.getFullYear();
+const hours = now.getHours().toString().padStart(2, '0');
+const minutes = now.getMinutes().toString().padStart(2, '0');
+
+document.getElementById("orderDate").value = `${day}/${month}/${year} ${hours}:${minutes}`;
+const delivery = deliveryPrices[wilaya] ? (method === "home" ? deliveryPrices[wilaya][0] : deliveryPrices[wilaya][1]) : 0;
+
+  const total = (tirePrice + delivery) * quantity;
+
+  document.getElementById("deliveryPriceText").textContent = `سعر التوصيل : ${delivery} دج`;
+  document.getElementById("totalPrice").textContent = `المجموع: ${total} دج`;
+}
+
+function changeQty(delta) {
+  const input = document.getElementById("quantity");
+  let value = parseInt(input.value) || 1;
+  value = Math.max(1, value + delta);
+  input.value = value;
+  updateDelivery();
+}
+
+document.getElementById("orderForm").addEventListener("submit", function(e) {
+  e.preventDefault();
+  const form = e.target;
+  const formData = new FormData(form);
+  const phone = form.querySelector('[name="phone"]').value.trim();
+
+  const wilaya = form.wilaya.value;
+  const method = form.deliveryMethod.value;
+  const delivery = deliveryPrices[wilaya] ? (method === "home" ? deliveryPrices[wilaya][0] : deliveryPrices[wilaya][1]) : 0;
+  const tirePrice = parseFloat(form.tirePrice.value) || 0;
+  const quantity = parseInt(document.getElementById("quantity").value) || 1;
+  const total = (tirePrice * quantity) + delivery;
+  formData.append("deliveryPrice", delivery);
+  formData.append("total", total);
+  formData.append("quantity", quantity);
+
+  document.getElementById("popupOverlay").style.display = "flex";
+
+  fetch("https://script.google.com/macros/s/AKfycbxiNUwljYIj_WWIKEm-HG5lfj_Y9jFdfEVJ7gDhLGujAp-zkbdEOn4l8crwkHNJEtQ-/exec", {
+    method: "POST",
+    body: formData
+  })
+  .then(res => res.text())
+.then(() => {
+  document.body.innerHTML = `
+    <div style="text-align: center; padding: 2rem; font-family: Tahoma;">
+      <h2 style="color: green;">💚 شكراً جزيلاً لك!</h2>
+      <p>تم تأكيد طلبك بنجاح وسنتصل بك في أقرب وقت.</p>
+      <p>يمكنك متابعة حالة الطلب من خلال النقر على زر <strong>طلباتي</strong>.</p>
+      <br>
+      <a href="myorders.html?phone=${encodeURIComponent(phone)}" style="
+        display: inline-block;
+        background-color: #0a9396;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-size: 1rem;">📦 طلباتي</a>
+      <br><br>
+      <p style="color: gray;">سيتم توجيهك تلقائياً إلى صفحة المتجر خلال لحظات...</p>
+    </div>
+  `;
+
+  // التحويل التلقائي إلى صفحة المتجر بعد 5 ثوانٍ
+  setTimeout(() => {
+    window.location.href = "tools.html";
+  }, 5000);
+})
+
+  .catch(() => {
+    document.getElementById("popupBox").textContent = "❌ فشل في الإرسال.";
+    setTimeout(() => {
+      document.getElementById("popupOverlay").style.display = "none";
+    }, 3000);
+  });
+});
+
+window.onload = function () {
+  const url = new URL(window.location.href);
+  const number = url.searchParams.get("number");
+  const brand = url.searchParams.get("brand");
+  const price = url.searchParams.get("price");
+
+  if (number) document.querySelector('[name="tireNumber"]').value = decodeURIComponent(number);
+  if (brand) document.querySelector('[name="tireType"]').value = decodeURIComponent(brand);
+  if (price) {
+    document.getElementById("tirePrice").value = decodeURIComponent(price);
+  }
+
+  document.getElementById("orderDate").value = new Date().toISOString().split("T")[0];
+  updateDelivery();
+};
+</script>
+</body>
+</html>
