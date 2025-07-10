@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>شراء أدوات</title>
+  <title>شراء </title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -74,6 +74,7 @@
       50% { transform: scale(1.05); opacity: 0.7; }
       100% { transform: scale(1); opacity: 1; }
     }
+
     .quantity-box {
       display: flex;
       align-items: center;
@@ -82,16 +83,19 @@
       max-width: 200px;
       margin: auto;
     }
+
     .quantity-box button {
       width: 40px;
       padding: 10px;
       background: #007bff;
     }
+
     .quantity-box input {
       width: 60px;
       text-align: center;
       font-weight: bold;
     }
+
     @media (max-width: 480px) {
       .quantity-box {
         flex-direction: row;
@@ -104,13 +108,13 @@
 </head>
 <body>
 
-<h2>📦 نموذج طلب أداة</h2>
+<h2>📦 نموذج طلب إطار</h2>
 <form id="orderForm">
   <input type="text" name="fullName" placeholder="الاسم واللقب" required>
   <input type="tel" name="phone" placeholder="رقم الهاتف" pattern="^(05|06|07)[0-9]{8}$" required title="رقم الهاتف يجب أن يكون 10 أرقام ويبدأ بـ 05 أو 06 أو 07">
-  <input type="text" name="tireType" placeholder="نوع الأداة" required>
-  <input type="text" name="tireNumber" placeholder="اسم الأداة" required>
-  <input type="number" name="tirePrice" id="tirePrice" placeholder="السعر (دج)" readonly required>
+  <input type="text" name="tireType" placeholder="نوع الإطار" required>
+  <input type="text" name="tireNumber" placeholder="رقم الإطار" required>
+  <input type="number" name="tirePrice" id="tirePrice" placeholder="سعر الإطار (دج)" readonly required>
 
   <label for="quantity">الكمية:</label>
   <div class="quantity-box">
@@ -177,8 +181,10 @@ function updateDelivery() {
   const quantity = parseInt(document.getElementById("quantity").value) || 1;
   const tirePrice = parseFloat(document.getElementById("tirePrice").value) || 0;
   const delivery = deliveryPrices[wilaya] ? (method === "home" ? deliveryPrices[wilaya][0] : deliveryPrices[wilaya][1]) : 0;
+
   const total = (tirePrice + delivery) * quantity;
-  document.getElementById("deliveryPriceText").textContent = `سعر التوصيل: ${delivery} دج`;
+
+  document.getElementById("deliveryPriceText").textContent = `سعر التوصيل : ${delivery} دج`;
   document.getElementById("totalPrice").textContent = `المجموع: ${total} دج`;
 }
 
@@ -202,42 +208,43 @@ document.getElementById("orderForm").addEventListener("submit", function(e) {
   const tirePrice = parseFloat(form.tirePrice.value) || 0;
   const quantity = parseInt(document.getElementById("quantity").value) || 1;
   const total = (tirePrice * quantity) + delivery;
-
   formData.append("deliveryPrice", delivery);
   formData.append("total", total);
   formData.append("quantity", quantity);
-  formData.append("tirePrice", tirePrice); // ✅ تمت إضافته
 
   document.getElementById("popupOverlay").style.display = "flex";
 
-  fetch("https://script.google.com/macros/s/AKfycbyqm9O8efvbk9klueCTJGxyTNEjdrMPURI9nXc65VP9TyRSrk4qbqpTEEpQgwh2X7AO/exec", {
+  fetch("https://script.google.com/macros/s/AKfycbxYe9-c6VFDQWzJmgJ79K4Kt5ub9qllcXfTOgCy8DtEtTlOp7oJyZKoWnQxANhAEqd0/exec", {
     method: "POST",
     body: formData
   })
   .then(res => res.text())
-  .then(() => {
-    document.body.innerHTML = `
-      <div style="text-align: center; padding: 2rem; font-family: Tahoma;">
-        <h2 style="color: green;">💚 شكراً جزيلاً لك!</h2>
-        <p>تم تأكيد طلبك بنجاح وسنتصل بك في أقرب وقت.</p>
-        <p>يمكنك متابعة حالة الطلب من خلال النقر على زر <strong>طلباتي</strong>.</p>
-        <br>
-        <a href="myorders.html?phone=${encodeURIComponent(phone)}" style="
-          display: inline-block;
-          background-color: #0a9396;
-          color: white;
-          padding: 10px 20px;
-          border-radius: 8px;
-          text-decoration: none;
-          font-size: 1rem;">📦 طلباتي</a>
-        <br><br>
-        <p style="color: gray;">سيتم توجيهك تلقائياً إلى صفحة المتجر خلال لحظات...</p>
-      </div>
-    `;
-    setTimeout(() => {
-      window.location.href = "index.html";
-    }, 5000);
-  })
+.then(() => {
+  document.body.innerHTML = `
+    <div style="text-align: center; padding: 2rem; font-family: Tahoma;">
+      <h2 style="color: green;">💚 شكراً جزيلاً لك!</h2>
+      <p>تم تأكيد طلبك بنجاح وسنتصل بك في أقرب وقت.</p>
+      <p>يمكنك متابعة حالة الطلب من خلال النقر على زر <strong>طلباتي</strong>.</p>
+      <br>
+      <a href="myorders.html?phone=${encodeURIComponent(phone)}" style="
+        display: inline-block;
+        background-color: #0a9396;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-size: 1rem;">📦 طلباتي</a>
+      <br><br>
+      <p style="color: gray;">سيتم توجيهك تلقائياً إلى صفحة المتجر خلال لحظات...</p>
+    </div>
+  `;
+
+  // التحويل التلقائي إلى صفحة المتجر بعد 5 ثوانٍ
+  setTimeout(() => {
+    window.location.href = "index.html";
+  }, 5000);
+})
+
   .catch(() => {
     document.getElementById("popupBox").textContent = "❌ فشل في الإرسال.";
     setTimeout(() => {
@@ -247,19 +254,20 @@ document.getElementById("orderForm").addEventListener("submit", function(e) {
 });
 
 window.onload = function () {
-  const urlParams = new URLSearchParams(window.location.search);
-  const number = urlParams.get('number');
-  const brand = urlParams.get('brand');
-  const price = urlParams.get('price');
+  const url = new URL(window.location.href);
+  const number = url.searchParams.get("number");
+  const brand = url.searchParams.get("brand");
+  const price = url.searchParams.get("price");
 
   if (number) document.querySelector('[name="tireNumber"]').value = decodeURIComponent(number);
   if (brand) document.querySelector('[name="tireType"]').value = decodeURIComponent(brand);
-  if (price) document.getElementById('tirePrice').value = decodeURIComponent(price);
+  if (price) {
+    document.getElementById("tirePrice").value = decodeURIComponent(price);
+  }
 
   document.getElementById("orderDate").value = new Date().toISOString().split("T")[0];
   updateDelivery();
 };
 </script>
-
 </body>
 </html>
