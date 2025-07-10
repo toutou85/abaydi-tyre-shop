@@ -1,1 +1,124 @@
-d
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>📦 طلباتي</title>
+  <style>
+    body { font-family: Tahoma, sans-serif; background: #f5f5f5; padding: 20px; text-align: center; }
+    .box { max-width: 400px; background: white; margin: auto; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+    input, button { width: 100%; padding: 10px; margin-top: 10px; font-size: 16px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 30px; font-size: 14px; }
+    th, td { border: 1px solid #ccc; padding: 8px; }
+    th { background: #007bff; color: white; }
+    .error { color: red; font-size: 14px; margin-top: 10px; }
+    #countdown { font-size: 16px; color: #007bff; margin-top: 10px; }
+  </style>
+</head>
+<body>
+
+<div class="box">
+  <h2>📦 عرض طلبياتك</h2>
+  <input type="tel" id="phoneInput" placeholder="أدخل رقم هاتفك (مثال: 065...)" />
+  <button id="fetchBtn" onclick="fetchMyOrders()">🔍 عرض طلباتي</button>
+  <p class="error" id="errorMsg"></p>
+  <div id="countdown"></div>
+</div>
+
+<div id="ordersSection" style="display:none;">
+  <h3>📋 قائمة الطلبيات</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>الاسم</th><th>الهاتف</th><th>النوع</th><th>رقم</th><th>السعر</th><th>الكمية</th>
+        <th>الولاية</th><th>طريقة التوصيل</th><th>سعر التوصيل</th><th>المجموع</th>
+        <th>العنوان</th><th>ملاحظة</th><th>التاريخ</th><th>الحالة</th>
+      </tr>
+    </thead>
+    <tbody id="ordersTable"></tbody>
+  </table>
+</div>
+
+<script>
+const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSuzNwMtxr1nrFcz3c60chHB24LanJbl_dbSP4XUhbGFeLNCmzglJ35QL5MgT0OV01sshUgwZvqLuYl/pub?gid=0&single=true&output=csv";
+
+function validatePhone(phone) {
+  return /^0(5|6|7)\d{8}$/.test(phone);
+}
+
+function fetchMyOrders() {
+  const phone = document.getElementById("phoneInput").value.trim();
+  const errorMsg = document.getElementById("errorMsg");
+  const table = document.getElementById("ordersTable");
+  const section = document.getElementById("ordersSection");
+
+  if (!validatePhone(phone)) {
+    errorMsg.textContent = "⚠️ رقم الهاتف غير صحيح. يجب أن يبدأ بـ 05 أو 06 أو 07 ويحتوي على 10 أرقام.";
+    section.style.display = "none";
+    return;
+  }
+
+  errorMsg.textContent = "⏳ جاري تحميل الطلبات...";
+  fetch(sheetURL)
+    .then(res => res.text())
+    .then(text => {
+      const rows = text.trim().split('\n').slice(1).reverse(); // أحدث الطلبات أولاً
+      const myOrders = rows
+        .map(r => r.split(","))
+        .filter(r => r[2] === phone);
+
+      if (myOrders.length === 0) {
+        errorMsg.textContent = "❌ لم يتم العثور على أي طلبات.";
+        section.style.display = "none";
+        return;
+      }
+
+      errorMsg.textContent = "";
+      section.style.display = "block";
+      table.innerHTML = "";
+
+      myOrders.forEach(row => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${row[1]}</td><td>${row[2]}</td><td>${row[3]}</td><td>${row[4]}</td><td>${row[5]}</td>
+          <td>${row[12] || "1"}</td><td>${row[6]}</td><td>${row[7]}</td><td>${row[8]}</td>
+          <td>${row[9]}</td><td>${row[10]}</td><td>${row[11]}</td><td>${row[0]}</td><td>${row[13] || "قيد المعالجة"}</td>
+        `;
+        table.appendChild(tr);
+      });
+    })
+    .catch(err => {
+      errorMsg.textContent = "❌ حدث خطأ أثناء تحميل الطلبات.";
+      console.error(err);
+    });
+}
+
+// ✅ تنفيذ تلقائي مع عد تنازلي عند فتح الصفحة
+window.onload = function () {
+  const url = new URL(window.location.href);
+  const phone = url.searchParams.get("phone");
+  const wait = parseInt(url.searchParams.get("wait")) || 10;
+
+  if (phone) {
+    document.getElementById("phoneInput").value = phone;
+
+    const countdownEl = document.getElementById("countdown");
+    const fetchBtn = document.getElementById("fetchBtn");
+    fetchBtn.disabled = true;
+
+    let counter = wait;
+    const interval = setInterval(() => {
+      countdownEl.textContent = `⌛ الرجاء الانتظار ${counter} ثانية لتحميل الطلبيات...`;
+      counter--;
+      if (counter < 0) {
+        clearInterval(interval);
+        countdownEl.textContent = "";
+        fetchBtn.disabled = false;
+        fetchMyOrders();
+      }
+    }, 1000);
+  }
+};
+</script>
+
+</body>
+</html>
