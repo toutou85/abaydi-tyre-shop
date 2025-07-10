@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>أدوات صيانة السيارات - عبايدي</title>
+  <title>🛠️ أدوات صيانة السيارات - عبايدي</title>
   <style>
     body { font-family: Arial, sans-serif; background: #f2f2f2; margin: 0; padding: 0; }
     header {
@@ -108,10 +108,10 @@
     <a href="https://wa.me/21356450486" target="_blank">+21356450486</a> |
     <a href="https://wa.me/213698749015" target="_blank">+213698749015</a>
   </div>
-  <div>📍 <a href="https://maps.app.goo.gl/FscQmXPSfN6LBsze7?g_st=ac" target="_blank">موقعنا على الخريطة</a></div>
+  <div>📍 <a href="https://maps.app.goo.gl/FscQmXPSfN6LBsze7" target="_blank">موقعنا</a></div>
 </footer>
 
-<!-- تحميل وعرض المنتجات بدون فلترة -->
+<!-- تحميل وعرض الأدوات -->
 <script>
 let allProducts = [];
 let products = [];
@@ -127,7 +127,7 @@ fetch("https://script.google.com/macros/s/AKfycbwvZFE5UgkUYiZrizC97-LUgFEMLFjYDR
   })
   .catch(error => {
     console.error("فشل تحميل البيانات:", error);
-    document.getElementById('productList').innerHTML = "<p style='color:red;text-align:center;'>⚠️ تعذر تحميل المنتجات.</p>";
+    document.getElementById('productList').innerHTML = "<p style='color:red;text-align:center;'>⚠️ تعذر تحميل الأدوات.</p>";
   });
 
 function displayProducts() {
@@ -138,7 +138,7 @@ function displayProducts() {
   const pageProducts = products.slice(start, end);
 
   if (pageProducts.length === 0) {
-    productList.innerHTML = "<p style='text-align:center;color:red;'>⚠️ لا توجد منتجات.</p>";
+    productList.innerHTML = "<p style='text-align:center;color:red;'>⚠️ لا توجد أدوات.</p>";
     document.getElementById('pagination').innerHTML = '';
     return;
   }
@@ -152,7 +152,7 @@ function displayProducts() {
       <h3>${p.number} - ${p.brand}</h3>
       <p>السعر: ${p.price} دج</p>
       <p>${available ? "✅ متوفر" : "❌ غير متوفر"}</p>
-     <a href="order-form1.html?number=${encodeURIComponent(p.number)}&brand=${encodeURIComponent(p.brand)}&price=${encodeURIComponent(p.price)}"
+      <a href="orders-form1.html?number=${encodeURIComponent(p.number)}&brand=${encodeURIComponent(p.brand)}&price=${encodeURIComponent(p.price)}"
          style="background:#28a745;color:white;padding:8px 14px;text-decoration:none;border-radius:5px;display:inline-block;margin-top:10px;">
          🛒 اطلب الآن
       </a>
