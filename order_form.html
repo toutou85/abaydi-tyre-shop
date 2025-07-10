@@ -176,15 +176,13 @@ for (const wilaya in deliveryPrices) {
 }
 
 function updateDelivery() {
-  const wilaya = document.getElementById("wilaya").value;
-  const method = document.getElementById("deliveryMethod").value;
-  const quantity = parseInt(document.getElementById("quantity").value) || 1;
-  const tirePrice = parseFloat(document.getElementById("tirePrice").value) || 0;
+const wilaya = form.wilaya.value;
+const method = form.deliveryMethod.value;
+const quantity = parseInt(document.getElementById("quantity").value) || 1;
+const unitDelivery = deliveryPrices[wilaya] ? (method === "home" ? deliveryPrices[wilaya][0] : deliveryPrices[wilaya][1]) : 0;
+const delivery = unitDelivery * quantity;
 
-  const unitDelivery = deliveryPrices[wilaya] ? (method === "home" ? deliveryPrices[wilaya][0] : deliveryPrices[wilaya][1]) : 0;
-  const totalDelivery = unitDelivery * quantity;
-
-  const total = (tirePrice * quantity) + totalDelivery;
+const tirePrice = parseFloat(form.tirePrice.value) || 0;
 
   document.getElementById("deliveryPriceText").textContent = `سعر التوصيل الإجمالي: ${totalDelivery} دج ( ${unitDelivery} دج × ${quantity} )`;
   document.getElementById("totalPrice").textContent = `المجموع: ${total} دج`;
