@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>ملحقات السيارات - عبايدي</title>
+  <title>🛠️ أدوات صيانة السيارات - عبايدي</title>
   <style>
     body { font-family: Arial, sans-serif; background: #f2f2f2; margin: 0; padding: 0; }
     header {
@@ -30,6 +30,18 @@
       background-color: #0056b3;
       margin-left: 5px;
     }
+    .tab-link.active {
+      background-color: #28a745;
+    }
+    footer {
+      background: #007bff;
+      color: white;
+      text-align: center;
+      padding: 1rem;
+      margin-top: 2rem;
+      font-size: 1rem;
+    }
+    footer a { color: white; margin-top: 10px; display: inline-block; }
     #searchBar {
       width: 80%;
       margin: 1rem auto;
@@ -77,41 +89,45 @@
 <header>
   <div style="display: flex; align-items: center;">
     <img src="logo.png" alt="شعار المتجر">
-    <span>ملحقات السيارات - متجر عبايدي</span>
+    <span>🛠️ محلقات السيارات - متجر عبايدي</span>
   </div>
   <nav>
     <a href="index.html">🛞 الإطارات</a>
-    <a href="tools.html">🛠️ الأدوات</a>
+    <a href="tools.html" class="tab-link active">🛠️ الأدوات</a>
     <a href="accessories.html">🚗 الملحقات</a>
   </nav>
 </header>
 
-<input type="text" id="searchBar" placeholder="🔍 ابحث عن ملحق" oninput="filterProducts()">
+<input type="text" id="searchBar" placeholder="🔍 ابحث عن أداة" oninput="filterProducts()">
 <section class="products" id="productList"></section>
 <div class="pagination" id="pagination"></div>
 
 <footer>
-  <div style="background:#007bff; color:white; text-align:center; padding:1rem;">
-    🚚 توصيل 58 ولاية | 💵 الدفع عند الاستلام | 📞 +21356450486
+  <div>🚚 التوصيل متوفر لـ 58 ولاية | 🕒 العمل على مدار الأسبوع | 💵 الدفع عند الاستلام</div>
+  <div>📞 واتساب:
+    <a href="https://wa.me/21356450486" target="_blank">+21356450486</a> |
+    <a href="https://wa.me/213698749015" target="_blank">+213698749015</a>
   </div>
+  <div>📍 <a href="https://maps.app.goo.gl/FscQmXPSfN6LBsze7" target="_blank">موقعنا</a></div>
 </footer>
 
-<!-- عرض المنتجات -->
+<!-- تحميل وعرض الأدوات -->
 <script>
-let products = [];
 let allProducts = [];
+let products = [];
 const perPage = 20;
 let currentPage = 1;
 
-fetch("https://script.google.com/macros/s/AKfycbxrnFjlOpqTmhN__Je7TAPivqOcfgTftCqNNcsjcLnC1NKcjJQjwfrN1vA0SEdvOvLU/exec")
+fetch("https://script.google.com/macros/s/AKfycbwvZFE5UgkUYiZrizC97-LUgFEMLFjYDR9DGAyS8YKoAWd6WB7Vg0uMB9rkZ9DmXkBj/exec")
   .then(response => response.json())
   .then(data => {
-    products = allProducts = data;
+    allProducts = data;
+    products = [...allProducts];
     displayProducts();
   })
   .catch(error => {
     console.error("فشل تحميل البيانات:", error);
-    document.getElementById('productList').innerHTML = "<p style='color:red;text-align:center;'>⚠️ فشل تحميل المنتجات.</p>";
+    document.getElementById('productList').innerHTML = "<p style='color:red;text-align:center;'>⚠️ تعذر تحميل الأدوات.</p>";
   });
 
 function displayProducts() {
@@ -122,7 +138,7 @@ function displayProducts() {
   const pageProducts = products.slice(start, end);
 
   if (pageProducts.length === 0) {
-    productList.innerHTML = "<p style='color:red;text-align:center;'>⚠️ لا توجد منتجات.</p>";
+    productList.innerHTML = "<p style='text-align:center;color:red;'>⚠️ لا توجد أدوات.</p>";
     document.getElementById('pagination').innerHTML = '';
     return;
   }
@@ -132,11 +148,11 @@ function displayProducts() {
     const div = document.createElement('div');
     div.className = 'product';
     div.innerHTML = `
-      <img src="${p.img || 'https://via.placeholder.com/250x200'}" alt="${p.name}">
-      <h3>${p.name} - ${p.brand}</h3>
+      <img src="${p.img || 'https://via.placeholder.com/250x200'}" alt="${p.number}">
+      <h3>${p.number} - ${p.brand}</h3>
       <p>السعر: ${p.price} دج</p>
       <p>${available ? "✅ متوفر" : "❌ غير متوفر"}</p>
-      <a href="order_form.html?number=${encodeURIComponent(p.name)}&brand=${encodeURIComponent(p.brand)}&price=${encodeURIComponent(p.price)}"
+      <a href="orders-form2.html?number=${encodeURIComponent(p.number)}&brand=${encodeURIComponent(p.brand)}&price=${encodeURIComponent(p.price)}"
          style="background:#28a745;color:white;padding:8px 14px;text-decoration:none;border-radius:5px;display:inline-block;margin-top:10px;">
          🛒 اطلب الآن
       </a>
@@ -166,7 +182,7 @@ function updatePagination() {
 function filterProducts() {
   const input = document.getElementById('searchBar').value.toLowerCase();
   products = allProducts.filter(p =>
-    p.name.toLowerCase().includes(input) || p.brand.toLowerCase().includes(input)
+    p.number.toLowerCase().includes(input) || p.brand.toLowerCase().includes(input)
   );
   currentPage = 1;
   displayProducts();
