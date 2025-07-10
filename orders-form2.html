@@ -180,20 +180,19 @@ function updateDelivery() {
   const method = document.getElementById("deliveryMethod").value;
   const quantity = parseInt(document.getElementById("quantity").value) || 1;
   const tirePrice = parseFloat(document.getElementById("tirePrice").value) || 0;
-  const now = new Date();
-const day = now.getDate().toString().padStart(2, '0');
-const month = (now.getMonth() + 1).toString().padStart(2, '0');
-const year = now.getFullYear();
-const hours = now.getHours().toString().padStart(2, '0');
-const minutes = now.getMinutes().toString().padStart(2, '0');
 
-document.getElementById("orderDate").value = `${day}/${month}/${year} ${hours}:${minutes}`;
-const delivery = deliveryPrices[wilaya] ? (method === "home" ? deliveryPrices[wilaya][0] : deliveryPrices[wilaya][1]) : 0;
+  const unitDelivery = deliveryPrices[wilaya]
+    ? (method === "home" ? deliveryPrices[wilaya][0] : deliveryPrices[wilaya][1])
+    : 0;
 
-  const total = (tirePrice + delivery) * quantity;
+  const totalDelivery = unitDelivery * quantity;
+  const total = (tirePrice * quantity) + totalDelivery;
 
-  document.getElementById("deliveryPriceText").textContent = `سعر التوصيل : ${delivery} دج`;
-  document.getElementById("totalPrice").textContent = `المجموع: ${total} دج`;
+  document.getElementById("deliveryPriceText").textContent =
+    `سعر التوصيل الإجمالي: ${totalDelivery} دج ( ${unitDelivery} دج × ${quantity} )`;
+
+  document.getElementById("totalPrice").textContent =
+    `المجموع: ${total} دج`;
 }
 
 function changeQty(delta) {
