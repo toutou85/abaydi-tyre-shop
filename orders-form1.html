@@ -1,9 +1,9 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>شراء ادوات</title>
+  <title>شراء أدوات</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -145,7 +145,6 @@
 </div>
 
 <script>
-// قائمة الأسعار حسب الولاية ونوع التوصيل
 const deliveryPrices = {
   "أدرار": [1650, 600], "الشلف": [1650, 600], "الأغواط": [850, 450], "أم البواقي": [850, 450],
   "باتنة": [850, 450], "بجاية": [850, 450], "بسكرة": [850, 450], "بشار": [1650, 600],
@@ -207,10 +206,11 @@ document.getElementById("orderForm").addEventListener("submit", function(e) {
   formData.append("deliveryPrice", delivery);
   formData.append("total", total);
   formData.append("quantity", quantity);
+  formData.append("tirePrice", tirePrice); // ✅ تمت إضافته
 
   document.getElementById("popupOverlay").style.display = "flex";
 
-  fetch("https://script.google.com/macros/s/AKfycbzAl-Onh5dpD2TjlCn13H1iJOoajovSeXGVTXR6J0N7OIYX0ZViLt2Xl8e71NJsoVkj/exec", {
+  fetch("https://script.google.com/macros/s/AKfycbyqm9O8efvbk9klueCTJGxyTNEjdrMPURI9nXc65VP9TyRSrk4qbqpTEEpQgwh2X7AO/exec", {
     method: "POST",
     body: formData
   })
@@ -246,7 +246,6 @@ document.getElementById("orderForm").addEventListener("submit", function(e) {
   });
 });
 
-// ✅ تعبئة النموذج من الرابط
 window.onload = function () {
   const urlParams = new URLSearchParams(window.location.search);
   const number = urlParams.get('number');
@@ -261,5 +260,6 @@ window.onload = function () {
   updateDelivery();
 };
 </script>
+
 </body>
 </html>
