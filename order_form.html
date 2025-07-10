@@ -269,7 +269,10 @@ window.onload = function () {
     document.getElementById("tirePrice").value = decodeURIComponent(price);
   }
 
-  document.getElementById("orderDate").value = new Date().toISOString().split("T")[0];
+ const now = new Date();
+const dateTime = now.toLocaleString('ar-DZ', { hour12: false });
+document.getElementById("orderDate").value = dateTime;
+
   updateDelivery();
 };
 </script>
