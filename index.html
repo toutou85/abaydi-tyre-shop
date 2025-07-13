@@ -120,8 +120,18 @@ fetch("https://script.google.com/macros/s/AKfycbz2xj8XTW2BmK-CCOH-4TViDX1PaREnMZ
     price: p.price,
     quantity: p.quantity,
     img: p.img || 'https://via.placeholder.com/250x200'
-  }))
-  .sort(() => 0.5 - Math.random()); // 🔀 ترتيب عشوائي
+  }));
+
+// قسم المنتجات إلى مجموعتين
+const availableProducts = products.filter(p => parseInt(p.quantity) > 0);
+const unavailableProducts = products.filter(p => parseInt(p.quantity) <= 0);
+
+// رتب كل مجموعة عشوائيًا
+function shuffle(array) {
+  return array.sort(() => 0.5 - Math.random());
+}
+
+products = [...shuffle(availableProducts), ...shuffle(unavailableProducts)];
 
     const perPage = 20;
     let currentPage = 1;
@@ -185,7 +195,7 @@ fetch("https://script.google.com/macros/s/AKfycbz2xj8XTW2BmK-CCOH-4TViDX1PaREnMZ
         document.getElementById('pagination').innerHTML = '';
         return;
       }
-
+filtered.sort((a, b) => parseInt(b.quantity) - parseInt(a.quantity));
       filtered.forEach(p => {
         const div = document.createElement('div');
         div.className = 'product';
