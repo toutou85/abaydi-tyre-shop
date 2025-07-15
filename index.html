@@ -3,40 +3,69 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <!-- إعدادات PWA -->
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#007bff">
-
-<!-- تسجيل service worker -->
-<script>
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('service-worker.js')
-      .then(reg => console.log("✅ Service Worker مسجل"))
-      .catch(err => console.error("❌ فشل تسجيل Service Worker", err));
-  }
-</script>
-
   <title>عبايدي للعجلات</title>
-  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="icon" href="favicon.png">
   <style>
-    body { font-family: Arial, sans-serif; background: #f2f2f2; margin: 0; padding: 0; }
-    header { background-color: #007bff; color: white; padding: 1rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+    body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f2f2f2; }
+    header {
+      background: #007bff; color: white;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1rem; flex-wrap: wrap;
+    }
     header img { height: 40px; margin-left: 10px; }
-  nav {
-  display: flex;
-  gap: 10px;
-  justify-content: flex-end; /* ⬅ لجعل الأزرار في أقصى اليمين */
-  width: 100%;
-}
-    nav a { color: white; text-decoration: none; background: #0056b3; padding: 5px 10px; border-radius: 5px; }
-    footer { background: #007bff; color: white; text-align: center; padding: 1rem; margin-top: 2rem; font-size: 1rem; }
-    footer a { color: white; margin-top: 10px; display: inline-block; }
-    #searchBar { width: 80%; margin: 1rem auto; display: block; padding: 0.5rem; font-size: 1rem; border: 1px solid #ccc; border-radius: 5px; }
-    .products { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; padding: 1rem; }
-    .product { background: white; padding: 1rem; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); text-align: center; }
-    .product img { width: 100%; height: auto; border-radius: 10px; }
-    .pagination { text-align: center; margin-bottom: 2rem; }
-    .pagination button { margin: 0 5px; padding: 0.5rem 1rem; border: none; background: #007bff; color: white; border-radius: 5px; cursor: pointer; }
+    nav { display: flex; gap: 10px; justify-content: flex-end; width: 100%; }
+    nav a {
+      color: white; background: #0056b3;
+      padding: 6px 12px; border-radius: 5px; text-decoration: none;
+    }
+    footer {
+      background: #007bff; color: white;
+      text-align: center; padding: 1rem; font-size: 13px;
+    }
+    footer a { color: white; }
+
+    #searchBar {
+      width: 80%; margin: 1rem auto;
+      display: block; padding: 0.5rem;
+      font-size: 1rem; border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    .products {
+      display: flex;
+      overflow-x: auto;
+      scroll-behavior: smooth;
+      gap: 1rem;
+      padding: 1rem;
+      white-space: nowrap;
+    }
+    .products::-webkit-scrollbar { display: none; }
+    .products { -ms-overflow-style: none; scrollbar-width: none; }
+
+    .product {
+      background: white;
+      min-width: 250px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      text-align: center;
+      padding: 1rem;
+    }
+    .product img {
+      width: 100%;
+      height: auto;
+      border-radius: 10px;
+    }
+    .product h3 { margin: 10px 0; }
+    .product p { margin: 5px 0; }
+    .product a {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 8px 14px;
+      background: #28a745;
+      color: white;
+      border-radius: 5px;
+      text-decoration: none;
+    }
   </style>
 </head>
 <body>
@@ -46,195 +75,95 @@
     <img src="logo.png" alt="شعار المتجر">
     <span>متجر عبايدي للعجلات</span>
   </div>
-  <div id="dateTimeBox" style="text-align: center; flex: 1;">
-    <div id="gregorianDate" style="font-size: 0.85rem;"></div>
-    <div id="hijriDate" style="font-size: 0.85rem;"></div>
-    <div id="clock" style="font-weight: bold;"></div>
-
-
-    
-<nav>
-  <a href="myorders.html">🛍️ طلباتي</a>
-  <a href="tools.html">🛠️ أدوات </a>
-  <a href="accessories.html">🚗 ملحقات السيارات</a>
-</nav>
-
+  <nav>
+    <a href="myorders.html">🛍️ طلباتي</a>
+    <a href="tools.html">🛠️ أدوات</a>
+    <a href="accessories.html">🚗 ملحقات السيارات</a>
+  </nav>
 </header>
 
-<input type="text" id="searchBar" placeholder="🔍 ابحث عن إطار مثال: 175 / 70 R 13" oninput="filterProducts()">
+<input type="text" id="searchBar" placeholder="🔍 ابحث عن إطار" oninput="filterProducts()">
 <section class="products" id="productList"></section>
-<div class="pagination" id="pagination"></div>
 
-<footer style="background-color: #007bff; color: white; padding: 10px 5px; text-align: center; font-family: Tahoma, sans-serif; font-size: 13px; line-height: 1.6;">
+<footer>
   🚚 توصيل لـ 58 ولاية | 💵 الدفع عند الاستلام | 🕒 7/7 <br>
-  📞 <a href="https://wa.me/21356450486" target="_blank" style="color: #fff;">+21356450486</a> |
-  <a href="https://wa.me/213698749015" target="_blank" style="color: #fff;">+213698749015</a> |
-  📍 <a href="https://maps.app.goo.gl/FscQmXPSfN6LBsze7?g_st=ac" target="_blank" style="color: #fff;">موقعنا</a> |
-  <a href="https://www.facebook.com/share/1AZpipVeFa/" target="_blank">
-    <img src="https://cdn-icons-png.flaticon.com/512/124/124010.png" alt="فيسبوك" width="18" style="vertical-align: middle;">
-  </a>
+  📞 <a href="https://wa.me/21356450486" target="_blank">+21356450486</a> |
+  <a href="https://wa.me/213698749015" target="_blank">+213698749015</a> |
+  📍 <a href="https://maps.app.goo.gl/FscQmXPSfN6LBsze7" target="_blank">موقعنا</a>
 </footer>
 
-
-<!-- ✅ سكربت التاريخ والساعة -->
+<!-- سكربت تحميل المنتجات -->
 <script>
-function updateClock() {
-  const now = new Date();
-  const options = { timeZone: 'Africa/Algiers', weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-  const timeOptions = { timeZone: 'Africa/Algiers', hour: '2-digit', minute: '2-digit', second: '2-digit' };
-
-  document.getElementById('gregorianDate').textContent = `📅 ${new Intl.DateTimeFormat('ar-DZ', options).format(now)}`;
-  document.getElementById('clock').textContent = `🕒 ${new Intl.DateTimeFormat('ar-DZ', timeOptions).format(now)}`;
-
-  const day = now.getDate();
-  const month = now.getMonth() + 1;
-  const year = now.getFullYear();
-
-  fetch(`https://api.aladhan.com/v1/gToH?date=${day}-${month}-${year}`)
-    .then(res => res.json())
-    .then(data => {
-      if (data && data.data && data.data.hijri) {
-        const hijri = data.data.hijri;
-        document.getElementById('hijriDate').textContent = `📆 هجري: ${hijri.weekday.ar} ${hijri.day} ${hijri.month.ar} ${hijri.year}`;
-      }
-    });
-}
-updateClock();
-setInterval(updateClock, 1000);
-</script>
-
-<!-- ✅ سكربت تحميل وعرض المنتجات -->
-<script>
-let products = [];
+let allProducts = [], products = [];
 
 fetch("https://script.google.com/macros/s/AKfycbz2xj8XTW2BmK-CCOH-4TViDX1PaREnMZTCpfi-lXTNTCSCHRAMFKBIoC375uVVhgC1/exec")
-  .then(response => response.json())
+  .then(res => res.json())
   .then(data => {
-   products = data
-  products = data
+    allProducts = data
+      .filter(p => p.number && p.brand && !p.number.toLowerCase().includes("nan"))
+      .map(p => ({
+        number: p.number,
+        brand: p.brand,
+        price: p.price,
+        quantity: p.quantity,
+        img: p.img || 'https://via.placeholder.com/250x200'
+      }));
+    const available = allProducts.filter(p => parseInt(p.quantity) > 0);
+    const unavailable = allProducts.filter(p => parseInt(p.quantity) <= 0);
+    products = [...shuffle(available), ...shuffle(unavailable)];
+    displayProducts();
+    startAutoSlider();
+  })
+  .catch(err => {
+    console.error("فشل التحميل", err);
+    document.getElementById("productList").innerHTML = "<p style='text-align:center;color:red;'>⚠️ تعذر تحميل المنتجات.</p>";
+  });
 
-  .filter(p => p.number && p.brand && !p.number.toLowerCase().includes("nan"))
-  .map(p => ({
-    number: p.number,
-    brand: p.brand,
-    price: p.price,
-    quantity: p.quantity,
-    img: p.img || 'https://via.placeholder.com/250x200'
-  }));
-
-// قسم المنتجات إلى مجموعتين
-const availableProducts = products.filter(p => parseInt(p.quantity) > 0);
-const unavailableProducts = products.filter(p => parseInt(p.quantity) <= 0);
-
-// رتب كل مجموعة عشوائيًا
-function shuffle(array) {
-  return array.sort(() => 0.5 - Math.random());
+function shuffle(arr) {
+  return arr.sort(() => Math.random() - 0.5);
 }
 
-products = [...shuffle(availableProducts), ...shuffle(unavailableProducts)];
-
-    const perPage = 10;
-    let currentPage = 1;
-
-    function displayProducts() {
-      const productList = document.getElementById('productList');
-      productList.innerHTML = '';
-      const start = (currentPage - 1) * perPage;
-      const end = start + perPage;
-      products.slice(start, end).forEach(p => {
-        const div = document.createElement('div');
-        div.className = 'product';
-        const available = parseInt(p.quantity) > 0;
-        const availabilityText = available
-          ? '✅ متوفر'
-          : '❌ غير متوفر، يرجى ملء الطلب وترك ملاحظة عند توفره نتصل بك';
-        div.innerHTML = `
-          <img src="${p.img}" alt="إطار ${p.number}">
-          <h3>إطار ${p.number} - ${p.brand}</h3>
-          <p>السعر: ${p.price} دج</p>
-          <p>${availabilityText}</p>
-          <a href="order_form.html?number=${encodeURIComponent(p.number)}&brand=${encodeURIComponent(p.brand)}&price=${encodeURIComponent(p.price)}" 
-             target="_blank"
-             style="display:inline-block;margin-top:10px;padding:8px 14px;background:#28a745;color:white;border-radius:5px;text-decoration:none;">
-             📦 اطلب الآن
-          </a>
-        `;
-        productList.appendChild(div);
-      });
-      updatePagination();
-    }
-
-    function updatePagination() {
-      const totalPages = Math.ceil(products.length / perPage);
-      const pagination = document.getElementById('pagination');
-      pagination.innerHTML = '';
-      for (let i = 1; i <= totalPages; i++) {
-        const btn = document.createElement('button');
-        btn.innerText = i;
-        btn.onclick = () => {
-          currentPage = i;
-          displayProducts();
-        };
-        btn.style.background = (i === currentPage) ? "#0056b3" : "#007bff";
-        pagination.appendChild(btn);
-      }
-    }
-
-    window.filterProducts = function () {
-      const input = document.getElementById('searchBar').value.toLowerCase();
-      const filtered = products.filter(p =>
-        p.number.toLowerCase().includes(input) ||
-        p.brand.toLowerCase().includes(input)
-      );
-
-      const productList = document.getElementById('productList');
-      productList.innerHTML = '';
-
-      if (filtered.length === 0) {
-        productList.innerHTML = "<p style='text-align:center;color:red;'>⚠️ لا توجد نتائج مطابقة.</p>";
-        document.getElementById('pagination').innerHTML = '';
-        return;
-      }
-filtered.sort((a, b) => parseInt(b.quantity) - parseInt(a.quantity));
-      filtered.forEach(p => {
-        const div = document.createElement('div');
-        div.className = 'product';
-        const available = parseInt(p.quantity) > 0;
-        const availabilityText = available
-          ? '✅ متوفر'
-          : '❌ غير متوفر، يرجى ملء الطلب وترك ملاحظة عند توفره نتصل بك';
-        div.innerHTML = `
-          <img src="${p.img}" alt="إطار ${p.number}">
-          <h3>إطار ${p.number} - ${p.brand}</h3>
-          <p>السعر: ${p.price} دج</p>
-          <p>${availabilityText}</p>
-          <a href="order_form.html?number=${encodeURIComponent(p.number)}&brand=${encodeURIComponent(p.brand)}&price=${encodeURIComponent(p.price)}" 
-             target="_blank"
-             style="display:inline-block;margin-top:10px;padding:8px 14px;background:#28a745;color:white;border-radius:5px;text-decoration:none;">
-             📦 اطلب الآن
-          </a>
-        `;
-        productList.appendChild(div);
-      });
-
-      document.getElementById('pagination').innerHTML = '';
-    }
-
-    displayProducts();
-  })
-  .catch(error => {
-    console.error("حدث خطأ في تحميل البيانات:", error);
-    document.getElementById('productList').innerHTML = "<p style='text-align:center;color:red;'>⚠️ تعذر تحميل المنتجات، يرجى المحاولة لاحقًا.</p>";
+function displayProducts() {
+  const container = document.getElementById("productList");
+  container.innerHTML = '';
+  products.forEach(p => {
+    const available = parseInt(p.quantity) > 0;
+    const box = document.createElement('div');
+    box.className = 'product';
+    box.innerHTML = `
+      <img src="${p.img}" alt="إطار ${p.number}">
+      <h3>إطار ${p.number} - ${p.brand}</h3>
+      <p>السعر: ${p.price} دج</p>
+      <p>${available ? "✅ متوفر" : "❌ غير متوفر"}</p>
+      <a href="order_form.html?number=${encodeURIComponent(p.number)}&brand=${encodeURIComponent(p.brand)}&price=${encodeURIComponent(p.price)}">📦 اطلب الآن</a>
+    `;
+    container.appendChild(box);
   });
-</script>
+}
 
-<script>
-  // عند دخول الزبون للصفحة يتم تسجيل زيارة
-  fetch("https://script.google.com/macros/s/AKfycbwWc_AU5Xo1o5_oP0ahnlH0ayqY86jVaJozeLHGX32k7yxTtKElAc2YANPHgeicKOYu/exec", {
-    method: "POST"
-  });
-</script>
+function filterProducts() {
+  const input = document.getElementById('searchBar').value.toLowerCase();
+  const filtered = allProducts.filter(p =>
+    p.number.toLowerCase().includes(input) || p.brand.toLowerCase().includes(input)
+  );
+  products = [...filtered];
+  displayProducts();
+}
 
+// ✅ السحب التلقائي للمنتجات
+function startAutoSlider() {
+  const slider = document.getElementById("productList");
+  let scrollAmount = 0;
+  setInterval(() => {
+    slider.scrollLeft += 1;
+    scrollAmount += 1;
+    if (scrollAmount >= slider.scrollWidth - slider.clientWidth) {
+      slider.scrollLeft = 0;
+      scrollAmount = 0;
+    }
+  }, 20);
+}
+</script>
 
 </body>
 </html>
