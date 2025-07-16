@@ -154,22 +154,35 @@ products = [...shuffle(availableProducts), ...shuffle(unavailableProducts)];
       updatePagination();  
     }  
   
-    function updatePagination() {  
-      const totalPages = Math.ceil(products.length / perPage);  
-      const pagination = document.getElementById('pagination');  
-      pagination.innerHTML = '';  
-      for (let i = 1; i <= totalPages; i++) {  
-        const btn = document.createElement('button');  
-        btn.innerText = i;  
-        btn.onclick = () => {  
-          currentPage = i;  
-          displayProducts();  
-        };  
-        btn.style.background = (i === currentPage) ? "#0056b3" : "#007bff";  
-        pagination.appendChild(btn);  
-      }  
-    }  
-  
+    function updatePagination() {
+  const pagination = document.getElementById('pagination');
+  pagination.innerHTML = '';
+
+  const prevBtn = document.createElement('button');
+  prevBtn.textContent = '⬅️ السابق';
+  prevBtn.disabled = currentPage === 1;
+  prevBtn.onclick = () => {
+    if (currentPage > 1) {
+      currentPage--;
+      displayProducts();
+    }
+  };
+
+  const nextBtn = document.createElement('button');
+  nextBtn.textContent = 'التالي ➡️';
+  const totalPages = Math.ceil(products.length / perPage);
+  nextBtn.disabled = currentPage === totalPages;
+  nextBtn.onclick = () => {
+    if (currentPage < totalPages) {
+      currentPage++;
+      displayProducts();
+    }
+  };
+
+  pagination.appendChild(prevBtn);
+  pagination.appendChild(nextBtn);
+}
+     
     window.filterProducts = function () {  
       const input = document.getElementById('searchBar').value.toLowerCase();  
       const filtered = products.filter(p =>  
