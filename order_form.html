@@ -112,8 +112,7 @@
 <form id="orderForm">
   <input type="text" name="fullName" placeholder="الاسم واللقب" required>
   <input type="tel" name="phone" placeholder="رقم الهاتف" pattern="^(05|06|07)[0-9]{8}$" required title="رقم الهاتف يجب أن يكون 10 أرقام ويبدأ بـ 05 أو 06 أو 07">
-  <input type="text" name="tireType" placeholder="نوع الإطار" required>
-  <input type="text" name="tireNumber" placeholder="رقم الإطار" required>
+  <input type="text" name="tirefullName" id="tirefullNam" placeholder=" نوع الإطار و رقمه" required>
   <input type="number" name="tirePrice" id="tirePrice" placeholder="سعر الإطار (دج)" readonly required>
 
   <label for="quantity">الكمية:</label>
@@ -254,12 +253,11 @@ document.getElementById("orderForm").addEventListener("submit", function(e) {
 
 window.onload = function () {
   const url = new URL(window.location.href);
-  const number = url.searchParams.get("number");
-  const brand = url.searchParams.get("brand");
+  const fullNam = url.searchParams.get("fullNam");
   const price = url.searchParams.get("price");
 
-  if (number) document.querySelector('[name="tireNumber"]').value = decodeURIComponent(number);
-  if (brand) document.querySelector('[name="tireType"]').value = decodeURIComponent(brand);
+  if (fullNam) document.querySelector('[name="fullNam"]').value = decodeURIComponent(fullNam);
+ 
   if (price) document.getElementById("tirePrice").value = decodeURIComponent(price);
 
   const now = new Date();
