@@ -254,10 +254,12 @@ document.getElementById("orderForm").addEventListener("submit", function(e) {
 window.onload = function () {
  
 const params = new URLSearchParams(window.location.search);
-const fullNam = params.get("tirefullName"); // اجلب القيمة من الرابط
-if (fullNam) document.querySelector('[name="tirefullName"]').value = decodeURIComponent(fullNam); // احقنها في الحقل
+const fullNam = params.get("tirefullName");
+const price = params.get("price");
 
-  if (price) document.getElementById("tirePrice").value = decodeURIComponent(price);
+if (fullNam) document.querySelector('[name="tirefullName"]').value = decodeURIComponent(fullNam);
+if (price) document.getElementById("tirePrice").value = decodeURIComponent(price);
+
 
   const now = new Date();
   const dateTime = now.toLocaleString('ar-DZ', { hour12: false });
