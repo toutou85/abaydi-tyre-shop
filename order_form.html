@@ -256,7 +256,7 @@ const params = new URLSearchParams(window.location.search);
 const fullNam = params.get("fullName");
 const price = params.get("price");
 
-if (fullName) document.querySelector('[name="tirefullName"]').value = decodeURIComponent(fullNam);
+if (fullName) document.querySelector('[name="tirefullName"]').value = decodeURIComponent(fullName);
 if (price) document.getElementById("tirePrice").value = decodeURIComponent(price);
 
 
