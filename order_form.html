@@ -251,14 +251,12 @@ document.getElementById("orderForm").addEventListener("submit", function(e) {
 });
 
 window.onload = function () {
- 
-const params = new URLSearchParams(window.location.search);
-const fullNam = params.get("fullName");
-const price = params.get("price");
+  const params = new URLSearchParams(window.location.search);
+  const tireName = params.get("tirefullName");
+  const price = params.get("price");
 
-if (fullName) document.querySelector('[name="tirefullName"]').value = decodeURIComponent(fullName);
-if (price) document.getElementById("tirePrice").value = decodeURIComponent(price);
-
+  if (tireName) document.querySelector('[name="tirefullName"]').value = decodeURIComponent(tireName);
+  if (price) document.getElementById("tirePrice").value = decodeURIComponent(price);
 
   const now = new Date();
   const dateTime = now.toLocaleString('ar-DZ', { hour12: false });
