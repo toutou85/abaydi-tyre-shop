@@ -104,12 +104,13 @@ fetch("https://script.google.com/macros/s/AKfycbxERturf0cZ9Eh1VpqSeENoi0JNk7RfUm
   products = data  
   
   .filter(p => p.number && p.brand && !p.number.toLowerCase().includes("nan"))  
-  .map(p => ({  
-    fullName: p.fullName,  
-    price: p.price,  
-    quantity: p.quantity,  
-    img: p.img || 'https://via.placeholder.com/250x200'  
-  }));  
+ .map(p => ({
+  fullName: p.fullName,
+  price: p.price,
+  quantity: p.quantity,
+  img: p.img || 'https://via.placeholder.com/250x200'
+}));
+
   
 // قسم المنتجات إلى مجموعتين  
 const availableProducts = products.filter(p => parseInt(p.quantity) > 0);  
@@ -139,7 +140,7 @@ products = [...shuffle(availableProducts), ...shuffle(unavailableProducts)];
           : '❌ غير متوفر، يرجى ملء الطلب وترك ملاحظة عند توفره نتصل بك';  
         div.innerHTML = `  
           <img src="${p.img}" alt="إطار ${p.number}">  
-          <h3>إطار ${p.fullName}</h3>  
+        <h3>إطار ${p.fullName}</h3> 
           <p>السعر: ${p.price} دج</p>  
           <p>${availabilityText}</p>  
           <a href="order_form.html?fullName=${encodeURIComponent(p.fullName)}&price=${encodeURIComponent(p.price)}"   
