@@ -253,7 +253,7 @@ document.getElementById("orderForm").addEventListener("submit", function(e) {
 window.onload = function () {
  
 const params = new URLSearchParams(window.location.search);
-const fullNam = params.get("tirefullName");
+const fullNam = params.get("fullName");
 const price = params.get("price");
 
 if (fullName) document.querySelector('[name="tirefullName"]').value = decodeURIComponent(fullNam);
