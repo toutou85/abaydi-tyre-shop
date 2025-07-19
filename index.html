@@ -94,158 +94,139 @@ function updateClock() {
 }  
 updateClock();  
 setInterval(updateClock, 1000);  
-</script>  <!-- ✅ سكربت تحميل وعرض المنتجات -->  <script>  
-let products = [];  
+</script>  <!-- ✅ سكربت تحميل وعرض المنتجات -->  
 <script>
+  let products = [];
+
   fetch('https://script.google.com/macros/s/AKfycbxWbyMXyZp9id5DNCRorPKHe1TUtQ8leaBrNQ3sTZHC-IAlYG69vkrXiJ-a6f8IHh9t/exec')
     .then(response => response.json())
     .then(data => {
-      console.log("المنتجات:", data);
-      // مثال عرض أول منتج
-      document.getElementById("products").innerHTML = data.map(product => `
-        <div class="product">
-          <img src="${product.img}" alt="">
-          <h3>${product.fullName}</h3>
-          <p>السعر: ${product.price}</p>
-          <p>الكمية: ${product.quantity}</p>
-        </div>
-      `).join('');
+      // تأكد أن جميع الصور موجودة
+      products = data.map(p => ({
+        fullName: p.fullName || '',
+        price: p.price || '',
+        quantity: p.quantity || '0',
+        img: p.img || 'https://via.placeholder.com/250x200'
+      }));
+
+      // قسمهم حسب التوفر
+      const available = products.filter(p => parseInt(p.quantity) > 0);
+      const unavailable = products.filter(p => parseInt(p.quantity) <= 0);
+
+      // دمج مع ترتيب عشوائي
+      function shuffle(array) {
+        return array.sort(() => 0.5 - Math.random());
+      }
+
+      products = [...shuffle(available), ...shuffle(unavailable)];
+
+      displayProducts(); // عرض أولي
     })
-    .catch(error => console.error("خطأ في جلب البيانات:", error));
+    .catch(error => {
+      console.error("حدث خطأ في تحميل البيانات:", error);
+      document.getElementById('productList').innerHTML = "<p style='text-align:center;color:red;'>⚠️ تعذر تحميل المنتجات.</p>";
+    });
 
+  const perPage = 10;
+  let currentPage = 1;
 
-<div id="products"></div>
+  function displayProducts() {
+    const productList = document.getElementById('productList');
+    productList.innerHTML = '';
 
-  .filter(p => p.fullName && !p.number.toLowerCase().includes("nan"))  
- .map(p => ({
-  fullName: p.fullName,
-  price: p.price,
-  quantity: p.quantity,
-  img: p.img || 'https://via.placeholder.com/250x200'
-}));
+    const start = (currentPage - 1) * perPage;
+    const end = start + perPage;
+    const currentItems = products.slice(start, end);
 
-  
-// قسم المنتجات إلى مجموعتين  
-const availableProducts = products.filter(p => parseInt(p.quantity) > 0);  
-const unavailableProducts = products.filter(p => parseInt(p.quantity) <= 0);  
-  
-// رتب كل مجموعة عشوائيًا  
-function shuffle(array) {  
-  return array.sort(() => 0.5 - Math.random());  
-}  
-  
-products = [...shuffle(availableProducts), ...shuffle(unavailableProducts)];  
-  
-    const perPage = 10;  
-    let currentPage = 1;  
-  
-    function displayProducts() {  
-      const productList = document.getElementById('productList');  
-      productList.innerHTML = '';  
-      const start = (currentPage - 1) * perPage;  
-      const end = start + perPage;  
-      products.slice(start, end).forEach(p => {  
-        const div = document.createElement('div');  
-        div.className = 'product';  
-        const available = parseInt(p.quantity) > 0;  
-        const availabilityText = available  
-          ? '✅ متوفر'  
-          : '❌ غير متوفر، يرجى ملء الطلب وترك ملاحظة عند توفره نتصل بك';  
-        div.innerHTML = `  
-          <img src="${p.img}" alt="إطار ${p.number}">  
-        <h3>إطار ${p.fullName}</h3> 
-          <p>السعر: ${p.price} دج</p>  
-          <p>${availabilityText}</p>  
-          <a href="order_form.html?fullName=${encodeURIComponent(p.fullName)}&price=${encodeURIComponent(p.price)}"   
-             target="_blank"  
-             style="display:inline-block;margin-top:10px;padding:8px 14px;background:#28a745;color:white;border-radius:5px;text-decoration:none;">  
-             📦 اطلب الآن  
-          </a>  
-        `;  
-        productList.appendChild(div);  
-      });  
-      updatePagination();  
-    }  
-  
-    function updatePagination() {
-  const pagination = document.getElementById('pagination');
-  pagination.innerHTML = '';
+    currentItems.forEach(p => {
+      const available = parseInt(p.quantity) > 0;
+      const availability = available ? '✅ متوفر' : '❌ غير متوفر، اطلب وسيتم إعلامك';
+      const div = document.createElement('div');
+      div.className = 'product';
+      div.innerHTML = `
+        <img src="${p.img}" alt="صورة المنتج">
+        <h3>${p.fullName}</h3>
+        <p>السعر: ${p.price} دج</p>
+        <p>${availability}</p>
+        <a href="order_form.html?fullName=${encodeURIComponent(p.fullName)}&price=${encodeURIComponent(p.price)}"
+           target="_blank"
+           style="display:inline-block;margin-top:10px;padding:8px 14px;background:#28a745;color:white;border-radius:5px;text-decoration:none;">
+           📦 اطلب الآن
+        </a>
+      `;
+      productList.appendChild(div);
+    });
 
-  const prevBtn = document.createElement('button');
-  prevBtn.textContent = '⬅️ السابق';
-  prevBtn.disabled = currentPage === 1;
-  prevBtn.onclick = () => {
-    if (currentPage > 1) {
+    updatePagination();
+  }
+
+  function updatePagination() {
+    const pagination = document.getElementById('pagination');
+    pagination.innerHTML = '';
+
+    const totalPages = Math.ceil(products.length / perPage);
+
+    const prevBtn = document.createElement('button');
+    prevBtn.textContent = '⬅️ السابق';
+    prevBtn.disabled = currentPage === 1;
+    prevBtn.onclick = () => {
       currentPage--;
       displayProducts();
-    }
-  };
+    };
 
-  const nextBtn = document.createElement('button');
-  nextBtn.textContent = 'التالي ➡️';
-  const totalPages = Math.ceil(products.length / perPage);
-  nextBtn.disabled = currentPage === totalPages;
-  nextBtn.onclick = () => {
-    if (currentPage < totalPages) {
+    const nextBtn = document.createElement('button');
+    nextBtn.textContent = 'التالي ➡️';
+    nextBtn.disabled = currentPage === totalPages;
+    nextBtn.onclick = () => {
       currentPage++;
       displayProducts();
-    }
-  };
+    };
 
-  pagination.appendChild(prevBtn);
-  pagination.appendChild(nextBtn);
-}
-     
-    window.filterProducts = function () {  
-      const input = document.getElementById('searchBar').value.toLowerCase();  
-      const filtered = products.filter(p =>  
-        p.fullName.toLowerCase().includes(input) ||  
-        p.brand.toLowerCase().includes(input)  
-      );  
-  
-      const productList = document.getElementById('productList');  
-      productList.innerHTML = '';  
-  
-      if (filtered.length === 0) {  
-        productList.innerHTML = "<p style='text-align:center;color:red;'>⚠️ لا توجد نتائج مطابقة.</p>";  
-        document.getElementById('pagination').innerHTML = '';  
-        return;  
-      }  
-filtered.sort((a, b) => parseInt(b.quantity) - parseInt(a.quantity));  
-      filtered.forEach(p => {  
-        const div = document.createElement('div');  
-        div.className = 'product';  
-        const available = parseInt(p.quantity) > 0;  
-        const availabilityText = available  
-          ? '✅ متوفر'  
-          : '❌ غير متوفر، يرجى ملء الطلب وترك ملاحظة عند توفره نتصل بك';  
-        div.innerHTML = `  
-          <img src="${p.img}" alt="إطار ${p.fullName}">  
-          <h3>إطار ${p.fullName}</h3>  
-          <p>السعر: ${p.price} دج</p>  
-          <p>${availabilityText}</p>  
-          <a href="order_form.html?number=${encodeURIComponent(p.number)}&brand=${encodeURIComponent(p.brand)}&price=${encodeURIComponent(p.price)}"   
-             target="_blank"  
-             style="display:inline-block;margin-top:10px;padding:8px 14px;background:#28a745;color:white;border-radius:5px;text-decoration:none;">  
-             📦 اطلب الآن  
-          </a>  
-        `;  
-        productList.appendChild(div);  
-      });  
-  
-      document.getElementById('pagination').innerHTML = '';  
-    }  
-  
-    displayProducts();  
-  })  
-  .catch(error => {  
-    console.error("حدث خطأ في تحميل البيانات:", error);  
-    document.getElementById('productList').innerHTML = "<p style='text-align:center;color:red;'>⚠️ تعذر تحميل المنتجات، يرجى المحاولة لاحقًا.</p>";  
-  });  
-</script>  <script>  
+    pagination.appendChild(prevBtn);
+    pagination.appendChild(nextBtn);
+  }
+
+  window.filterProducts = function () {
+    const input = document.getElementById('searchBar').value.toLowerCase();
+    const filtered = products.filter(p =>
+      p.fullName.toLowerCase().includes(input)
+    );
+
+    const productList = document.getElementById('productList');
+    const pagination = document.getElementById('pagination');
+    productList.innerHTML = '';
+    pagination.innerHTML = '';
+
+    if (filtered.length === 0) {
+      productList.innerHTML = "<p style='text-align:center;color:red;'>⚠️ لا توجد نتائج.</p>";
+      return;
+    }
+
+    filtered.forEach(p => {
+      const available = parseInt(p.quantity) > 0;
+      const availability = available ? '✅ متوفر' : '❌ غير متوفر';
+      const div = document.createElement('div');
+      div.className = 'product';
+      div.innerHTML = `
+        <img src="${p.img}" alt="صورة المنتج">
+        <h3>${p.fullName}</h3>
+        <p>السعر: ${p.price} دج</p>
+        <p>${availability}</p>
+        <a href="order_form.html?fullName=${encodeURIComponent(p.fullName)}&price=${encodeURIComponent(p.price)}"
+           target="_blank"
+           style="display:inline-block;margin-top:10px;padding:8px 14px;background:#28a745;color:white;border-radius:5px;text-decoration:none;">
+           📦 اطلب الآن
+        </a>
+      `;
+      productList.appendChild(div);
+    });
+  };
+</script>
+  <script>  
   // عند دخول الزبون للصفحة يتم تسجيل زيارة  
   fetch("https://script.google.com/macros/s/AKfycbwWc_AU5Xo1o5_oP0ahnlH0ayqY86jVaJozeLHGX32k7yxTtKElAc2YANPHgeicKOYu/exec", {  
     method: "POST"  
   });  
-</script>  </body>  
+</script>
+</body>  
 </html>  
