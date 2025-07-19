@@ -97,7 +97,7 @@ setInterval(updateClock, 1000);
 </script>  <!-- ✅ سكربت تحميل وعرض المنتجات -->  <script>  
 let products = [];  
   
-fetch("https://script.google.com/macros/s/AKfycbzDUIInVZbt9XRXRWnLjvpsMn1bwsagklcVUrTgXFDEp_tOsVMuv2eEOk6yaXEUZ/exec")  
+fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vQBz1iucjkuwAG78fd6m1zE4oXKuaZzlgVGO7cK1uts7UkTFgT0nxpqXA-ovj8iOa9FhujqCSpxHrXw/pub?output=csv")  
   .then(response => response.json())  
   .then(data => {  
    products = data  
