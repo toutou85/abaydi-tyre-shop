@@ -112,7 +112,7 @@
 <form id="orderForm">
   <input type="text" name="fullName" placeholder="الاسم واللقب" required>
   <input type="tel" name="phone" placeholder="رقم الهاتف" pattern="^(05|06|07)[0-9]{8}$" required title="رقم الهاتف يجب أن يكون 10 أرقام ويبدأ بـ 05 أو 06 أو 07">
-  <input type="text" name="tirefullName" id="tirefullNam" placeholder="نوع الإطار و رقمه" required>
+  <input type="text" name="tirefullName" id="tirefullName" placeholder="نوع الإطار و رقمه" required>
   <input type="number" name="tirePrice" id="tirePrice" placeholder="سعر الإطار (دج)" readonly required>
   <label for="quantity">الكمية:</label>
   <div class="quantity-box">
@@ -214,7 +214,7 @@ document.getElementById("orderForm").addEventListener("submit", function(e) {
 
   document.getElementById("popupOverlay").style.display = "flex";
 
-  fetch("https://script.google.com/macros/s/AKfycbzpQDSzPha4udXgU43h2mgy4xN-5Quo5SW5Lur0vfFHdypfUInhbFPhN7t8zSm7BvuJ2g/exec", {
+  fetch("https://script.google.com/macros/s/AKfycbwfevcGhql9wtvzzz90ieAgCUFiMq1QVpYYaa0lDnCi-gCaSHrLLiMnKbaHSjEvANAmiw/exec", {
     method: "POST",
     body: formData
   })
@@ -256,7 +256,7 @@ const params = new URLSearchParams(window.location.search);
 const fullNam = params.get("tirefullName");
 const price = params.get("price");
 
-if (fullNam) document.querySelector('[name="tirefullName"]').value = decodeURIComponent(fullNam);
+if (fullName) document.querySelector('[name="tirefullName"]').value = decodeURIComponent(fullNam);
 if (price) document.getElementById("tirePrice").value = decodeURIComponent(price);
 
 
