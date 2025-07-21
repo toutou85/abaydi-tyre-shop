@@ -252,7 +252,8 @@ document.getElementById("orderForm").addEventListener("submit", function(e) {
 
 window.onload = function () {
   const params = new URLSearchParams(window.location.search);
-const tireName = params.get("fullName");
+
+const tireName = params.get("fullName");  // هذا الاسم مطابق لما في رابط URL
   const price = params.get("price");
 
   if (tireName) document.querySelector('[name="tirefullName"]').value = decodeURIComponent(tireName);
