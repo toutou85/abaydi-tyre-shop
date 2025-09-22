@@ -8,8 +8,8 @@
     body { font-family: Arial, sans-serif; background: #f2f2f2; margin: 0; padding: 0; }
     header { background-color: #007bff; color: white; padding: 1rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; }
     header img { height: 40px; margin-left: 10px; }
-    .searchBox { width: 95%; margin: 1rem auto; display: flex; justify-content: center; gap: 5px; flex-wrap: wrap; }
-    select, button, input { padding: 0.5rem; font-size: 1rem; border: 1px solid #ccc; border-radius: 5px; }
+    .searchBox { width: 90%; margin: 1rem auto; display: flex; justify-content: center; gap: 5px; flex-wrap: wrap; }
+    select, button { padding: 0.5rem; font-size: 1rem; border: 1px solid #ccc; border-radius: 5px; }
     button { background: #28a745; color: white; border: none; cursor: pointer; }
     .products { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; padding: 1rem; }
     .product { background: white; padding: 1rem; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); text-align: center; }
@@ -26,7 +26,7 @@
   </div>
 </header>
 
-<!-- ✅ البحث بالقوائم والنص -->
+<!-- ✅ البحث بالقوائم -->
 <div class="searchBox">
   <select id="width">
     <option value="">الكل (العرض)</option>
@@ -85,9 +85,6 @@
     <option value="21">R21</option>
     <option value="22">R22</option>
   </select>
-
-  <!-- ✅ حقل بحث حر -->
-  <input type="text" id="freeSearch" placeholder="مثال: R14 أو 185/65">
 
   <button onclick="filterProducts()">🔍 بحث</button>
 </div>
@@ -163,17 +160,12 @@
     const w = document.getElementById('width').value;
     const h = document.getElementById('height').value;
     const d = document.getElementById('diameter').value;
-    const freeSearch = document.getElementById('freeSearch').value.trim().toUpperCase();
 
     let filtered = products;
 
     if (w) filtered = filtered.filter(p => p.fullName.includes(w));
     if (h) filtered = filtered.filter(p => p.fullName.includes(h));
-    if (d) filtered = filtered.filter(p => p.fullName.toUpperCase().includes(d.toUpperCase()));
-    if (freeSearch) {
-      let normalized = freeSearch.replace(/\s+/g, "").replace("/", "").toUpperCase();
-      filtered = filtered.filter(p => p.fullName.replace(/\s+/g, "").replace("/", "").toUpperCase().includes(normalized));
-    }
+    if (d) filtered = filtered.filter(p => p.fullName.includes("R" + d));
 
     currentPage = 1;
     if (filtered.length === 0) {
