@@ -1,180 +1,257 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>عبايدي للعجلات</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>عبايدي للعجلات — القائمة</title>
   <style>
-    body { font-family: Arial, sans-serif; background: #f2f2f2; margin: 0; padding: 0; }
-    header { background-color: #007bff; color: white; padding: 1rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; }
-    header img { height: 40px; margin-left: 10px; }
-    .searchBox { width: 90%; margin: 1rem auto; display: flex; justify-content: center; gap: 5px; flex-wrap: wrap; }
-    select, button { padding: 0.5rem; font-size: 1rem; border: 1px solid #ccc; border-radius: 5px; }
-    button { background: #28a745; color: white; border: none; cursor: pointer; }
-    .products { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; padding: 1rem; }
-    .product { background: white; padding: 1rem; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); text-align: center; }
-    .product img { width: 100%; height: auto; border-radius: 10px; }
-    .pagination { text-align: center; margin: 2rem 0; }
-    .pagination button { margin: 0 10px; padding: 0.6rem 1.2rem; background: #007bff; color: white; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 1rem; }
+    body { font-family: 'Tajawal', Arial, sans-serif; background:#f2f2f2; margin:0; padding:20px; }
+    header { background:#007bff; color:#fff; padding:12px 16px; border-radius:6px; margin-bottom:14px; text-align:center; font-size:1.2rem; }
+    .searchBox { width:100%; max-width:1100px; margin:0 auto 16px; display:flex; gap:8px; flex-wrap:wrap; align-items:center; justify-content:center; }
+    label { font-size:0.95rem; margin-right:6px; }
+    select, button { padding:8px 10px; font-size:1rem; border:1px solid #ccc; border-radius:6px; background:#fff; }
+    button { background:#28a745; color:#fff; border:none; cursor:pointer; }
+    table { width:100%; max-width:1100px; margin:10px auto 40px; border-collapse:collapse; background:#fff; box-shadow:0 4px 18px rgba(0,0,0,0.06); border-radius:8px; overflow:hidden; }
+    th, td { padding:12px; text-align:center; border-bottom:1px solid #eee; }
+    th { background:#007bff; color:#fff; }
+    tr:nth-child(even) td { background:#fafafa; }
+    .info { text-align:center; margin-top:10px; color:#666; }
+    @media (max-width:700px){
+      .searchBox{flex-direction:column; gap:6px;}
+      select, button{width:100%;}
+    }
   </style>
 </head>
 <body>
-<header>
-  <div style="display: flex; align-items: center;">
-    <img src="logo.png" alt="شعار المتجر">
-    <span>متجر عبايدي للعجلات</span>
+
+  <header>🛞 متجر عبايدي للعجلات — القائمة</header>
+
+  <div class="searchBox">
+    <div>
+      <label for="width">العرض</label>
+      <select id="width">
+        <option value="">الكل</option>
+        <option>125</option>
+        <option>135</option>
+        <option>145</option>
+        <option>155</option>
+        <option>165</option>
+        <option>175</option>
+        <option>185</option>
+        <option>195</option>
+        <option>205</option>
+        <option>215</option>
+        <option>225</option>
+        <option>235</option>
+        <option>245</option>
+        <option>255</option>
+        <option>265</option>
+        <option>275</option>
+        <option>285</option>
+        <option>295</option>
+        <option>305</option>
+        <option>315</option>
+      </select>
+    </div>
+
+    <div>
+      <label for="aspect">النسبة (الارتفاع)</label>
+      <select id="aspect">
+        <option value="">الكل</option>
+        <option>25</option>
+        <option>30</option>
+        <option>35</option>
+        <option>40</option>
+        <option>45</option>
+        <option>50</option>
+        <option>55</option>
+        <option>60</option>
+        <option>65</option>
+        <option>70</option>
+        <option>75</option>
+        <option>80</option>
+        <option>85</option>
+      </select>
+    </div>
+
+    <div>
+      <label for="diameter">القطر</label>
+      <select id="diameter">
+        <option value="">الكل</option>
+        <option>10</option>
+        <option>11</option>
+        <option>12</option>
+        <option>13</option>
+        <option>14</option>
+        <option>15</option>
+        <option>16</option>
+        <option>17</option>
+        <option>18</option>
+        <option>19</option>
+        <option>20</option>
+        <option>21</option>
+        <option>22</option>
+        <option>23</option>
+        <option>24</option>
+      </select>
+    </div>
+
+    <div>
+      <button id="searchBtn">🔍 تطبيق الفلتر</button>
+    </div>
   </div>
-</header>
 
-<!-- ✅ البحث بالقوائم -->
-<div class="searchBox">
-  <select id="width">
-    <option value="">الكل (العرض)</option>
-    <option value="135">135</option>
-    <option value="145">145</option>
-    <option value="155">155</option>
-    <option value="165">165</option>
-    <option value="175">175</option>
-    <option value="185">185</option>
-    <option value="195">195</option>
-    <option value="205">205</option>
-    <option value="215">215</option>
-    <option value="225">225</option>
-    <option value="235">235</option>
-    <option value="245">245</option>
-    <option value="255">255</option>
-    <option value="265">265</option>
-    <option value="275">275</option>
-    <option value="285">285</option>
-    <option value="295">295</option>
-    <option value="305">305</option>
-    <option value="315">315</option>
-  </select>
+  <table aria-live="polite">
+    <thead>
+      <tr>
+        <th>المقاس</th>
+        <th>السعر (دج)</th>
+        <th>الكمية</th>
+      </tr>
+    </thead>
+    <tbody id="productsBody">
+      <tr><td colspan="3">جاري التحميل...</td></tr>
+    </tbody>
+  </table>
 
-  <span>/</span>
-
-  <select id="height">
-    <option value="">الكل (الارتفاع)</option>
-    <option value="30">30</option>
-    <option value="35">35</option>
-    <option value="40">40</option>
-    <option value="45">45</option>
-    <option value="50">50</option>
-    <option value="55">55</option>
-    <option value="60">60</option>
-    <option value="65">65</option>
-    <option value="70">70</option>
-    <option value="75">75</option>
-    <option value="80">80</option>
-    <option value="85">85</option>
-  </select>
-
-  <span>R</span>
-
-  <select id="diameter">
-    <option value="">الكل (القطر)</option>
-    <option value="12">R12</option>
-    <option value="13">R13</option>
-    <option value="14">R14</option>
-    <option value="15">R15</option>
-    <option value="16">R16</option>
-    <option value="17">R17</option>
-    <option value="18">R18</option>
-    <option value="19">R19</option>
-    <option value="20">R20</option>
-    <option value="21">R21</option>
-    <option value="22">R22</option>
-  </select>
-
-  <button onclick="filterProducts()">🔍 بحث</button>
-</div>
-
-<section class="products" id="productList"></section>
-<div class="pagination" id="pagination"></div>
+  <div class="info">إذا كان في مقاس ما تريده مش ظاهر، تقدر تحدث قائمة المنتجات في Google Sheets أو ترسللي مثال على اسم منتج مفقود.</div>
 
 <script>
+  // رابط Google Sheets (CSV منشور)
+  const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQBz1iucjkuwAG78fd6m1zE4oXKuaZzlgVGO7cK1uts7UkTFgT0nxpqXA-ovj8iOa9FhujqCSpxHrXw/pub?output=csv";
+
+  const body = document.getElementById("productsBody");
+  const widthSelect = document.getElementById("width");
+  const aspectSelect = document.getElementById("aspect");
+  const diameterSelect = document.getElementById("diameter");
+  const searchBtn = document.getElementById("searchBtn");
+
   let products = [];
 
-  fetch('https://script.google.com/macros/s/AKfycbxWbyMXyZp9id5DNCRorPKHe1TUtQ8leaBrNQ3sTZHC-IAlYG69vkrXiJ-a6f8IHh9t/exec')
-    .then(res => res.json())
-    .then(data => {
-      products = data.map(p => ({
-        fullName: p.fullName || '',
-        price: p.price || '',
-        quantity: p.quantity || '0',
-        img: p.img || 'https://via.placeholder.com/250x200'
-      }));
-      displayProducts();
-    });
-
-  const perPage = 10;
-  let currentPage = 1;
-
-  function displayProducts(list = products) {
-    const productList = document.getElementById('productList');
-    productList.innerHTML = '';
-
-    const start = (currentPage - 1) * perPage;
-    const end = start + perPage;
-    const currentItems = list.slice(start, end);
-
-    currentItems.forEach(p => {
-      const available = parseInt(p.quantity) > 0;
-      const availability = available ? '✅ متوفر' : '❌ <span style="color:red;">غير متوفر</span>';
-      const div = document.createElement('div');
-      div.className = 'product';
-      div.innerHTML = `
-        <img src="${p.img}" alt="صورة المنتج">
-        <h3>${p.fullName}</h3>
-        <p>السعر: ${p.price} دج</p>
-        <p>${availability}</p>
-      `;
-      productList.appendChild(div);
-    });
-
-    updatePagination(list);
+  // دالة بسيطة لفك CSV مع دعم للحقول الموضوعية "quoted"
+  function parseCSV(text){
+    text = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+    const rows = [];
+    let cur = '';
+    let row = [];
+    let inQuotes = false;
+    for (let i = 0; i < text.length; i++) {
+      const ch = text[i];
+      if (ch === '"') {
+        // إذا التالي " أيضاً فنسجله كـ "
+        if (inQuotes && text[i+1] === '"') {
+          cur += '"';
+          i++; // تخطي الثاني
+        } else {
+          inQuotes = !inQuotes;
+        }
+      } else if (ch === ',' && !inQuotes) {
+        row.push(cur);
+        cur = '';
+      } else if (ch === '\n' && !inQuotes) {
+        row.push(cur);
+        rows.push(row);
+        row = [];
+        cur = '';
+      } else {
+        cur += ch;
+      }
+    }
+    // باقي الحقل
+    if (cur !== '' || row.length) {
+      row.push(cur);
+      rows.push(row);
+    }
+    // فلترة الأسطر الفارغة
+    return rows.filter(r => r.length > 1 || (r.length===1 && r[0].trim() !== ''));
   }
 
-  function updatePagination(list = products) {
-    const pagination = document.getElementById('pagination');
-    pagination.innerHTML = '';
-    const totalPages = Math.ceil(list.length / perPage);
-
-    if (totalPages <= 1) return;
-
-    const prevBtn = document.createElement('button');
-    prevBtn.textContent = '⬅️ السابق';
-    prevBtn.disabled = currentPage === 1;
-    prevBtn.onclick = () => { currentPage--; displayProducts(list); };
-
-    const nextBtn = document.createElement('button');
-    nextBtn.textContent = 'التالي ➡️';
-    nextBtn.disabled = currentPage === totalPages;
-    nextBtn.onclick = () => { currentPage++; displayProducts(list); };
-
-    pagination.appendChild(prevBtn);
-    pagination.appendChild(nextBtn);
+  // تطبيع النص: نحذف المسافات و الشرطات و الشرط المائل باش نقارن بسهولة، و نحول للحروف الكبيرة
+  function normalize(str){
+    return String(str || '').toUpperCase().replace(/\s+|\/|-|-/g, '');
   }
 
-  window.filterProducts = function () {
-    const w = document.getElementById('width').value;
-    const h = document.getElementById('height').value;
-    const d = document.getElementById('diameter').value;
+  // جلب و معالجة البيانات
+  fetch(sheetUrl)
+    .then(r => {
+      if (!r.ok) throw new Error('خطأ في جلب الملف من Google Sheets');
+      return r.text();
+    })
+    .then(text => {
+      const rows = parseCSV(text);
+      // نفترض الصف الأول رؤوس: نأخذ الباقي
+      const dataRows = rows.slice(1);
+      products = dataRows.map(cols => {
+        // افتراض: العمود 0 = fullName ، 1 = price ، 2 = qty
+        return {
+          fullName: (cols[0] || '').trim(),
+          price: (cols[1] || '').trim(),
+          qty: (cols[2] || '').trim()
+        };
+      }).filter(p => p.fullName); // نلغي الصفوف الفارغة
+      displayProducts(products);
+    })
+    .catch(err => {
+      body.innerHTML = `<tr><td colspan="3" style="color:red">حدث خطأ في تحميل المنتجات: ${err.message}</td></tr>`;
+      console.error(err);
+    });
 
-    let filtered = products;
-
-    if (w) filtered = filtered.filter(p => p.fullName.includes(w));
-    if (h) filtered = filtered.filter(p => p.fullName.includes(h));
-    if (d) filtered = filtered.filter(p => p.fullName.includes("R" + d));
-
-    currentPage = 1;
-    if (filtered.length === 0) {
-      document.getElementById('productList').innerHTML = "<p style='text-align:center;color:red;'>⚠️ لا توجد نتائج.</p>";
-      document.getElementById('pagination').innerHTML = '';
+  // عرض المنتجات في الجدول
+  function displayProducts(list){
+    if (!list || list.length === 0) {
+      body.innerHTML = `<tr><td colspan="3">🚫 لا توجد منتجات متاحة</td></tr>`;
       return;
     }
+    body.innerHTML = '';
+    for (const p of list) {
+      const price = p.price || '-';
+      const qty = p.qty || '-';
+      body.innerHTML += `<tr>
+        <td>${escapeHtml(p.fullName)}</td>
+        <td>${escapeHtml(price)}</td>
+        <td>${escapeHtml(qty)}</td>
+      </tr>`;
+    }
+  }
+
+  // فلترة مع تطبيع النص لتفادي المسافات والشرطات
+  function filterProducts(){
+    const w = widthSelect.value.trim();
+    const a = aspectSelect.value.trim();
+    const d = diameterSelect.value.trim();
+
+    let filtered = products.slice();
+
+    if (w) {
+      const normW = normalize(w);
+      filtered = filtered.filter(p => normalize(p.fullName).includes(normW));
+    }
+    if (a) {
+      const normA = normalize(a);
+      filtered = filtered.filter(p => normalize(p.fullName).includes(normA));
+    }
+    if (d) {
+      const normD = 'R' + String(d).toUpperCase();
+      filtered = filtered.filter(p => normalize(p.fullName).includes(normD));
+    }
+
     displayProducts(filtered);
   }
+
+  // استدعاء الفلتر عند الضغط على الزر أو عند تغيير أي select (اختياري أن يعمل فوري)
+  searchBtn.addEventListener('click', filterProducts);
+  widthSelect.addEventListener('change', filterProducts);
+  aspectSelect.addEventListener('change', filterProducts);
+  diameterSelect.addEventListener('change', filterProducts);
+
+  // دالة لحماية عرض HTML نصي
+  function escapeHtml(s) {
+    return String(s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+  }
 </script>
+
 </body>
 </html>
