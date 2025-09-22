@@ -77,6 +77,7 @@
   <div class="info">المنتجات تجي من جدول Google Sheets — إذا في مقاس ما زال ناقص أرسللي مثال علشان نضيفه في الشيت.</div>
 
 <script>
+  // رابط Google Sheets (CSV منشور) — غيّره إذا لزم
   const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQBz1iucjkuwAG78fd6m1zE4oXKuaZzlgVGO7cK1uts7UkTFgT0nxpqXA-ovj8iOa9FhujqCSpxHrXw/pub?output=csv";
 
   const box = document.getElementById('productsBox');
@@ -87,6 +88,7 @@
 
   let products = [];
 
+  // دالة فك CSV تدعم الحقول المحاطة بعلامات اقتباس
   function parseCSV(text) {
     text = text.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
     const rows = [];
@@ -112,10 +114,12 @@
     return rows.filter(r => r.some(c => c && c.trim() !== ""));
   }
 
+  // تطبيع للنص لسهولة المقارنة (نمسح مسافات، شرطات، شرطة مائلة، نحو R ونتحول لحروف كبيرة)
   function normalize(str) {
     return String(str || "").toUpperCase().replace(/\s+|\/|-|–|—/g, "");
   }
 
+  // تحميل البيانات من الشيت
   fetch(sheetUrl)
     .then(r => {
       if (!r.ok) throw new Error("تعذّر تحميل ملف Google Sheets");
@@ -123,13 +127,14 @@
     })
     .then(txt => {
       const rows = parseCSV(txt);
-      const dataRows = rows.slice(1);
+      // نتوقع: عمود 0 = fullName (مثال: 185/65 R14) ، عمود1 = price ، عمود2 = qty (اختياري) ، عمود3 = image (اختياري)
+      const dataRows = rows.slice(1); // نتخطى الرأس لو موجود
       products = dataRows.map(cols => ({
         fullName: (cols[0] || "").trim(),
         price: (cols[1] || "").trim(),
-        qty: (cols[2] || "").trim(),
+        qty: (cols[2] || "").trim(),      // قد يكون فارغ
         image: (cols[3] || "").trim()
-      })).filter(p => p.fullName);
+      })).filter(p => p.fullName); // نلغي الصفوف الفارغة
       displayProducts(products);
     })
     .catch(err => {
@@ -137,6 +142,7 @@
       console.error(err);
     });
 
+  // عرض البطاقات
   function displayProducts(list) {
     if (!list || list.length === 0) {
       box.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:18px;background:#fff;border-radius:8px;">🚫 لا توجد منتجات</div>`;
@@ -144,10 +150,11 @@
     }
     box.innerHTML = "";
     for (const p of list) {
-      const imageUrl = p.image || "https://via.placeholder.com/400x300?text=%D8%B5%D9%88%D8%B1%D8%A9+%D8%B9%D8%AF%D9%85";
+      const imageUrl = p.image || "https://via.placeholder.com/400x300?text=%D8%B5%D9%88%D8%B1%D8%A9+%D8%B9%D8%AF%D9%85"; // احتياط
+      // حالة التوفر: إذا الكمية غير معطاة اعتبر متوفر، إذا معطاة و >0 متوفر، وإلا غير متوفر
       let available = true;
       if (p.qty !== undefined && p.qty !== null && p.qty !== "") {
-        const n = Number(String(p.qty).replace(/\D/g,''));
+        const n = Number(String(p.qty).replace(/\D/g,'')); // نأخذ الأرقام فقط
         available = !isNaN(n) ? n > 0 : true;
       }
       box.insertAdjacentHTML('beforeend', `
@@ -162,7 +169,7 @@
     }
   }
 
-  // التعديل هنا
+  // فلترة ذكية باستخدام التطبيع
   function filterProducts() {
     const w = widthSel.value.trim();
     const a = aspectSel.value.trim();
@@ -174,15 +181,12 @@
       const nw = normalize(w);
       filtered = filtered.filter(p => normalize(p.fullName).includes(nw));
     }
-
     if (a) {
       const na = normalize(a);
-      filtered = filtered.filter(p => normalize(p.fullName).includes("/" + na));
-    } else {
-      filtered = filtered.filter(p => !p.fullName.includes("/"));
+      filtered = filtered.filter(p => normalize(p.fullName).includes(na));
     }
-
     if (d) {
+      // نفحص على R + d أو d مسبوقة بـR داخل النص
       const nd = normalize("R" + d);
       filtered = filtered.filter(p => normalize(p.fullName).includes(nd));
     }
@@ -190,6 +194,7 @@
     displayProducts(filtered);
   }
 
+  // إعادة إظهار الكل
   resetBtn.addEventListener('click', () => {
     widthSel.value = "";
     aspectSel.value = "";
@@ -197,16 +202,21 @@
     displayProducts(products);
   });
 
+  // فلترة مباشرة عند تغيير أي select
   widthSel.addEventListener('change', filterProducts);
   aspectSel.addEventListener('change', filterProducts);
   diameterSel.addEventListener('change', filterProducts);
 
+  // دوال مساعدة للأمان
   function escapeHtml(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
   function escapeJs(s){ return String(s||'').replace(/'/g,"\\'").replace(/"/g,'\\"'); }
 
+  // تابع تجريبي لزر "اطلب الآن" — عدله حسب حاجتك (نموذج، تحويل لصفحة طلب، إلخ.)
   function orderProduct(name){
+    // مثال: تظهر نافذة بسيطة ثم توجيه أو فتح نموذج
     const confirmed = confirm(`طلب: ${name}\nهل تريد المتابعة لملء بيانات الطلب؟`);
     if (confirmed) {
+      // هنا تضع سلوك فتح نافذة الطلب أو إعادة التوجيه
       alert('هنا يمكنك فتح نموذج الطلب (تطوير لاحق)');
     }
   }
