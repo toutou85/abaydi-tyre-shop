@@ -7,136 +7,163 @@
   <style>
     body {
       font-family: 'Tahoma', Arial, sans-serif;
-      background: #f9f9f9;
+      background: #f5f5f5;
       margin: 20px;
       text-align: center;
     }
-    .search-box {
-      margin-bottom: 20px;
-      padding: 10px;
+    .filters {
       background: #fff;
       border: 1px solid #ddd;
+      padding: 15px;
+      border-radius: 10px;
       display: inline-block;
-      border-radius: 8px;
+      margin-bottom: 20px;
     }
     select {
       padding: 8px;
       margin: 5px;
+      border-radius: 6px;
     }
     table {
-      width: 80%;
-      margin: 0 auto;
+      width: 95%;
+      margin: auto;
       border-collapse: collapse;
       background: #fff;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     }
     th, td {
       padding: 12px;
       border: 1px solid #ddd;
+      text-align: center;
     }
     th {
       background: #007bff;
-      color: white;
+      color: #fff;
+    }
+    img {
+      width: 80px;
+      height: auto;
+      border-radius: 6px;
     }
   </style>
 </head>
 <body>
 
-  <div class="search-box">
-    <label>اختر النسبة:</label>
+  <div class="filters">
+    <label>العرض:</label>
+    <select id="widthFilter">
+      <option value="">الكل</option>
+      <!-- العروض من 125 حتى 335 -->
+      <script>
+        for (let w = 125; w <= 335; w += 10) {
+          document.write(`<option>${w}</option>`);
+        }
+      </script>
+    </select>
+
+    <label>الارتفاع:</label>
     <select id="ratioFilter">
       <option value="">الكل</option>
-      <!-- نسبة كاملة (25 - 85) -->
       <option>0</option>
-      <option>25</option>
-      <option>30</option>
-      <option>35</option>
-      <option>40</option>
-      <option>45</option>
-      <option>50</option>
-      <option>55</option>
-      <option>60</option>
-      <option>65</option>
-      <option>70</option>
-      <option>75</option>
-      <option>80</option>
-      <option>85</option>
+      <script>
+        for (let r = 25; r <= 85; r += 5) {
+          document.write(`<option>${r}</option>`);
+        }
+      </script>
+    </select>
+
+    <label>المقاس:</label>
+    <select id="rimFilter">
+      <option value="">الكل</option>
+      <!-- الأقطار من R12 حتى R24 -->
+      <script>
+        for (let rim = 12; rim <= 24; rim++) {
+          document.write(`<option>R${rim}</option>`);
+        }
+      </script>
     </select>
   </div>
 
   <table id="productsTable">
     <thead>
       <tr>
+        <th>الصورة</th>
         <th>المقاس</th>
-        <th>النوع</th>
+        <th>الماركة</th>
         <th>السعر</th>
       </tr>
     </thead>
     <tbody>
-      <!-- مقاسات كاملة -->
+      <!-- أمثلة منتجات -->
       <tr>
+        <td><img src="https://i.postimg.cc/0QJg4L5m/tire1.jpg" alt="tire"></td>
         <td>185/65R15</td>
         <td>ماركة A</td>
         <td>8000 دج</td>
       </tr>
       <tr>
+        <td><img src="https://i.postimg.cc/FsL8qfG5/tire2.jpg" alt="tire"></td>
         <td>195/55R16</td>
         <td>ماركة B</td>
         <td>9000 دج</td>
       </tr>
       <tr>
+        <td><img src="https://i.postimg.cc/Y2VYwQch/tire3.jpg" alt="tire"></td>
         <td>205/60R16</td>
         <td>ماركة C</td>
         <td>9500 دج</td>
       </tr>
-      <!-- مقاسات بدون نسبة -->
       <tr>
+        <td><img src="https://i.postimg.cc/mDrMhLw6/tire4.jpg" alt="tire"></td>
         <td>185R15</td>
         <td>ماركة D</td>
         <td>7000 دج</td>
-      </tr>
-      <tr>
-        <td>195R16</td>
-        <td>ماركة E</td>
-        <td>8500 دج</td>
       </tr>
     </tbody>
   </table>
 
   <script>
+    const widthFilter = document.getElementById("widthFilter");
     const ratioFilter = document.getElementById("ratioFilter");
-    const table = document.getElementById("productsTable");
-    const rows = table.getElementsByTagName("tr");
+    const rimFilter = document.getElementById("rimFilter");
+    const rows = document.querySelectorAll("#productsTable tbody tr");
 
-    ratioFilter.addEventListener("change", function() {
-      const selectedRatio = this.value;
+    function filterProducts() {
+      const widthVal = widthFilter.value;
+      const ratioVal = ratioFilter.value;
+      const rimVal = rimFilter.value;
 
-      for (let i = 1; i < rows.length; i++) {
-        const sizeCell = rows[i].getElementsByTagName("td")[0];
-        if (sizeCell) {
-          const sizeText = sizeCell.textContent;
+      rows.forEach(row => {
+        const size = row.cells[1].textContent;
 
-          if (selectedRatio === "") {
-            // عرض كل شيء
-            rows[i].style.display = "";
-          } else if (selectedRatio === "0") {
-            // عرض فقط المقاسات بدون نسبة
-            if (sizeText.includes("/")) {
-              rows[i].style.display = "none";
-            } else {
-              rows[i].style.display = "";
-            }
+        let show = true;
+
+        // فلترة العرض
+        if (widthVal && !size.startsWith(widthVal)) {
+          show = false;
+        }
+
+        // فلترة الارتفاع
+        if (ratioVal) {
+          if (ratioVal === "0") {
+            if (size.includes("/")) show = false;
           } else {
-            // عرض فقط المقاسات بالنسبة المحددة
-            if (sizeText.includes("/" + selectedRatio)) {
-              rows[i].style.display = "";
-            } else {
-              rows[i].style.display = "none";
-            }
+            if (!size.includes("/" + ratioVal)) show = false;
           }
         }
-      }
-    });
+
+        // فلترة المقاس
+        if (rimVal && !size.includes(rimVal)) {
+          show = false;
+        }
+
+        row.style.display = show ? "" : "none";
+      });
+    }
+
+    widthFilter.addEventListener("change", filterProducts);
+    ratioFilter.addEventListener("change", filterProducts);
+    rimFilter.addEventListener("change", filterProducts);
   </script>
 
 </body>
