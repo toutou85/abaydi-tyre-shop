@@ -1,179 +1,224 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>عبايدي للعجلات</title>
   <style>
-    body { font-family: Arial, sans-serif; background: #f2f2f2; margin: 0; padding: 0; }
-    header { background-color: #007bff; color: white; padding: 1rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; }
-    header img { height: 40px; margin-left: 10px; }
-    .searchBox { width: 90%; margin: 1rem auto; display: flex; justify-content: center; gap: 5px; flex-wrap: wrap; }
-    select, button { padding: 0.5rem; font-size: 1rem; border: 1px solid #ccc; border-radius: 5px; }
-    button { background: #28a745; color: white; border: none; cursor: pointer; }
-    .products { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; padding: 1rem; }
-    .product { background: white; padding: 1rem; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); text-align: center; }
-    .product img { width: 100%; height: auto; border-radius: 10px; }
-    .pagination { text-align: center; margin: 2rem 0; }
-    .pagination button { margin: 0 10px; padding: 0.6rem 1.2rem; background: #007bff; color: white; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 1rem; }
+    body { font-family: "Tajawal", Arial, sans-serif; background:#f2f2f2; margin:0; padding:0; }
+    header { background:#007bff; color:#fff; padding:14px; text-align:center; font-size:1.2rem; }
+    .searchBox { width:95%; max-width:1200px; margin:14px auto; display:flex; gap:8px; flex-wrap:wrap; justify-content:center; align-items:center; }
+    label { font-size:0.95rem; margin-inline-start:6px; }
+    select, button { padding:8px 10px; font-size:0.95rem; border:1px solid #ccc; border-radius:6px; background:#fff; }
+    button { background:#28a745; color:#fff; border:none; cursor:pointer; }
+    .products { width:95%; max-width:1200px; margin:12px auto 40px; display:grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap:14px; }
+    .card { background:#fff; border-radius:10px; padding:12px; box-shadow:0 6px 18px rgba(0,0,0,0.06); text-align:center; position:relative; }
+    .card img { width:100%; height:140px; object-fit:contain; border-radius:8px; background:#fafafa; }
+    .card h3 { margin:10px 0 6px; font-size:1rem; color:#333; }
+    .price { color:#007bff; font-weight:700; margin-bottom:8px; }
+    .btn-order { background:#007bff; color:#fff; padding:8px 12px; border-radius:6px; border:none; cursor:pointer; }
+    .badge { position:absolute; left:10px; top:10px; padding:6px 8px; border-radius:6px; font-size:0.85rem; color:#fff; }
+    .available { background:#28a745; }
+    .unavailable { background:#d9534f; }
+    .info { text-align:center; color:#666; margin-top:6px; font-size:0.95rem; }
+    @media (max-width:700px){ .searchBox{flex-direction:column; align-items:stretch;} select, button{width:100%;} }
   </style>
 </head>
 <body>
-<header>
-  <div style="display: flex; align-items: center;">
-    <img src="logo.png" alt="شعار المتجر">
-    <span>متجر عبايدي للعجلات</span>
+  <header>🛞 عبايدي للعجلات</header>
+
+  <div class="searchBox" aria-label="فلتر المقاسات">
+    <div>
+      <label for="width">العرض</label><br>
+      <select id="width" aria-label="عرض الإطار">
+        <option value="">الكل</option>
+        <!-- عرض كامل (125 - 315) -->
+        <option>125</option><option>135</option><option>145</option><option>155</option>
+        <option>165</option><option>175</option><option>185</option><option>195</option>
+        <option>205</option><option>215</option><option>225</option><option>235</option>
+        <option>245</option><option>255</option><option>265</option><option>275</option>
+        <option>285</option><option>295</option><option>305</option><option>315</option>
+      </select>
+    </div>
+
+    <div>
+      <label for="aspect">النسبة</label><br>
+      <select id="aspect" aria-label="نسبة الإطار">
+        <option value="">الكل</option>
+        <!-- نسبة كاملة (25 - 85) -->
+        <option>25</option><option>30</option><option>35</option><option>40</option>
+        <option>45</option><option>50</option><option>55</option><option>60</option>
+        <option>65</option><option>70</option><option>75</option><option>80</option>
+        <option>85</option>
+      </select>
+    </div>
+
+    <div>
+      <label for="diameter">القطر</label><br>
+      <select id="diameter" aria-label="قطر الجنط">
+        <option value="">الكل</option>
+        <!-- قطر كامل (10 - 24) -->
+        <option>10</option><option>11</option><option>12</option><option>13</option>
+        <option>14</option><option>15</option><option>16</option><option>17</option>
+        <option>18</option><option>19</option><option>20</option><option>21</option>
+        <option>22</option><option>23</option><option>24</option>
+      </select>
+    </div>
+
+    <div>
+      <button id="resetBtn" type="button">إظهار الكل</button>
+    </div>
   </div>
-</header>
 
-<!-- ✅ البحث بالقوائم -->
-<div class="searchBox">
-  <select id="width">
-    <option value="">الكل (العرض)</option>
-    <option value="135">135</option>
-    <option value="145">145</option>
-    <option value="155">155</option>
-    <option value="165">165</option>
-    <option value="175">175</option>
-    <option value="185">185</option>
-    <option value="195">195</option>
-    <option value="205">205</option>
-    <option value="215">215</option>
-    <option value="225">225</option>
-    <option value="235">235</option>
-    <option value="245">245</option>
-    <option value="255">255</option>
-    <option value="265">265</option>
-    <option value="275">275</option>
-    <option value="285">285</option>
-    <option value="295">295</option>
-    <option value="305">305</option>
-    <option value="315">315</option>
-  </select>
+  <div class="products" id="productsBox" aria-live="polite">
+    <!-- البطاقات يتم إدراجها هنا -->
+  </div>
 
-  <span>/</span>
-
-  <select id="height">
-    <option value="">الكل (الارتفاع)</option>
-    <option value="30">30</option>
-    <option value="35">35</option>
-    <option value="40">40</option>
-    <option value="45">45</option>
-    <option value="50">50</option>
-    <option value="55">55</option>
-    <option value="60">60</option>
-    <option value="65">65</option>
-    <option value="70">70</option>
-    <option value="75">75</option>
-    <option value="80">80</option>
-    <option value="85">85</option>
-  </select>
-
-  <span>R</span>
-
-  <select id="diameter">
-    <option value="">الكل (القطر)</option>
-    <option value="12">R12</option>
-    <option value="13">R13</option>
-    <option value="14">R14</option>
-    <option value="15">R15</option>
-    <option value="16">R16</option>
-    <option value="17">R17</option>
-    <option value="18">R18</option>
-    <option value="19">R19</option>
-    <option value="20">R20</option>
-    <option value="21">R21</option>
-    <option value="22">R22</option>
-  </select>
-
-  <button onclick="filterProducts()">🔍 بحث</button>
-</div>
-
-<section class="products" id="productList"></section>
-<div class="pagination" id="pagination"></div>
+  <div class="info">المنتجات تجي من جدول Google Sheets — إذا في مقاس ما زال ناقص أرسللي مثال علشان نضيفه في الشيت.</div>
 
 <script>
+  // رابط Google Sheets (CSV منشور) — غيّره إذا لزم
+  const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQBz1iucjkuwAG78fd6m1zE4oXKuaZzlgVGO7cK1uts7UkTFgT0nxpqXA-ovj8iOa9FhujqCSpxHrXw/pub?output=csv";
+
+  const box = document.getElementById('productsBox');
+  const widthSel = document.getElementById('width');
+  const aspectSel = document.getElementById('aspect');
+  const diameterSel = document.getElementById('diameter');
+  const resetBtn = document.getElementById('resetBtn');
+
   let products = [];
 
-  fetch('https://script.google.com/macros/s/AKfycbxWbyMXyZp9id5DNCRorPKHe1TUtQ8leaBrNQ3sTZHC-IAlYG69vkrXiJ-a6f8IHh9t/exec')
-    .then(res => res.json())
-    .then(data => {
-      products = data.map(p => ({
-        fullName: p.fullName || '',
-        price: p.price || '',
-        quantity: p.quantity || '0',
-        img: p.img || 'https://via.placeholder.com/250x200'
-      }));
-      displayProducts();
-    });
-
-  const perPage = 10;
-  let currentPage = 1;
-
-  function displayProducts(list = products) {
-    const productList = document.getElementById('productList');
-    productList.innerHTML = '';
-
-    const start = (currentPage - 1) * perPage;
-    const end = start + perPage;
-    const currentItems = list.slice(start, end);
-
-    currentItems.forEach(p => {
-      const available = parseInt(p.quantity) > 0;
-      const availability = available ? '✅ متوفر' : '❌ <span style="color:red;">غير متوفر</span>';
-      const div = document.createElement('div');
-      div.className = 'product';
-      div.innerHTML = `
-        <img src="${p.img}" alt="صورة المنتج">
-        <h3>${p.fullName}</h3>
-        <p>السعر: ${p.price} دج</p>
-        <p>${availability}</p>
-      `;
-      productList.appendChild(div);
-    });
-
-    updatePagination(list);
+  // دالة فك CSV تدعم الحقول المحاطة بعلامات اقتباس
+  function parseCSV(text) {
+    text = text.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+    const rows = [];
+    let cur = "", row = [], inQuotes = false;
+    for (let i = 0; i < text.length; i++) {
+      const ch = text[i];
+      if (ch === '"') {
+        if (inQuotes && text[i+1] === '"') { cur += '"'; i++; }
+        else inQuotes = !inQuotes;
+      } else if (ch === "," && !inQuotes) {
+        row.push(cur);
+        cur = "";
+      } else if (ch === "\n" && !inQuotes) {
+        row.push(cur);
+        rows.push(row);
+        row = [];
+        cur = "";
+      } else {
+        cur += ch;
+      }
+    }
+    if (cur !== "" || row.length) { row.push(cur); rows.push(row); }
+    return rows.filter(r => r.some(c => c && c.trim() !== ""));
   }
 
-  function updatePagination(list = products) {
-    const pagination = document.getElementById('pagination');
-    pagination.innerHTML = '';
-    const totalPages = Math.ceil(list.length / perPage);
-
-    if (totalPages <= 1) return;
-
-    const prevBtn = document.createElement('button');
-    prevBtn.textContent = '⬅️ السابق';
-    prevBtn.disabled = currentPage === 1;
-    prevBtn.onclick = () => { currentPage--; displayProducts(list); };
-
-    const nextBtn = document.createElement('button');
-    nextBtn.textContent = 'التالي ➡️';
-    nextBtn.disabled = currentPage === totalPages;
-    nextBtn.onclick = () => { currentPage++; displayProducts(list); };
-
-    pagination.appendChild(prevBtn);
-    pagination.appendChild(nextBtn);
+  // تطبيع للنص لسهولة المقارنة (نمسح مسافات، شرطات، شرطة مائلة، نحو R ونتحول لحروف كبيرة)
+  function normalize(str) {
+    return String(str || "").toUpperCase().replace(/\s+|\/|-|–|—/g, "");
   }
 
-  window.filterProducts = function () {
-    const w = document.getElementById('width').value;
-    const h = document.getElementById('height').value;
-    const d = document.getElementById('diameter').value;
+  // تحميل البيانات من الشيت
+  fetch(sheetUrl)
+    .then(r => {
+      if (!r.ok) throw new Error("تعذّر تحميل ملف Google Sheets");
+      return r.text();
+    })
+    .then(txt => {
+      const rows = parseCSV(txt);
+      // نتوقع: عمود 0 = fullName (مثال: 185/65 R14) ، عمود1 = price ، عمود2 = qty (اختياري) ، عمود3 = image (اختياري)
+      const dataRows = rows.slice(1); // نتخطى الرأس لو موجود
+      products = dataRows.map(cols => ({
+        fullName: (cols[0] || "").trim(),
+        price: (cols[1] || "").trim(),
+        qty: (cols[2] || "").trim(),      // قد يكون فارغ
+        image: (cols[3] || "").trim()
+      })).filter(p => p.fullName); // نلغي الصفوف الفارغة
+      displayProducts(products);
+    })
+    .catch(err => {
+      box.innerHTML = `<div style="grid-column:1/-1;color:red;text-align:center;padding:16px;">خطأ في تحميل المنتجات: ${err.message}</div>`;
+      console.error(err);
+    });
 
-    let filtered = products;
-
-    if (w) filtered = filtered.filter(p => p.fullName.includes(w));
-    if (h) filtered = filtered.filter(p => p.fullName.includes(h));
-    if (d) filtered = filtered.filter(p => p.fullName.includes("R" + d));
-
-    currentPage = 1;
-    if (filtered.length === 0) {
-      document.getElementById('productList').innerHTML = "<p style='text-align:center;color:red;'>⚠️ لا توجد نتائج.</p>";
-      document.getElementById('pagination').innerHTML = '';
+  // عرض البطاقات
+  function displayProducts(list) {
+    if (!list || list.length === 0) {
+      box.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:18px;background:#fff;border-radius:8px;">🚫 لا توجد منتجات</div>`;
       return;
     }
+    box.innerHTML = "";
+    for (const p of list) {
+      const imageUrl = p.image || "https://via.placeholder.com/400x300?text=%D8%B5%D9%88%D8%B1%D8%A9+%D8%B9%D8%AF%D9%85"; // احتياط
+      // حالة التوفر: إذا الكمية غير معطاة اعتبر متوفر، إذا معطاة و >0 متوفر، وإلا غير متوفر
+      let available = true;
+      if (p.qty !== undefined && p.qty !== null && p.qty !== "") {
+        const n = Number(String(p.qty).replace(/\D/g,'')); // نأخذ الأرقام فقط
+        available = !isNaN(n) ? n > 0 : true;
+      }
+      box.insertAdjacentHTML('beforeend', `
+        <div class="card" role="article">
+          <div class="${available ? 'badge available' : 'badge unavailable'}">${available ? '✅ متوفر' : '❌ غير متوفر'}</div>
+          <img src="${escapeHtml(imageUrl)}" alt="${escapeHtml(p.fullName)}" onerror="this.src='https://via.placeholder.com/400x300?text=No+Image'">
+          <h3>${escapeHtml(p.fullName)}</h3>
+          <div class="price">${escapeHtml(p.price || '-')} دج</div>
+          <button class="btn-order" onclick="orderProduct('${escapeJs(p.fullName)}')">اطلب الآن</button>
+        </div>
+      `);
+    }
+  }
+
+  // فلترة ذكية باستخدام التطبيع
+  function filterProducts() {
+    const w = widthSel.value.trim();
+    const a = aspectSel.value.trim();
+    const d = diameterSel.value.trim();
+
+    let filtered = products.slice();
+
+    if (w) {
+      const nw = normalize(w);
+      filtered = filtered.filter(p => normalize(p.fullName).includes(nw));
+    }
+    if (a) {
+      const na = normalize(a);
+      filtered = filtered.filter(p => normalize(p.fullName).includes(na));
+    }
+    if (d) {
+      // نفحص على R + d أو d مسبوقة بـR داخل النص
+      const nd = normalize("R" + d);
+      filtered = filtered.filter(p => normalize(p.fullName).includes(nd));
+    }
+
     displayProducts(filtered);
+  }
+
+  // إعادة إظهار الكل
+  resetBtn.addEventListener('click', () => {
+    widthSel.value = "";
+    aspectSel.value = "";
+    diameterSel.value = "";
+    displayProducts(products);
+  });
+
+  // فلترة مباشرة عند تغيير أي select
+  widthSel.addEventListener('change', filterProducts);
+  aspectSel.addEventListener('change', filterProducts);
+  diameterSel.addEventListener('change', filterProducts);
+
+  // دوال مساعدة للأمان
+  function escapeHtml(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  function escapeJs(s){ return String(s||'').replace(/'/g,"\\'").replace(/"/g,'\\"'); }
+
+  // تابع تجريبي لزر "اطلب الآن" — عدله حسب حاجتك (نموذج، تحويل لصفحة طلب، إلخ.)
+  function orderProduct(name){
+    // مثال: تظهر نافذة بسيطة ثم توجيه أو فتح نموذج
+    const confirmed = confirm(`طلب: ${name}\nهل تريد المتابعة لملء بيانات الطلب؟`);
+    if (confirmed) {
+      // هنا تضع سلوك فتح نافذة الطلب أو إعادة التوجيه
+      alert('هنا يمكنك فتح نموذج الطلب (تطوير لاحق)');
+    }
   }
 </script>
 </body>
