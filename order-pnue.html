@@ -43,7 +43,8 @@ button {
     border-radius: 5px;
     font-size: 16px;
 }
-<style>
+
+/* المؤقت */
 .spinner {
     width: 40px;
     height: 40px;
@@ -63,7 +64,6 @@ button {
     font-weight: bold;
 }
 </style>
-</style>
 
 </head>
 
@@ -77,8 +77,10 @@ button {
 
 <input type="text" id="name" placeholder="الاسم و اللقب">
 <input type="tel" id="phone" placeholder="رقم الهاتف">
+<input type="tel" id="phone2" placeholder="رقم هاتف إضافي (اختياري)">
 
 <select id="wilaya">
+
  <option value="">اختر الولاية</option>
         <option value="01 - أدرار">01 - أدرار</option>
         <option value="02 - الشلف">02 - الشلف</option>
@@ -138,7 +140,6 @@ button {
 <option value="56 - جانت">56 - جانت</option>
 <option value="57 - المغير">57 - المغير</option>
 <option value="58 - المنيعة">58 - المنيعة</option>
-<!-- تقدر تضيف باقي الولايات -->
 </select>
 
 <input type="text" id="commune" placeholder="البلدية">
@@ -149,21 +150,19 @@ button {
 <input type="number" id="qty" placeholder="الكمية">
 
 <button onclick="sendAll()">إرسال الطلب</button>
-<!-- أضف هذا تحت الزر -->
+
 <div id="statusBox" style="display:none; text-align:center; margin-top:10px;">
     <div class="spinner"></div>
     <p id="statusText">جاري إرسال الطلب...</p>
-
 </div>
 
 <script>
 function sendAll() {
-
     let btn = document.querySelector("button");
     let box = document.getElementById("statusBox");
     let text = document.getElementById("statusText");
 
-    // ✅ جلب البيانات
+    // جلب البيانات
     let name = document.getElementById("name").value.trim();
     let phone = document.getElementById("phone").value.trim();
     let phone2 = document.getElementById("phone2").value.trim();
@@ -174,7 +173,7 @@ function sendAll() {
     let size = document.getElementById("size").value.trim();
     let qty = document.getElementById("qty").value;
 
-    // ✅ تحقق من الحقول (إجباري)
+    // تحقق من الحقول الإلزامية
     if (!name || !phone || !wilaya || !commune || !adresse || !type || !size || !qty) {
         box.style.display = "block";
         text.innerText = "⚠️ يرجى ملء جميع الخانات";
@@ -182,31 +181,20 @@ function sendAll() {
         return;
     }
 
-    // ✅ التاريخ
+    // التاريخ
     let now = new Date();
     let dateString = now.toLocaleString("fr-FR");
 
-    let data = {
-        date: dateString,
-        name,
-        phone,
-        phone2,
-        wilaya,
-        commune,
-        adresse,
-        type,
-        size,
-        qty
-    };
+    let data = { date: dateString, name, phone, phone2, wilaya, commune, adresse, type, size, qty };
 
-    // ✅ إظهار التحميل
+    // إظهار التحميل
     box.style.display = "block";
     text.innerText = "⏳ جاري إرسال الطلب...";
     text.style.color = "black";
     btn.disabled = true;
     btn.innerText = "جاري الإرسال...";
 
-    // ✅ رسالة واتساب
+    // رسالة واتساب
     let message = 
 `🛞 طلب جديد - عبايدي للعجلات
 
@@ -225,13 +213,12 @@ function sendAll() {
 
     let whatsappNumber = "213698749015";
 
-    // ✅ إرسال إلى Google Sheets
+    // إرسال إلى Google Sheets
     fetch("https://script.google.com/macros/s/AKfycbykHyTLHIsSatUbZJlUCmVYNhmyOC13TaPCvu98e0bxNMQogikkWofjpMD-udW-u6OmSg/exec", {
         method: "POST",
         body: JSON.stringify(data)
     })
     .then(() => {
-
         let url = "https://wa.me/" + whatsappNumber + "?text=" + encodeURIComponent(message);
         window.open(url, "_blank");
 
@@ -240,10 +227,8 @@ function sendAll() {
 
         btn.disabled = false;
         btn.innerText = "إرسال الطلب";
-
     })
     .catch(() => {
-
         text.innerText = "❌ حدث خطأ، حاول مرة أخرى";
         text.style.color = "red";
 
