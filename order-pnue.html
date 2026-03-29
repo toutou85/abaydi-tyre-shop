@@ -164,8 +164,8 @@ button {
     <p id="statusText">جاري إرسال الطلب...</p>
 </div>
 
-<script>
 
+<script>
 }
 // قائمة المكاتب حسب الولاية
 const offices = {
@@ -228,10 +228,8 @@ document.getElementById("wilaya").addEventListener("change", function () {
     let wilaya = this.value;
     let communeSelect = document.getElementById("commune");
 
-    // استخراج رقم الولاية
     let wilayaCode = wilaya.split(" - ")[0];
 
-    // مسح القائمة
     communeSelect.innerHTML = '<option value="">اختر المكتب</option>';
 
     if (offices[wilaya]) {
@@ -245,15 +243,18 @@ document.getElementById("wilaya").addEventListener("change", function () {
 
             communeSelect.appendChild(option);
         });
-    
+    }
+});
 
 
+// دالة إرسال الطلب
 function sendAll() {
+
     let btn = document.querySelector("button");
     let box = document.getElementById("statusBox");
     let text = document.getElementById("statusText");
 
-    // دالة لتنسيق رقم الهاتف
+    // تنسيق الهاتف
     function formatPhone(phone) {
         phone = phone.trim();
         if (!phone) return "";
@@ -261,20 +262,19 @@ function sendAll() {
         if (phone.startsWith("0")) return "+213" + phone.slice(1);
         return "+213" + phone;
     }
-});
 
     // جلب البيانات
     let name = document.getElementById("name").value.trim();
     let phone = formatPhone(document.getElementById("phone").value);
-    let phone2 = formatPhone(document.getElementById("phone2") ? document.getElementById("phone2").value : "");
+    let phone2 = formatPhone(document.getElementById("phone2").value);
     let wilaya = document.getElementById("wilaya").value;
-    let commune = document.getElementById("commune").value.trim();
+    let commune = document.getElementById("commune").value;
     let adresse = document.getElementById("adresse").value.trim();
     let type = document.getElementById("type").value.trim();
     let size = document.getElementById("size").value.trim();
     let qty = document.getElementById("qty").value;
 
-    // تحقق من الحقول الإلزامية
+    // تحقق
     if (!name || !phone || !wilaya || !commune || !adresse || !type || !size || !qty) {
         box.style.display = "block";
         text.innerText = "⚠️ يرجى ملء جميع الخانات";
@@ -286,23 +286,22 @@ function sendAll() {
     let now = new Date();
     let dateString = now.toLocaleString("fr-FR");
 
-    // دمج اسم الإطار + المقاس
+    // دمج الإطار
     let tireInfo = type + " - " + size;
 
-    // بيانات للإرسال إلى Google Sheets
     let data = {
         date: dateString,
-        name: name,
-        phone: phone,
-        phone2: phone2,
-        wilaya: wilaya,
-        commune: commune,
-        adresse: adresse,
-        tireInfo: tireInfo,  // هذا العمود سيحمل الاسم + المقاس
-        qty: qty
+        name,
+        phone,
+        phone2,
+        wilaya,
+        commune,
+        adresse,
+        tireInfo,
+        qty
     };
 
-    // إظهار التحميل
+    // تحميل
     box.style.display = "block";
     text.innerText = "⏳ جاري إرسال الطلب...";
     text.style.color = "black";
@@ -313,26 +312,27 @@ function sendAll() {
     let message = 
 `🛞 طلب جديد - عبايدي للعجلات
 
-📅 ${data.date}
-👤 ${data.name}
-📞 ${data.phone}
-📞 إضافي: ${data.phone2 || "لا يوجد"}
+📅 ${dateString}
+👤 ${name}
+📞 ${phone}
+📞 إضافي: ${phone2 || "لا يوجد"}
 
-📍 ${data.wilaya}
-🏠 ${data.commune}
-📌 ${data.adresse}
+📍 ${wilaya}
+🏠 ${commune}
+📌 ${adresse}
 
 🚗 ${tireInfo}
-🔢 ${data.qty}`;
+🔢 ${qty}`;
 
     let whatsappNumber = "213698749015";
 
-    // إرسال إلى Google Sheets
+    // إرسال
     fetch("https://script.google.com/macros/s/AKfycbxYHBPM5Fr-LCnNUhwdEEmuXkdWLVQdF6lxLLaAiB1jzVQYnLGCOEK_evocNhbJXf9iKg/exec", {
         method: "POST",
         body: JSON.stringify(data)
     })
     .then(() => {
+
         let url = "https://wa.me/" + whatsappNumber + "?text=" + encodeURIComponent(message);
         window.open(url, "_blank");
 
@@ -343,13 +343,15 @@ function sendAll() {
         btn.innerText = "إرسال الطلب";
     })
     .catch(() => {
-        text.innerText = "❌ حدث خطأ، حاول مرة أخرى";
+
+        text.innerText = "❌ حدث خطأ";
         text.style.color = "red";
 
         btn.disabled = false;
         btn.innerText = "إرسال الطلب";
     });
 }
+
 </script>
 
 </body>
