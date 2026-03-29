@@ -70,7 +70,7 @@ button {
     top: 20px;
     right: 20px;
     width: 300px;
-    background: rgba(255, 255, 224, 0.9); /* خلفية شفافة */
+    background: rgba(255, 255, 224, 0.6); /* خلفية شفافة */
     border: 1.5px solid #ffc107;
     padding: 15px;
     border-radius: 12px;
@@ -105,7 +105,7 @@ button {
     padding: 6px 8px;
     border-radius: 50px;
     cursor: pointer;
-    font-size: 12px;
+    font-size: 3px;
     z-index: 100;
 }
 </style>
@@ -211,7 +211,7 @@ button {
 <!-- نافذة الملاحظة -->
 <div id="noticePopup" style="display:none;">
     <p>📌 <strong>ملاحظة هامة:</strong><br>
-    نظرًا لندرة العجلات 🚗، نرجو من زبائننا الكرام تعبئة الطلبية مسبقًا 📝، وسيتم التواصل معكم فور توفرها 📞.<br>
+    نظرًا لندرة العجلات🛞 🚗، نرجو من زبائننا الكرام تعبئة الطلبية مسبقًا 📝، وسيتم التواصل معكم فور توفرها 📞.<br>
     نسعى دائمًا لتلبية طلباتكم بأفضل شكل ممكن، ونشكركم على تفهمكم وثقتكم بنا 🙏✨</p>
     <button id="closeNotice">✖ إغلاق</button>
 </div>
@@ -417,7 +417,7 @@ window.addEventListener("load", () => {
     setTimeout(() => {
         noticePopup.style.display = "none";
         showNoticeBtn.style.display = "block"; // إظهار الزر الجانبي
-    }, 5000); // 5 ثواني
+    }, 5000); // 3 ثواني
 });
 
 // زر إغلاق النافذة
@@ -434,7 +434,7 @@ showNoticeBtn.addEventListener("click", () => {
     setTimeout(() => {
         noticePopup.style.display = "none";
         showNoticeBtn.style.display = "block";
-    }, 5000); // 5 ثواني
+    }, 5000); // 3 ثواني
 });
 </script>
 
