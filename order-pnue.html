@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ar">
 <head>
@@ -167,7 +168,7 @@ button {
         if (!phone) return "";
         if (phone.startsWith("+213")) return phone;
         if (phone.startsWith("0")) return "+213" + phone.slice(1);
-        return "+213" + phone; // إذا كتب بدون 0 أو +213
+        return "+213" + phone;
     }
 
     // جلب البيانات
@@ -193,7 +194,21 @@ button {
     let now = new Date();
     let dateString = now.toLocaleString("fr-FR");
 
-    let data = { date: dateString, name, phone, phone2, wilaya, commune, adresse, type, size, qty };
+    // دمج اسم الإطار + المقاس
+    let tireInfo = type + " - " + size;
+
+    // بيانات للإرسال إلى Google Sheets
+    let data = {
+        date: dateString,
+        name: name,
+        phone: phone,
+        phone2: phone2,
+        wilaya: wilaya,
+        commune: commune,
+        adresse: adresse,
+        tireInfo: tireInfo,  // هذا العمود سيحمل الاسم + المقاس
+        qty: qty
+    };
 
     // إظهار التحميل
     box.style.display = "block";
@@ -215,14 +230,13 @@ button {
 🏠 ${data.commune}
 📌 ${data.adresse}
 
-🚗 ${data.type}
-📏 ${data.size}
+🚗 ${tireInfo}
 🔢 ${data.qty}`;
 
     let whatsappNumber = "213698749015";
 
     // إرسال إلى Google Sheets
-    fetch("https://script.google.com/macros/s/AKfycbykHyTLHIsSatUbZJlUCmVYNhmyOC13TaPCvu98e0bxNMQogikkWofjpMD-udW-u6OmSg/exec", {
+    fetch("https://script.google.com/macros/s/AKfycbzwLoyh_Ze_9shZljAcf1nltJwN3QqXs1M1ruOMlgAcPjybqUHxbTtqH0zZ-clI6UsT-g/exec", {
         method: "POST",
         body: JSON.stringify(data)
     })
@@ -248,3 +262,7 @@ button {
 
 </body>
 </html>
+
+
+
+
