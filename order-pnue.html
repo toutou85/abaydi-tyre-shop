@@ -64,18 +64,15 @@ button {
     margin-top: 10px;
     font-weight: bold;
 }
-/* نافذة الملاحظة */
 #noticePopup {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    width: 300px;
+    position: relative; /* بدل fixed */
+    width: 100%;
+    margin-top: 10px;
     background: rgba(255, 255, 224, 0.6); /* خلفية شفافة */
     border: 1.5px solid #ffc107;
     padding: 15px;
     border-radius: 12px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-    z-index: 1000;
     font-size: 13px;
     line-height: 1.4;
     color: #333;
@@ -190,8 +187,6 @@ button {
     <p id="statusText">جاري إرسال الطلب...</p>
 </div>
 
-    <button id="closeNotice">✖ إغلاق</button>
-</div>
 
 <script>
 
