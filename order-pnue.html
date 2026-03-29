@@ -64,6 +64,45 @@ button {
     margin-top: 10px;
     font-weight: bold;
 }
+#noticePopup {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    width: 300px;
+    background: #fffbe6;
+    border: 2px solid #ffd700;
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    z-index: 1000;
+}
+
+#noticePopup p {
+    font-size: 14px;
+    margin: 0 0 10px 0;
+}
+
+#noticePopup button {
+    background: #ffd700;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    float: right;
+}
+
+#showNoticeBtn {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: #4caf50;
+    color: white;
+    border: none;
+    padding: 10px 12px;
+    border-radius: 50px;
+    cursor: pointer;
+    z-index: 1000;
+}
 </style>
 
 </head>
@@ -164,7 +203,16 @@ button {
     <p id="statusText">جاري إرسال الطلب...</p>
 </div>
 
+<!-- نافذة الملاحظة -->
+<div id="noticePopup" style="display:none;">
+    <p>📌 <strong>ملاحظة هامة:</strong><br>
+    نظرًا لندرة العجلات 🚗، نرجو من زبائننا الكرام تعبئة الطلبية مسبقًا 📝، وسيتم التواصل معكم فور توفرها 📞.<br>
+    نسعى دائمًا لتلبية طلباتكم بأفضل شكل ممكن، ونشكركم على تفهمكم وثقتكم بنا 🙏✨</p>
+    <button id="closeNotice">✖ إغلاق</button>
+</div>
 
+<!-- زر جانبي لإظهار الملاحظة -->
+<button id="showNoticeBtn">📌 الملاحظة</button>
 <script>
 
 // قائمة المكاتب حسب الولاية
@@ -351,7 +399,38 @@ function sendAll() {
         btn.innerText = "إرسال الطلب";
     });
 }
+const noticePopup = document.getElementById("noticePopup");
+const showNoticeBtn = document.getElementById("showNoticeBtn");
+const closeNotice = document.getElementById("closeNotice");
 
+// إظهار النافذة تلقائيًا عند فتح الصفحة
+window.addEventListener("load", () => {
+    noticePopup.style.display = "block";
+    showNoticeBtn.style.display = "none"; // إخفاء الزر مؤقتًا
+
+    // اختفاء النافذة بعد 8 ثواني
+    setTimeout(() => {
+        noticePopup.style.display = "none";
+        showNoticeBtn.style.display = "block"; // إظهار الزر الجانبي
+    }, 8000);
+});
+
+// زر إغلاق النافذة
+closeNotice.addEventListener("click", () => {
+    noticePopup.style.display = "none";
+    showNoticeBtn.style.display = "block";
+});
+
+// زر إعادة الإظهار
+showNoticeBtn.addEventListener("click", () => {
+    noticePopup.style.display = "block";
+    showNoticeBtn.style.display = "none";
+
+    setTimeout(() => {
+        noticePopup.style.display = "none";
+        showNoticeBtn.style.display = "block";
+    }, 8000);
+});
 </script>
 
 </body>
