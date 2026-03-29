@@ -126,7 +126,16 @@ button {
 <script>
 function sendAll() {
 
+    let now = new Date();
+
+    let dateString = now.getFullYear() + "-" +
+    ("0" + (now.getMonth() + 1)).slice(-2) + "-" +
+    ("0" + now.getDate()).slice(-2) + " " +
+    ("0" + now.getHours()).slice(-2) + ":" +
+    ("0" + now.getMinutes()).slice(-2);
+
     let data = {
+        date: dateString, // ✅ أضفنا التاريخ هنا
         name: document.getElementById("name").value,
         phone: document.getElementById("phone").value,
         wilaya: document.getElementById("wilaya").value,
@@ -136,7 +145,6 @@ function sendAll() {
         size: document.getElementById("size").value,
         qty: document.getElementById("qty").value
     };
-
     // ✅ رسالة واتساب
     let message = 
 `🛞 طلب جديد - عبايدي للعجلات
@@ -152,7 +160,7 @@ function sendAll() {
 📏 ${data.size}
 🔢 ${data.qty}`;
 
-    let whatsappNumber = "213656450486";
+    let whatsappNumber = "213698749015";
 
     // ✅ إرسال إلى Google Sheets
     fetch("https://script.google.com/macros/s/AKfycbwwKbcVxlSP90Us2RbAfOWQkXp6rcO353pEPRkNjh5PewFHROFKd61QAmNJksuYebHrig/exec", {
