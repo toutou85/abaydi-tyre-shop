@@ -10,29 +10,26 @@ body {
     font-family: Arial;
     background: #f4f4f4;
     direction: rtl;
-    text-align: right;
 }
 
 .container {
-    width: 90%;
     max-width: 500px;
     margin: auto;
-    background: #fff;
-    padding: 20px;
-    margin-top: 30px;
+    background: white;
+    padding: 15px;
     border-radius: 10px;
-    box-shadow: 0 0 10px #ccc;
+    margin-top: 20px;
 }
 
-h2 {
-    text-align: center;
-    color: #333;
+img {
+    width: 100%;
+    border-radius: 10px;
 }
 
 input, select {
     width: 100%;
     padding: 10px;
-    margin: 8px 0;
+    margin: 6px 0;
     border-radius: 5px;
     border: 1px solid #ccc;
 }
@@ -45,73 +42,133 @@ button {
     border: none;
     border-radius: 5px;
     font-size: 16px;
-    cursor: pointer;
-}
-
-button:hover {
-    background: darkgreen;
 }
 </style>
+
 </head>
 
 <body>
 
 <div class="container">
-    <h2>🛞 طلب شراء إطارات<br>عبايدي للعجلات</h2>
 
-    <input type="text" id="nom" placeholder="الاسم" required>
-    <input type="text" id="prenom" placeholder="اللقب" required>
-    <input type="tel" id="phone" placeholder="رقم الهاتف" required>
+<img src="https://i.ibb.co/QjbNvZdc/20260329-060940-0000.png">
 
-    <input type="text" id="wilaya" placeholder="الولاية" required>
-    <input type="text" id="commune" placeholder="البلدية" required>
+<h3>🛞 طلب شراء إطارات</h3>
 
-    <input type="text" id="type" placeholder="نوع الإطار" required>
-    <input type="text" id="size" placeholder="رقم / مقاس الإطار" required>
+<input type="text" id="name" placeholder="الاسم و اللقب">
+<input type="tel" id="phone" placeholder="رقم الهاتف">
 
-    <input type="number" id="qty" placeholder="الكمية" required>
+<select id="wilaya">
+ <option value="">اختر الولاية</option>
+        <option value="01 - أدرار">01 - أدرار</option>
+        <option value="02 - الشلف">02 - الشلف</option>
+        <option value="03 - الأغواط">03 - الأغواط</option>
+        <option value="04 - أم البواقي">04 - أم البواقي</option>
+        <option value="05 - باتنة">05 - باتنة</option>
+        <option value="06 - بجاية">06 - بجاية</option>
+        <option value="07 - بسكرة">07 - بسكرة</option>
+        <option value="08 - بشار">08 - بشار</option>
+        <option value="09 - البليدة">09 - البليدة</option>
+        <option value="10 - البويرة">10 - البويرة</option>
+        <option value="11 - تمنراست">11 - تمنراست</option>
+        <option value="12 - تبسة">12 - تبسة</option>
+        <option value="13 - تلمسان">13 - تلمسان</option>
+        <option value="14 - تيارت">14 - تيارت</option>
+        <option value="15 - تيزي وزو">15 - تيزي وزو</option>
+        <option value="16 - الجزائر">16 - الجزائر</option>
+        <option value="17 - الجلفة">17 - الجلفة</option>
+        <option value="18 - جيجل">18 - جيجل</option>
+        <option value="19 - سطيف">19 - سطيف</option>
+        <option value="20 - سعيدة">20 - سعيدة</option>
+        <option value="21 - سكيكدة">21 - سكيكدة</option>
+        <option value="22 - سيدي بلعباس">22 - سيدي بلعباس</option>
+        <option value="23 - عنابة">23 - عنابة</option>
+        <option value="24 - قالمة">24 - قالمة</option>
+        <option value="25 - قسنطينة">25 - قسنطينة</option>
+        <option value="26 - المدية">26 - المدية</option>
+        <option value="27 - مستغانم">27 - مستغانم</option>
+        <option value="28 - المسيلة">28 - المسيلة</option>
+        <option value="29 - معسكر">29 - معسكر</option>
+        <option value="30 - ورقلة">30 - ورقلة</option>
+        <option value="31 - وهران">31 - وهران</option>
+        <option value="32 - البيض">32 - البيض</option>
+        <option value="33 - إليزي">33 - إليزي</option>
+        <option value="34 - برج بوعريريج">34 - برج بوعريريج</option>
+        <option value="35 - بومرداس">35 - بومرداس</option>
+        <option value="36 - الطارف">36 - الطارف</option>
+        <option value="37 - تندوف">37 - تندوف</option>
+        <option value="38 - تيسمسيلت">38 - تيسمسيلت</option>
+        <option value="39 - الوادي">39 - الوادي</option>
+        <option value="40 - خنشلة">40 - خنشلة</option>
+        <option value="41 - سوق أهراس">41 - سوق أهراس</option>
+        <option value="42 - تيبازة">42 - تيبازة</option>
+        <option value="43 - ميلة">43 - ميلة</option>
+        <option value="44 - عين الدفلى">44 - عين الدفلى</option>
+        <option value="45 - النعامة">45 - النعامة</option>
+        <option value="46 - عين تموشنت">46 - عين تموشنت</option>
+        <option value="47 - غرداية">47 - غرداية</option>
+        <option value="48 - غليزان">48 - غليزان</option>
+    
+<!-- تقدر تضيف باقي الولايات -->
+</select>
 
-    <select id="contact">
-        <option value="واتساب">التواصل عبر واتساب</option>
-        <option value="مكالمة">مكالمة هاتفية</option>
-    </select>
+<input type="text" id="commune" placeholder="البلدية">
+<input type="text" id="adresse" placeholder="العنوان">
 
-    <button onclick="sendOrder()">إرسال الطلب</button>
+<input type="text" id="type" placeholder="نوع الإطار">
+<input type="text" id="size" placeholder="مقاس الإطار">
+<input type="number" id="qty" placeholder="الكمية">
+
+<button onclick="sendAll()">إرسال الطلب</button>
+
 </div>
 
 <script>
-function sendOrder() {
+function sendAll() {
 
-    let nom = document.getElementById("nom").value;
-    let prenom = document.getElementById("prenom").value;
-    let phone = document.getElementById("phone").value;
-    let wilaya = document.getElementById("wilaya").value;
-    let commune = document.getElementById("commune").value;
-    let type = document.getElementById("type").value;
-    let size = document.getElementById("size").value;
-    let qty = document.getElementById("qty").value;
-    let contact = document.getElementById("contact").value;
+    let data = {
+        name: document.getElementById("name").value,
+        phone: document.getElementById("phone").value,
+        wilaya: document.getElementById("wilaya").value,
+        commune: document.getElementById("commune").value,
+        adresse: document.getElementById("adresse").value,
+        type: document.getElementById("type").value,
+        size: document.getElementById("size").value,
+        qty: document.getElementById("qty").value
+    };
 
+    // ✅ رسالة واتساب
     let message = 
 `🛞 طلب جديد - عبايدي للعجلات
 
-👤 الاسم: ${nom} ${prenom}
-📞 الهاتف: ${phone}
+👤 ${data.name}
+📞 ${data.phone}
 
-📍 الولاية: ${wilaya}
-🏠 البلدية: ${commune}
+📍 ${data.wilaya}
+🏠 ${data.commune}
+📌 ${data.adresse}
 
-🚗 نوع الإطار: ${type}
-📏 المقاس: ${size}
-🔢 الكمية: ${qty}
+🚗 ${data.type}
+📏 ${data.size}
+🔢 ${data.qty}`;
 
-📲 طريقة التواصل: ${contact}`;
+    let whatsappNumber = "213656450486";
 
-    let whatsappNumber = "213698749015"; // ضع رقمك هنا
+    // ✅ إرسال إلى Google Sheets
+    fetch("https://script.google.com/macros/s/AKfycbwwKbcVxlSP90Us2RbAfOWQkXp6rcO353pEPRkNjh5PewFHROFKd61QAmNJksuYebHrig/exec", {
+        method: "POST",
+        body: JSON.stringify(data)
+    })
+    .then(() => {
+        // ✅ بعد النجاح افتح واتساب
+        let url = "https://wa.me/" + whatsappNumber + "?text=" + encodeURIComponent(message);
+        window.open(url, "_blank");
 
-    let url = "https://wa.me/" + whatsappNumber + "?text=" + encodeURIComponent(message);
-
-    window.open(url, "_blank");
+        alert("✅ تم إرسال الطلب");
+    })
+    .catch(() => {
+        alert("❌ حدث خطأ");
+    });
 }
 </script>
 
