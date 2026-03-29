@@ -1,4 +1,163 @@
-function sendAll() {
+
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>طلب شراء - عبايدي للعجلات</title>
+
+<style>
+body {
+    font-family: Arial;
+    background: #f4f4f4;
+    direction: rtl;
+}
+
+.container {
+    max-width: 500px;
+    margin: auto;
+    background: white;
+    padding: 15px;
+    border-radius: 10px;
+    margin-top: 20px;
+}
+
+img {
+    width: 100%;
+    border-radius: 10px;
+}
+
+input, select {
+    width: 100%;
+    padding: 10px;
+    margin: 6px 0;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+button {
+    width: 100%;
+    padding: 12px;
+    background: green;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+/* المؤقت */
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #ddd;
+    border-top: 4px solid green;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: auto;
+}
+
+@keyframes spin {
+    100% { transform: rotate(360deg); }
+}
+
+#statusText {
+    margin-top: 10px;
+    font-weight: bold;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<img src="https://i.ibb.co/QjbNvZdc/20260329-060940-0000.png">
+
+<h3>🛞 طلب شراء إطارات</h3>
+
+<input type="text" id="name" placeholder="الاسم و اللقب">
+<input type="tel" id="phone" placeholder="رقم الهاتف">
+<input type="tel" id="phone2" placeholder="رقم هاتف إضافي (اختياري)">
+
+<select id="wilaya">
+
+ <option value="">اختر الولاية</option>
+        <option value="01 - أدرار">01 - أدرار</option>
+        <option value="02 - الشلف">02 - الشلف</option>
+        <option value="03 - الأغواط">03 - الأغواط</option>
+        <option value="04 - أم البواقي">04 - أم البواقي</option>
+        <option value="05 - باتنة">05 - باتنة</option>
+        <option value="06 - بجاية">06 - بجاية</option>
+        <option value="07 - بسكرة">07 - بسكرة</option>
+        <option value="08 - بشار">08 - بشار</option>
+        <option value="09 - البليدة">09 - البليدة</option>
+        <option value="10 - البويرة">10 - البويرة</option>
+        <option value="11 - تمنراست">11 - تمنراست</option>
+        <option value="12 - تبسة">12 - تبسة</option>
+        <option value="13 - تلمسان">13 - تلمسان</option>
+        <option value="14 - تيارت">14 - تيارت</option>
+        <option value="15 - تيزي وزو">15 - تيزي وزو</option>
+        <option value="16 - الجزائر">16 - الجزائر</option>
+        <option value="17 - الجلفة">17 - الجلفة</option>
+        <option value="18 - جيجل">18 - جيجل</option>
+        <option value="19 - سطيف">19 - سطيف</option>
+        <option value="20 - سعيدة">20 - سعيدة</option>
+        <option value="21 - سكيكدة">21 - سكيكدة</option>
+        <option value="22 - سيدي بلعباس">22 - سيدي بلعباس</option>
+        <option value="23 - عنابة">23 - عنابة</option>
+        <option value="24 - قالمة">24 - قالمة</option>
+        <option value="25 - قسنطينة">25 - قسنطينة</option>
+        <option value="26 - المدية">26 - المدية</option>
+        <option value="27 - مستغانم">27 - مستغانم</option>
+        <option value="28 - المسيلة">28 - المسيلة</option>
+        <option value="29 - معسكر">29 - معسكر</option>
+        <option value="30 - ورقلة">30 - ورقلة</option>
+        <option value="31 - وهران">31 - وهران</option>
+        <option value="32 - البيض">32 - البيض</option>
+        <option value="33 - إليزي">33 - إليزي</option>
+        <option value="34 - برج بوعريريج">34 - برج بوعريريج</option>
+        <option value="35 - بومرداس">35 - بومرداس</option>
+        <option value="36 - الطارف">36 - الطارف</option>
+        <option value="37 - تندوف">37 - تندوف</option>
+        <option value="38 - تيسمسيلت">38 - تيسمسيلت</option>
+        <option value="39 - الوادي">39 - الوادي</option>
+        <option value="40 - خنشلة">40 - خنشلة</option>
+        <option value="41 - سوق أهراس">41 - سوق أهراس</option>
+        <option value="42 - تيبازة">42 - تيبازة</option>
+        <option value="43 - ميلة">43 - ميلة</option>
+        <option value="44 - عين الدفلى">44 - عين الدفلى</option>
+        <option value="45 - النعامة">45 - النعامة</option>
+        <option value="46 - عين تموشنت">46 - عين تموشنت</option>
+        <option value="47 - غرداية">47 - غرداية</option>
+        <option value="48 - غليزان">48 - غليزان</option>
+    <option value="49 - تيميمون">49 - تيميمون</option>
+<option value="50 - برج باجي مختار">50 - برج باجي مختار</option>
+<option value="51 - أولاد جلال">51 - أولاد جلال</option>
+<option value="52 - بني عباس">52 - بني عباس</option>
+<option value="53 - عين صالح">53 - عين صالح</option>
+<option value="54 - عين قزام">54 - عين قزام</option>
+<option value="55 - تقرت">55 - تقرت</option>
+<option value="56 - جانت">56 - جانت</option>
+<option value="57 - المغير">57 - المغير</option>
+<option value="58 - المنيعة">58 - المنيعة</option>
+</select>
+
+<input type="text" id="commune" placeholder="البلدية">
+<input type="text" id="adresse" placeholder="العنوان">
+
+<input type="text" id="type" placeholder="نوع الإطار">
+<input type="text" id="size" placeholder="مقاس الإطار">
+<input type="number" id="qty" placeholder="الكمية">
+
+<button onclick="sendAll()">إرسال الطلب</button>
+
+<div id="statusBox" style="display:none; text-align:center; margin-top:10px;">
+    <div class="spinner"></div>
+    <p id="statusText">جاري إرسال الطلب...</p>
+</div>
+
+<script>function sendAll() {
     let btn = document.querySelector("button");
     let box = document.getElementById("statusBox");
     let text = document.getElementById("statusText");
@@ -99,3 +258,11 @@ function sendAll() {
         btn.innerText = "إرسال الطلب";
     });
 }
+</script>
+
+</body>
+</html>
+
+
+
+
