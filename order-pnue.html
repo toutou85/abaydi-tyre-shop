@@ -43,6 +43,26 @@ button {
     border-radius: 5px;
     font-size: 16px;
 }
+<style>
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #ddd;
+    border-top: 4px solid green;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: auto;
+}
+
+@keyframes spin {
+    100% { transform: rotate(360deg); }
+}
+
+#statusText {
+    margin-top: 10px;
+    font-weight: bold;
+}
+</style>
 </style>
 
 </head>
@@ -129,37 +149,71 @@ button {
 <input type="number" id="qty" placeholder="الكمية">
 
 <button onclick="sendAll()">إرسال الطلب</button>
+<!-- أضف هذا تحت الزر -->
+<div id="statusBox" style="display:none; text-align:center; margin-top:10px;">
+    <div class="spinner"></div>
+    <p id="statusText">جاري إرسال الطلب...</p>
 
 </div>
 
 <script>
 function sendAll() {
 
-    let now = new Date();
+    let btn = document.querySelector("button");
+    let box = document.getElementById("statusBox");
+    let text = document.getElementById("statusText");
 
-    let dateString = now.getFullYear() + "-" +
-    ("0" + (now.getMonth() + 1)).slice(-2) + "-" +
-    ("0" + now.getDate()).slice(-2) + " " +
-    ("0" + now.getHours()).slice(-2) + ":" +
-    ("0" + now.getMinutes()).slice(-2);
+    // ✅ جلب البيانات
+    let name = document.getElementById("name").value.trim();
+    let phone = document.getElementById("phone").value.trim();
+    let phone2 = document.getElementById("phone2").value.trim();
+    let wilaya = document.getElementById("wilaya").value;
+    let commune = document.getElementById("commune").value.trim();
+    let adresse = document.getElementById("adresse").value.trim();
+    let type = document.getElementById("type").value.trim();
+    let size = document.getElementById("size").value.trim();
+    let qty = document.getElementById("qty").value;
+
+    // ✅ تحقق من الحقول (إجباري)
+    if (!name || !phone || !wilaya || !commune || !adresse || !type || !size || !qty) {
+        box.style.display = "block";
+        text.innerText = "⚠️ يرجى ملء جميع الخانات";
+        text.style.color = "red";
+        return;
+    }
+
+    // ✅ التاريخ
+    let now = new Date();
+    let dateString = now.toLocaleString("fr-FR");
 
     let data = {
-        date: dateString, // ✅ أضفنا التاريخ هنا
-        name: document.getElementById("name").value,
-        phone: document.getElementById("phone").value,
-        wilaya: document.getElementById("wilaya").value,
-        commune: document.getElementById("commune").value,
-        adresse: document.getElementById("adresse").value,
-        type: document.getElementById("type").value,
-        size: document.getElementById("size").value,
-        qty: document.getElementById("qty").value
+        date: dateString,
+        name,
+        phone,
+        phone2,
+        wilaya,
+        commune,
+        adresse,
+        type,
+        size,
+        qty
     };
+
+    // ✅ إظهار التحميل
+    box.style.display = "block";
+    text.innerText = "⏳ جاري إرسال الطلب...";
+    text.style.color = "black";
+    btn.disabled = true;
+    btn.innerText = "جاري الإرسال...";
+
     // ✅ رسالة واتساب
     let message = 
 `🛞 طلب جديد - عبايدي للعجلات
-📅 التاريخ: ${data.date}
+
+📅 ${data.date}
 👤 ${data.name}
 📞 ${data.phone}
+📞 إضافي: ${data.phone2 || "لا يوجد"}
 
 📍 ${data.wilaya}
 🏠 ${data.commune}
@@ -177,14 +231,24 @@ function sendAll() {
         body: JSON.stringify(data)
     })
     .then(() => {
-        // ✅ بعد النجاح افتح واتساب
+
         let url = "https://wa.me/" + whatsappNumber + "?text=" + encodeURIComponent(message);
         window.open(url, "_blank");
 
-        alert("✅ تم إرسال الطلب");
+        text.innerText = "✅ تم إرسال الطلب بنجاح";
+        text.style.color = "green";
+
+        btn.disabled = false;
+        btn.innerText = "إرسال الطلب";
+
     })
     .catch(() => {
-        alert("❌ حدث خطأ");
+
+        text.innerText = "❌ حدث خطأ، حاول مرة أخرى";
+        text.style.color = "red";
+
+        btn.disabled = false;
+        btn.innerText = "إرسال الطلب";
     });
 }
 </script>
