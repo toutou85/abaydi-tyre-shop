@@ -79,7 +79,36 @@ button {
     text-align: right;
 }
 
+.error {
+    border: 2px solid red !important;
+    background: #ffe6e6;
+    animation: shake 0.3s;
+}
 
+@keyframes shake {
+    0% { transform: translateX(0); }
+    25% { transform: translateX(4px); }
+    50% { transform: translateX(-4px); }
+    75% { transform: translateX(4px); }
+    100% { transform: translateX(0); }
+}
+
+/* إشعار جميل */
+.toast {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #e74c3c;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 6px;
+    opacity: 0;
+    transition: 0.4s;
+}
+
+.toast.show {
+    opacity: 1;
+}
 </style>
 
 </head>
@@ -298,12 +327,29 @@ function sendAll() {
     let qty = document.getElementById("qty").value;
 
     // تحقق
-    if (!name || !phone || !wilaya || !commune || !adresse || !type || !size || !qty) {
-        box.style.display = "block";
-        text.innerText = "⚠️ يرجى ملء جميع الخانات";
-        text.style.color = "red";
-        return;
-    }
+    let fields = [
+document.getElementById("name"),
+document.getElementById("phone"),
+document.getElementById("wilaya"),
+document.getElementById("commune"),
+document.getElementById("adresse"),
+document.getElementById("type"),
+document.getElementById("size"),
+document.getElementById("qty")
+];
+
+let firstError=null;
+
+fields.forEach(f=>{
+if(!validateField(f) && !firstError) firstError=f;
+});
+
+if(firstError){
+showToast("⚠️ يرجى ملء جميع الخانات");
+firstError.scrollIntoView({behavior:"smooth"});
+firstError.focus();
+return;
+}
 
     // التاريخ
     let now = new Date();
@@ -401,6 +447,25 @@ showNoticeBtn.addEventListener("click", () => {
         noticePopup.style.display = "none";
         showNoticeBtn.style.display = "block";
     }, 5000); // 3 ثواني
+});
+function showToast(msg){
+let t=document.getElementById("toast");
+t.innerText=msg;
+t.classList.add("show");
+setTimeout(()=>t.classList.remove("show"),3000);
+}
+
+function validateField(f){
+if(!f.value.trim()){
+f.classList.add("error");
+return false;
+}
+f.classList.remove("error");
+return true;
+}
+
+document.querySelectorAll("input,select").forEach(f=>{
+f.addEventListener("input",()=>f.classList.remove("error"));
 });
 </script>
 
