@@ -3,137 +3,185 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>📦 طلبات الزبائن</title>
+<title>لوحة التحكم</title>
 
 <style>
 body {
     font-family: Arial;
-    background: #f4f4f4;
     direction: rtl;
-    padding: 10px;
+    background: #f4f4f4;
+}
+
+.container {
+    max-width: 1100px;
+    margin: auto;
+    background: white;
+    padding: 15px;
+    border-radius: 10px;
 }
 
 h2 {
     text-align: center;
 }
 
-.search-box {
-    width: 95%;
+#search {
+    width: 100%;
     padding: 10px;
-    margin: 10px auto;
-    display: block;
+    margin-bottom: 10px;
+}
+
+.stats {
+    background: #e8f5e9;
+    padding: 10px;
+    margin-bottom: 10px;
     border-radius: 5px;
-    border: 1px solid #ccc;
 }
 
 table {
     width: 100%;
     border-collapse: collapse;
-    background: white;
+}
+
+th, td {
+    padding: 8px;
+    border: 1px solid #ddd;
+    text-align: center;
 }
 
 th {
     background: green;
     color: white;
-    padding: 10px;
 }
 
-td {
-    padding: 8px;
-    border-bottom: 1px solid #ddd;
-    text-align: center;
+.new {
+    background: #d4edda;
 }
 
-tr:hover {
-    background: #f1f1f1;
-}
-
-.refresh {
-    display: block;
-    margin: 10px auto;
-    padding: 10px;
-    background: orange;
+button.delete {
+    background: red;
     color: white;
     border: none;
-    border-radius: 5px;
+    padding: 5px;
+    cursor: pointer;
 }
-
 </style>
 </head>
 
 <body>
 
+<div class="container" id="loginBox">
+<h2>🔐 تسجيل الدخول</h2>
+<input type="password" id="password" placeholder="ادخل كلمة السر">
+<button onclick="login()">دخول</button>
+</div>
+
+<div class="container" id="panel" style="display:none;">
+
 <h2>📦 طلبات الزبائن</h2>
 
-<input type="text" id="search" class="search-box" placeholder="🔍 ابحث عن اسم أو رقم هاتف...">
+<div class="stats" id="stats"></div>
 
-<button class="refresh" onclick="loadData()">🔄 تحديث</button>
+<input type="text" id="search" placeholder="🔍 ابحث...">
 
 <table>
-    <thead>
-        <tr>
-            <th>📅 التاريخ</th>
-            <th>👤 الاسم</th>
-            <th>📞 الهاتف</th>
-            <th>📍 الولاية</th>
-            <th>🏠 المكتب</th>
-            <th>🚗 الإطار</th>
-            <th>🔢 الكمية</th>
-        </tr>
-    </thead>
-    <tbody id="tableData"></tbody>
+<thead>
+<tr>
+<th>التاريخ</th>
+<th>الاسم</th>
+<th>الهاتف</th>
+<th>الولاية</th>
+<th>المكتب</th>
+<th>العنوان</th>
+<th>الإطار</th>
+<th>الكمية</th>
+<th>حذف</th>
+</tr>
+</thead>
+<tbody id="table"></tbody>
 </table>
+
+</div>
 
 <script>
 
+const API = "https://script.google.com/macros/s/AKfycbxLvMoeXSCmHe5vDqTYGsW24hcGjWu_2TyUPlEyc57TUEQe5DHDWjLzPcpmgKYBJmL1-Q/exec";
+const PASSWORD = "1234"; // غيرها
+
 let allData = [];
 
+// تسجيل الدخول
+function login() {
+    let pass = document.getElementById("password").value;
+
+    if (pass === PASSWORD) {
+        document.getElementById("loginBox").style.display = "none";
+        document.getElementById("panel").style.display = "block";
+        loadData();
+    } else {
+        alert("❌ كلمة السر خاطئة");
+    }
+}
+
+// تحميل البيانات
 function loadData() {
-    fetch("https://script.google.com/macros/s/AKfycbxLvMoeXSCmHe5vDqTYGsW24hcGjWu_2TyUPlEyc57TUEQe5DHDWjLzPcpmgKYBJmL1-Q/exec")
+    fetch(API)
     .then(res => res.json())
     .then(data => {
-        allData = data.reverse(); // الأحدث أولاً
-        displayData(allData);
+        allData = data.reverse();
+        showData(allData);
+        document.getElementById("stats").innerText = "📊 عدد الطلبات: " + allData.length;
     });
 }
 
-function displayData(data) {
-    let table = document.getElementById("tableData");
+// عرض البيانات
+function showData(data) {
+
+    let table = document.getElementById("table");
     table.innerHTML = "";
 
-    data.forEach(item => {
+    data.forEach((order, i) => {
+
+        let isNew = i < 3 ? "new" : ""; // آخر 3 طلبات
+
         let row = `
-        <tr>
-            <td>${item.date}</td>
-            <td>${item.name}</td>
-            <td>${item.phone}</td>
-            <td>${item.wilaya}</td>
-            <td>${item.commune}</td>
-            <td>${item.tireInfo}</td>
-            <td>${item.qty}</td>
-        </tr>`;
+        <tr class="${isNew}">
+            <td>${order.date}</td>
+            <td>${order.name}</td>
+            <td>${order.phone}</td>
+            <td>${order.wilaya}</td>
+            <td>${order.commune}</td>
+            <td>${order.adresse}</td>
+            <td>${order.tireInfo}</td>
+            <td>${order.qty}</td>
+            <td><button class="delete" onclick="deleteOrder(${order.index})">🗑</button></td>
+        </tr>
+        `;
+
         table.innerHTML += row;
     });
 }
 
 // البحث
-document.getElementById("search").addEventListener("keyup", function() {
+document.getElementById("search").addEventListener("input", function () {
     let value = this.value.toLowerCase();
 
-    let filtered = allData.filter(item =>
-        item.name.toLowerCase().includes(value) ||
-        item.phone.includes(value)
+    let filtered = allData.filter(o =>
+        Object.values(o).join(" ").toLowerCase().includes(value)
     );
 
-    displayData(filtered);
+    showData(filtered);
 });
 
-// تحميل أولي
-loadData();
+// حذف
+function deleteOrder(index) {
 
-// تحديث تلقائي كل 30 ثانية
-setInterval(loadData, 30000);
+    if (!confirm("هل تريد حذف الطلب؟")) return;
+
+    fetch(API + "?action=delete&index=" + index)
+    .then(() => {
+        loadData();
+    });
+}
 
 </script>
 
