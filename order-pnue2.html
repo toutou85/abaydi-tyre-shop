@@ -3,293 +3,185 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>طلب شراء - عبايدي للعجلات</title>
+<title>لوحة التحكم</title>
 
 <style>
 body {
     font-family: Arial;
-    background: #f4f4f4;
     direction: rtl;
+    background: #f4f4f4;
 }
 
 .container {
-    max-width: 500px;
+    max-width: 1100px;
     margin: auto;
     background: white;
     padding: 15px;
     border-radius: 10px;
-    margin-top: 20px;
 }
 
-img {
-    width: 90%;
-    border-radius: 10px;
+h2 {
+    text-align: center;
 }
 
-input, select {
-    width: 90%;
+#search {
+    width: 100%;
     padding: 10px;
-    margin: 6px 0;
-    border-radius: 5px;
-    border: 1px solid #ccc;
+    margin-bottom: 10px;
 }
 
-button {
-    width: 90%;
-    padding: 12px;
+.stats {
+    background: #e8f5e9;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 8px;
+    border: 1px solid #ddd;
+    text-align: center;
+}
+
+th {
     background: green;
     color: white;
-    border: none;
-    border-radius: 5px;
-    font-size: 16px;
 }
 
-/* spinner */
-.spinner {
-    width: 40px;
-    height: 40px;
-    border: 4px solid #ddd;
-    border-top: 4px solid green;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-    margin: auto;
+.new {
+    background: #d4edda;
 }
 
-@keyframes spin {
-    100% { transform: rotate(360deg); }
-}
-
-/* إشعار */
-.toast {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    background: rgba(220, 53, 69, 0.9);
+button.delete {
+    background: red;
     color: white;
-    padding: 12px 18px;
-    border-radius: 8px;
-    font-size: 14px;
-    opacity: 0;
-    transform: translateY(20px);
-    transition: 0.4s;
-    z-index: 999;
-}
-.toast.show {
-    opacity: 1;
-    transform: translateY(0);
-}
-
-/* خطأ */
-.error {
-    border: 2px solid red !important;
-    background: #ffe6e6;
-}
-
-/* نافذة الملاحظة */
-#noticePopup {
-    display:none;
-    width: 90%;
-    margin-top: 10px;
-    background: rgba(255, 255, 224, 0.7);
-    border: 1.5px solid #ffc107;
-    padding: 15px;
-    border-radius: 12px;
-    font-size: 13px;
-}
-
-/* زر جانبي */
-#showNoticeBtn {
-    position: fixed;
-    left: 5px;
-    top: 40%;
-    background: rgba(255,193,7,0.6);
     border: none;
-    padding: 8px;
-    border-radius: 6px;
-    font-size: 12px;
+    padding: 5px;
     cursor: pointer;
-    display:none;
 }
 </style>
 </head>
 
 <body>
 
-<div class="container">
-
-<img src="https://i.ibb.co/QjbNvZdc/20260329-060940-0000.png">
-
-<!-- الملاحظة -->
-<div id="noticePopup">
-📌 <strong>ملاحظة هامة:</strong><br>
-نظرًا لندرة العجلات 🛞🚗، نرجو من زبائننا الكرام تعبئة الطلبية مسبقًا 📝، وسيتم التواصل معكم فور توفرها 📞<br><br>
-🚚 التوصيل متوفر إلى 58 ولاية<br>
-💵 الدفع عند الاستلام
+<div class="container" id="loginBox">
+<h2>🔐 تسجيل الدخول</h2>
+<input type="password" id="password" placeholder="ادخل كلمة السر">
+<button onclick="login()">دخول</button>
 </div>
 
-<h3>🛞 طلب شراء إطارات</h3>
+<div class="container" id="panel" style="display:none;">
 
-<input type="text" id="name" placeholder="الاسم و اللقب">
-<input type="tel" id="phone" placeholder="رقم الهاتف">
-<input type="tel" id="phone2" placeholder="رقم هاتف إضافي (اختياري)">
+<h2>📦 طلبات الزبائن</h2>
 
-<select id="wilaya">
-<option value="">اختر الولاية</option>
-<option value="01 - أدرار">01 - أدرار</option>
-<option value="02 - الشلف">02 - الشلف</option>
-<option value="03 - الأغواط">03 - الأغواط</option>
-<option value="04 - أم البواقي">04 - أم البواقي</option>
-<option value="05 - باتنة">05 - باتنة</option>
-<option value="06 - بجاية">06 - بجاية</option>
-<option value="07 - بسكرة">07 - بسكرة</option>
-<option value="08 - بشار">08 - بشار</option>
-<option value="09 - البليدة">09 - البليدة</option>
-<option value="10 - البويرة">10 - البويرة</option>
-<option value="11 - تمنراست">11 - تمنراست</option>
-<option value="12 - تبسة">12 - تبسة</option>
-<option value="13 - تلمسان">13 - تلمسان</option>
-<option value="14 - تيارت">14 - تيارت</option>
-<option value="15 - تيزي وزو">15 - تيزي وزو</option>
-<option value="16 - الجزائر">16 - الجزائر</option>
-<option value="17 - الجلفة">17 - الجلفة</option>
-<option value="18 - جيجل">18 - جيجل</option>
-<option value="19 - سطيف">19 - سطيف</option>
-<option value="20 - سعيدة">20 - سعيدة</option>
-<option value="21 - سكيكدة">21 - سكيكدة</option>
-<option value="22 - سيدي بلعباس">22 - سيدي بلعباس</option>
-<option value="23 - عنابة">23 - عنابة</option>
-<option value="24 - قالمة">24 - قالمة</option>
-<option value="25 - قسنطينة">25 - قسنطينة</option>
-<option value="26 - المدية">26 - المدية</option>
-<option value="27 - مستغانم">27 - مستغانم</option>
-<option value="28 - المسيلة">28 - المسيلة</option>
-<option value="29 - معسكر">29 - معسكر</option>
-<option value="30 - ورقلة">30 - ورقلة</option>
-<option value="31 - وهران">31 - وهران</option>
-<option value="32 - البيض">32 - البيض</option>
-<option value="33 - إليزي">33 - إليزي</option>
-<option value="34 - برج بوعريريج">34 - برج بوعريريج</option>
-<option value="35 - بومرداس">35 - بومرداس</option>
-<option value="36 - الطارف">36 - الطارف</option>
-<option value="37 - تندوف">37 - تندوف</option>
-<option value="38 - تيسمسيلت">38 - تيسمسيلت</option>
-<option value="39 - الوادي">39 - الوادي</option>
-<option value="40 - خنشلة">40 - خنشلة</option>
-<option value="41 - سوق أهراس">41 - سوق أهراس</option>
-<option value="42 - تيبازة">42 - تيبازة</option>
-<option value="43 - ميلة">43 - ميلة</option>
-<option value="44 - عين الدفلى">44 - عين الدفلى</option>
-<option value="45 - النعامة">45 - النعامة</option>
-<option value="46 - عين تموشنت">46 - عين تموشنت</option>
-<option value="47 - غرداية">47 - غرداية</option>
-<option value="48 - غليزان">48 - غليزان</option>
-<option value="49 - تيميمون">49 - تيميمون</option>
-<option value="50 - برج باجي مختار">50 - برج باجي مختار</option>
-<option value="51 - أولاد جلال">51 - أولاد جلال</option>
-<option value="52 - بني عباس">52 - بني عباس</option>
-<option value="53 - عين صالح">53 - عين صالح</option>
-<option value="54 - عين قزام">54 - عين قزام</option>
-<option value="55 - تقرت">55 - تقرت</option>
-<option value="56 - جانت">56 - جانت</option>
-<option value="57 - المغير">57 - المغير</option>
-<option value="58 - المنيعة">58 - المنيعة</option>
-</select>
+<div class="stats" id="stats"></div>
 
-<select id="commune">
-<option value="">اختر المكتب</option>
-</select>
+<input type="text" id="search" placeholder="🔍 ابحث...">
 
-<input type="text" id="adresse" placeholder="العنوان">
-<input type="text" id="type" placeholder="نوع الإطار">
-<input type="text" id="size" placeholder="مقاس الإطار">
-<input type="number" id="qty" placeholder="الكمية">
-
-<button onclick="sendAll()">إرسال الطلب</button>
-
-<div id="statusBox" style="display:none;text-align:center;">
-<div class="spinner"></div>
-<p id="statusText"></p>
-</div>
+<table>
+<thead>
+<tr>
+<th>التاريخ</th>
+<th>الاسم</th>
+<th>الهاتف</th>
+<th>الولاية</th>
+<th>المكتب</th>
+<th>العنوان</th>
+<th>الإطار</th>
+<th>الكمية</th>
+<th>حذف</th>
+</tr>
+</thead>
+<tbody id="table"></tbody>
+</table>
 
 </div>
-
-<button id="showNoticeBtn">📌</button>
-<div id="toast"></div>
 
 <script>
 
-// إشعار
-function showToast(msg){
-let t=document.getElementById("toast");
-t.innerText=msg;
-t.classList.add("show");
-setTimeout(()=>t.classList.remove("show"),3000);
+const API = "ضع_هنا_رابط_Apps_Script";
+const PASSWORD = "1234"; // غيرها
+
+let allData = [];
+
+// تسجيل الدخول
+function login() {
+    let pass = document.getElementById("password").value;
+
+    if (pass === PASSWORD) {
+        document.getElementById("loginBox").style.display = "none";
+        document.getElementById("panel").style.display = "block";
+        loadData();
+    } else {
+        alert("❌ كلمة السر خاطئة");
+    }
 }
 
-// تحقق
-function validateField(f){
-if(!f.value.trim()){
-f.classList.add("error");
-return false;
-}
-f.classList.remove("error");
-return true;
+// تحميل البيانات
+function loadData() {
+    fetch(API)
+    .then(res => res.json())
+    .then(data => {
+        allData = data.reverse();
+        showData(allData);
+        document.getElementById("stats").innerText = "📊 عدد الطلبات: " + allData.length;
+    });
 }
 
-// إزالة الخطأ عند الكتابة
-document.querySelectorAll("input,select").forEach(f=>{
-f.addEventListener("input",()=>f.classList.remove("error"));
+// عرض البيانات
+function showData(data) {
+
+    let table = document.getElementById("table");
+    table.innerHTML = "";
+
+    data.forEach((order, i) => {
+
+        let isNew = i < 3 ? "new" : ""; // آخر 3 طلبات
+
+        let row = `
+        <tr class="${isNew}">
+            <td>${order.date}</td>
+            <td>${order.name}</td>
+            <td>${order.phone}</td>
+            <td>${order.wilaya}</td>
+            <td>${order.commune}</td>
+            <td>${order.adresse}</td>
+            <td>${order.tireInfo}</td>
+            <td>${order.qty}</td>
+            <td><button class="delete" onclick="deleteOrder(${order.index})">🗑</button></td>
+        </tr>
+        `;
+
+        table.innerHTML += row;
+    });
+}
+
+// البحث
+document.getElementById("search").addEventListener("input", function () {
+    let value = this.value.toLowerCase();
+
+    let filtered = allData.filter(o =>
+        Object.values(o).join(" ").toLowerCase().includes(value)
+    );
+
+    showData(filtered);
 });
 
-// إرسال
-function sendAll(){
+// حذف
+function deleteOrder(index) {
 
-let fields=[name,phone,wilaya,commune,adresse,type,size,qty];
-let firstError=null;
+    if (!confirm("هل تريد حذف الطلب؟")) return;
 
-fields.forEach(f=>{
-if(!validateField(f) && !firstError) firstError=f;
-});
-
-if(firstError){
-showToast("⚠️ يرجى ملء جميع الخانات");
-firstError.scrollIntoView({behavior:"smooth"});
-firstError.focus();
-return;
+    fetch(API + "?action=delete&index=" + index)
+    .then(() => {
+        loadData();
+    });
 }
-
-let box=document.getElementById("statusBox");
-let text=document.getElementById("statusText");
-
-box.style.display="block";
-text.innerText="⏳ جاري الإرسال...";
-
-setTimeout(()=>{
-text.innerText="✅ تم إرسال الطلب";
-},1500);
-
-}
-
-// الملاحظة
-const notice=document.getElementById("noticePopup");
-const btn=document.getElementById("showNoticeBtn");
-
-window.onload=()=>{
-notice.style.display="block";
-setTimeout(()=>{
-notice.style.display="none";
-btn.style.display="block";
-},5000);
-};
-
-btn.onclick=()=>{
-notice.style.display="block";
-btn.style.display="none";
-setTimeout(()=>{
-notice.style.display="none";
-btn.style.display="block";
-},5000);
-};
 
 </script>
 
