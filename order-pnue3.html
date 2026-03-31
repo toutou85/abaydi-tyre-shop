@@ -93,64 +93,29 @@ function loadData() {
     .then(data => {
 
       let html = "";
-.then(data => {
 
-  let html = "";
+      // ✅ نحافظ على index الأصلي
+      let sorted = data.map((row, i) => ({ ...row, originalIndex: i }));
 
-  // ✅ نحافظ على index الأصلي
-  let sorted = data.map((row, i) => ({ ...row, originalIndex: i }));
+      // ✅ ترتيب حسب التاريخ (الأحدث أولاً)
+      sorted.sort((a, b) => new Date(b.date) - new Date(a.date));
 
-  // ✅ نعكس الترتيب (الأحدث أولاً)
-  sorted.reverse();
-
-  sorted.forEach((row) => {
-    html += `
-    <tr>
-      <td><input value="${row.name || ''}" onchange="updateRow(${row.originalIndex},'name',this.value)"></td>
-      <td><input value="${row.phone || ''}" onchange="updateRow(${row.originalIndex},'phone',this.value)"></td>
-      <td><input value="${row.wilaya || ''}" onchange="updateRow(${row.originalIndex},'wilaya',this.value)"></td>
-      <td><input value="${row.commune || ''}" onchange="updateRow(${row.originalIndex},'commune',this.value)"></td>
-      <td><input value="${row.adresse || ''}" onchange="updateRow(${row.originalIndex},'adresse',this.value)"></td>
-      <td><input value="${row.product || ''}" onchange="updateRow(${row.originalIndex},'product',this.value)"></td>
-      <td>
-        <input value="${formatDate(row.date) || ''}" onchange="updateRow(${row.originalIndex},'date',this.value)">
-      </td>
-      <td>
-        <textarea onchange="updateRow(${row.originalIndex},'note',this.value)" style="width:100%; height:80px;">${row.note || ''}</textarea>
-      </td>
-      <td><button onclick="deleteRow(${row.originalIndex})">❌</button></td>
-    </tr>`;
-  });
-
-  document.getElementById("data").innerHTML = html;
-})
+      sorted.forEach((row) => {
         html += `
         <tr>
-          <td><input value="${row.name || ''}" onchange="updateRow(${i},'name',this.value)"></td>
-          <td><input value="${row.phone || ''}" onchange="updateRow(${i},'phone',this.value)"></td>
-          
-          <td><input value="${row.wilaya || ''}" onchange="updateRow(${i},'wilaya',this.value)"></td>
-          <td><input value="${row.commune || ''}" onchange="updateRow(${i},'commune',this.value)"></td>
-          <td><input value="${row.adresse || ''}" onchange="updateRow(${i},'adresse',this.value)"></td>
-          <td><input value="${row.product || ''}" onchange="updateRow(${i},'product',this.value)"></td>
-        
-<td>
-  <input 
-    value="${formatDate(row.date) || ''}" 
-    onchange="updateRow(${i},'date',this.value)"
-  >
-</td>
-
-
-
-
-<td>
-  <textarea onchange="updateRow(${i},'note',this.value)" 
-            style="width:100%; height:80px;">${row.note || ''}</textarea>
-</td>
-        
-
-  <td><button onclick="deleteRow(${i})">❌</button></td>
+          <td><input value="${row.name || ''}" onchange="updateRow(${row.originalIndex},'name',this.value)"></td>
+          <td><input value="${row.phone || ''}" onchange="updateRow(${row.originalIndex},'phone',this.value)"></td>
+          <td><input value="${row.wilaya || ''}" onchange="updateRow(${row.originalIndex},'wilaya',this.value)"></td>
+          <td><input value="${row.commune || ''}" onchange="updateRow(${row.originalIndex},'commune',this.value)"></td>
+          <td><input value="${row.adresse || ''}" onchange="updateRow(${row.originalIndex},'adresse',this.value)"></td>
+          <td><input value="${row.product || ''}" onchange="updateRow(${row.originalIndex},'product',this.value)"></td>
+          <td>
+            <input value="${formatDate(row.date) || ''}" onchange="updateRow(${row.originalIndex},'date',this.value)">
+          </td>
+          <td>
+            <textarea onchange="updateRow(${row.originalIndex},'note',this.value)" style="width:100%; height:80px;">${row.note || ''}</textarea>
+          </td>
+          <td><button onclick="deleteRow(${row.originalIndex})">❌</button></td>
         </tr>`;
       });
 
