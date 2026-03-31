@@ -111,7 +111,23 @@ onkeyup="applyFilters()"
 
 const url = "https://script.google.com/macros/s/AKfycbxk0VpVSa4ZRXX5UOPqDrTfPwK467qCMcQ0c9f-Dd4s49Do7IayFJnXpBwXzqn3AIzAIQ/exec";
 
+
+let allData = [];
+let visibleCount = 5;
 // تحميل البيانات
+function loadData() {
+  fetch(url)
+    .then(res => res.json())
+    .then(data => {
+      allData = data; // تخزين البيانات
+
+      renderTable();
+    })
+    .catch(err => {
+      alert("❌ خطأ في تحميل البيانات");
+      console.error(err);
+    });
+}
 function loadData() {
   fetch(url)
     .then(res => res.json())
