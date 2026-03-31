@@ -69,8 +69,6 @@ button:hover {
 <tr>
 <th>الاسم</th>
 <th>الهاتف1</th>
-<th>الهاتف2</th>
-<th>الكود</th>
 <th>الولاية</th>
 <th>البلدية</th>
 <th>العنوان</th>
@@ -135,7 +133,18 @@ function loadData() {
 }
 
 // تعديل
+
 function updateRow(index, field, value) {
+
+  // إذا التعديل على الملاحظة
+  if (field === "note") {
+
+    let now = new Date();
+    let formattedDate = formatDate(now);
+
+    value = value + " | 🕒 " + formattedDate;
+  }
+
   fetch(url, {
     method: "POST",
     body: JSON.stringify({
