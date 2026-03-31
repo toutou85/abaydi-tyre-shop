@@ -115,8 +115,10 @@ function loadData() {
 
 
 
-
-          <td><input value="${row.note || ''}" onchange="updateRow(${i},'note',this.value)"></td>
+<td>
+  <textarea onchange="updateRow(${i},'note',this.value)" 
+            style="width:100%; height:80px;">${row.note || ''}</textarea>
+</td>
         
 
   <td><button onclick="deleteRow(${i})">❌</button></td>
@@ -135,13 +137,13 @@ function loadData() {
 
 function updateRow(index, field, value) {
 
-  // إذا التعديل على الملاحظة
   if (field === "note") {
 
     let now = new Date();
     let formattedDate = formatDate(now);
 
-    value = value + " | 🕒 " + formattedDate;
+    // إضافة الملاحظة في سطر جديد
+    value = value + "\n🕒 " + formattedDate + "\n-----------------\n";
   }
 
   fetch(url, {
