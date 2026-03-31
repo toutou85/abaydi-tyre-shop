@@ -78,7 +78,13 @@ button:hover {
 <th>الولاية</th>
 <th>البلدية</th>
 <th>العنوان</th>
-<th>المنتج</th>
+<th>
+  المنتج ⬇️
+  <br>
+  <select id="productSelect" onchange="filterByProduct()">
+    <option value="">الكل</option>
+  </select>
+</th>
 <th>التاريخ</th>
 <th>الملاحظات</th>
 <th>حذف</th>
