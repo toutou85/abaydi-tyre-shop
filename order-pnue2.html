@@ -42,13 +42,16 @@ button {
 <table>
 <thead>
 <tr>
-<th>الاسم</th>
-<th>الهاتف</th>
-<th>الولاية</th>
-<th>المنتج</th>
-<th>التاريخ</th>
-<th>الملاحظات</th>
-<th>حذف</th>
+  <th>الاسم</th>
+  <th>الهاتف 1</th>
+  <th>الهاتف 2</th>
+  <th>كود</th>
+  <th>الولاية</th>
+  <th>البلدية</th>
+  <th>المنتج</th>
+  <th>التاريخ</th>
+  <th>الملاحظات</th>
+  <th>حذف</th>
 </tr>
 </thead>
 
@@ -66,13 +69,20 @@ function loadData() {
       let html = "";
 
       data.forEach((row, i) => {
-        html += `
-        <tr>
-          <td>${row.name || ""}</td>
-          <td>${row.phone || ""}</td>
-          <td>${row.wilaya || ""}</td>
-          <td>${row.product || ""}</td>
-          <td>${row.date || ""}</td>
+        
+
+html += `
+<tr>
+  <td>${row.name || ""}</td>
+  <td>${row.phone || ""}</td>
+  <td>${row.phone2 || ""}</td>
+  <td>${row.code || ""}</td>
+  <td>${row.wilaya || ""}</td>
+  <td>${row.commune || ""}</td>
+  <td>${row.product || ""}</td>
+  <td>${row.date || ""}</td>
+
+  
 
           <td>
             <input value="${row.note || ""}" 
