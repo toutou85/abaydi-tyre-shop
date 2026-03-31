@@ -57,6 +57,17 @@ button {
 button:hover {
   background: darkred;
 }
+#toast {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: #4CAF50;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 5px;
+  display: none;
+  z-index: 999;
+}
 </style>
 
 </head>
@@ -95,7 +106,7 @@ onkeyup="applyFilters()"
 
 <tbody id="data"></tbody>
 </table>
-
+<div id="toast">✅ تم حفظ التعديل</div>
 <script>
 
 const url = "https://script.google.com/macros/s/AKfycbxk0VpVSa4ZRXX5UOPqDrTfPwK467qCMcQ0c9f-Dd4s49Do7IayFJnXpBwXzqn3AIzAIQ/exec";
@@ -184,6 +195,15 @@ function updateRow(index, field, value) {
       value: value
     })
   });
+}
+function showToast(message = "✅ تم الحفظ") {
+  let toast = document.getElementById("toast");
+  toast.innerText = message;
+  toast.style.display = "block";
+
+  setTimeout(() => {
+    toast.style.display = "none";
+  }, 2000);
 }
 function formatDate(dateString) {
   if (!dateString) return "";
