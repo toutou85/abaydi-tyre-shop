@@ -99,6 +99,7 @@ function loadData() {
     .then(data => {
 
       let html = "";
+let productSet = new Set();
 
       // ✅ نحافظ على index الأصلي
       let sorted = data.map((row, i) => ({ ...row, originalIndex: i }));
@@ -179,6 +180,44 @@ function formatDate(dateString) {
   return `${y}-${m}-${d} ${h}:${min}`;
 }
 
+
+function filterByProduct() {
+  let selected = document.getElementById("productSelect").value.toLowerCase();
+  let rows = document.querySelectorAll("#data tr");
+
+  rows.forEach(row => {
+let select = document.getElementById("productSelect");
+select.innerHTML = `<option value="">الكل</option>`;
+
+productSet.forEach(p => {
+  if (p) {
+    select.innerHTML += `<option value="${p}">${p}</option>`;
+  }
+});
+productSet.add(row.product);
+    let productText = row.children[5].innerText.toLowerCase();
+
+    if (selected === "" || productText === selected) {
+      row.style.display = "";
+    } else {
+      row.style.display = "none";
+    }
+  });
+}
+function searchTable() {
+  let input = document.getElementById("search").value.toLowerCase();
+  let rows = document.querySelectorAll("#data tr");
+
+  rows.forEach(row => {
+    let text = row.innerText.toLowerCase();
+
+    if (text.includes(input)) {
+      row.style.display = "";
+    } else {
+      row.style.display = "none";
+    }
+  });
+}
 // حذف
 function deleteRow(index) {
   if(confirm("هل تريد حذف هذا الصف؟")) {
@@ -194,20 +233,7 @@ function deleteRow(index) {
 
 // تشغيل
 loadData();
-function searchTable() {
-  let input = document.getElementById("search").value.toLowerCase();
-  let rows = document.querySelectorAll("#data tr");
 
-  rows.forEach(row => {
-    let text = row.innerText.toLowerCase();
-
-    if (text.includes(input)) {
-      row.style.display = "";
-    } else {
-      row.style.display = "none";
-    }
-  });
-}
 </script>
 
 </body>
