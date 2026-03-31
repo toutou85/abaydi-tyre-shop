@@ -131,26 +131,7 @@ function loadData() {
       console.error(err);
     });
 }
-function loadData() {
-  fetch(url)
-    .then(res => res.json())
-    .then(data => {
-let html = "";
-let productSet = new Set();
 
-// نحافظ على index
-let sorted = data.map((row, i) => ({ ...row, originalIndex: i }));
-
-// ترتيب حسب التاريخ
-sorted.sort((a, b) => {
-  let dateA = new Date(a.date);
-  let dateB = new Date(b.date);
-
-  if (isNaN(dateA)) dateA = 0;
-  if (isNaN(dateB)) dateB = 0;
-
-  return dateB - dateA;
-});
 
 sorted.forEach((row) => {
 
