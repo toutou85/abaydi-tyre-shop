@@ -98,8 +98,16 @@ function loadData() {
       let sorted = data.map((row, i) => ({ ...row, originalIndex: i }));
 
       // ✅ ترتيب حسب التاريخ (الأحدث أولاً)
-      sorted.sort((a, b) => new Date(b.date) - new Date(a.date));
+      sorted.sort((a, b) => {
+  let dateA = new Date(a.date);
+  let dateB = new Date(b.date);
 
+  // إذا التاريخ غير صالح نحطو 0
+  if (isNaN(dateA)) dateA = 0;
+  if (isNaN(dateB)) dateB = 0;
+
+  return dateB - dateA; // الأحدث أولاً
+});
       sorted.forEach((row) => {
         html += `
         <tr>
