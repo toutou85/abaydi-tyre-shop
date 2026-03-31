@@ -2,14 +2,14 @@
 <html lang="ar">
 <head>
 <meta charset="UTF-8">
-<title>جدول pnue</title>
+<title>PNUE TABLE</title>
 
 <style>
 body {
   font-family: Arial;
   direction: rtl;
-  padding: 20px;
-  background: #f5f5f5;
+  padding: 15px;
+  background: #f4f4f4;
 }
 
 h2 {
@@ -24,18 +24,19 @@ table {
 
 th, td {
   border: 1px solid #ccc;
-  padding: 6px;
+  padding: 5px;
   text-align: center;
 }
 
 th {
   background: #eee;
+  position: sticky;
+  top: 0;
 }
 
 input {
   width: 100%;
   border: none;
-  outline: none;
   text-align: center;
   background: transparent;
 }
@@ -45,11 +46,11 @@ input:focus {
 }
 
 button {
-  padding: 5px 10px;
-  cursor: pointer;
-  border: none;
   background: red;
   color: white;
+  border: none;
+  padding: 5px;
+  cursor: pointer;
   border-radius: 4px;
 }
 
@@ -57,8 +58,8 @@ button:hover {
   background: darkred;
 }
 </style>
-</head>
 
+</head>
 <body>
 
 <h2>📋 جدول الطلبات PNUE</h2>
@@ -66,16 +67,17 @@ button:hover {
 <table>
 <thead>
 <tr>
-  <th>الاسم</th>
-  <th>الهاتف 1</th>
-  <th>الهاتف 2</th>
-  <th>كود</th>
-  <th>الولاية</th>
-  <th>البلدية</th>
-  <th>المنتج</th>
-  <th>التاريخ</th>
-  <th>الملاحظات</th>
-  <th>حذف</th>
+<th>الاسم</th>
+<th>الهاتف1</th>
+<th>الهاتف2</th>
+<th>الكود</th>
+<th>الولاية</th>
+<th>البلدية</th>
+<th>العنوان</th>
+<th>المنتج</th>
+<th>التاريخ</th>
+<th>الملاحظات</th>
+<th>حذف</th>
 </tr>
 </thead>
 
@@ -91,29 +93,35 @@ function loadData() {
   fetch(url)
     .then(res => res.json())
     .then(data => {
+
       let html = "";
 
       data.forEach((row, i) => {
         html += `
         <tr>
-          <td><input value="${row.name || ""}" onchange="updateRow(${i}, 'name', this.value)"></td>
-          <td><input value="${row.phone || ""}" onchange="updateRow(${i}, 'phone', this.value)"></td>
-          <td><input value="${row.phone2 || ""}" onchange="updateRow(${i}, 'phone2', this.value)"></td>
-          <td><input value="${row.code || ""}" onchange="updateRow(${i}, 'code', this.value)"></td>
-          <td><input value="${row.wilaya || ""}" onchange="updateRow(${i}, 'wilaya', this.value)"></td>
-          <td><input value="${row.commune || ""}" onchange="updateRow(${i}, 'commune', this.value)"></td>
-          <td><input value="${row.product || ""}" onchange="updateRow(${i}, 'product', this.value)"></td>
-          <td><input value="${row.date || ""}" onchange="updateRow(${i}, 'date', this.value)"></td>
-          <td><input value="${row.note || ""}" onchange="updateRow(${i}, 'note', this.value)"></td>
+          <td><input value="${row.name || ''}" onchange="updateRow(${i},'name',this.value)"></td>
+          <td><input value="${row.phone || ''}" onchange="updateRow(${i},'phone',this.value)"></td>
+          <td><input value="${row.phone2 || ''}" onchange="updateRow(${i},'phone2',this.value)"></td>
+          <td><input value="${row.code || ''}" onchange="updateRow(${i},'code',this.value)"></td>
+          <td><input value="${row.wilaya || ''}" onchange="updateRow(${i},'wilaya',this.value)"></td>
+          <td><input value="${row.commune || ''}" onchange="updateRow(${i},'commune',this.value)"></td>
+          <td><input value="${row.adresse || ''}" onchange="updateRow(${i},'adresse',this.value)"></td>
+          <td><input value="${row.product || ''}" onchange="updateRow(${i},'product',this.value)"></td>
+          <td><input value="${row.date || ''}" onchange="updateRow(${i},'date',this.value)"></td>
+          <td><input value="${row.note || ''}" onchange="updateRow(${i},'note',this.value)"></td>
           <td><button onclick="deleteRow(${i})">❌</button></td>
         </tr>`;
       });
 
       document.getElementById("data").innerHTML = html;
+    })
+    .catch(err => {
+      alert("❌ خطأ في تحميل البيانات");
+      console.error(err);
     });
 }
 
-// تحديث أي خانة
+// تعديل
 function updateRow(index, field, value) {
   fetch(url, {
     method: "POST",
@@ -126,9 +134,9 @@ function updateRow(index, field, value) {
   });
 }
 
-// حذف صف
+// حذف
 function deleteRow(index) {
-  if (confirm("هل تريد حذف هذا الصف؟")) {
+  if(confirm("هل تريد حذف هذا الصف؟")) {
     fetch(url, {
       method: "POST",
       body: JSON.stringify({
@@ -139,7 +147,7 @@ function deleteRow(index) {
   }
 }
 
-// تشغيل عند فتح الصفحة
+// تشغيل
 loadData();
 
 </script>
