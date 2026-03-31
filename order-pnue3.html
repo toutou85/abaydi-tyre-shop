@@ -103,43 +103,56 @@ function loadData() {
   fetch(url)
     .then(res => res.json())
     .then(data => {
-
-      let html = "";
+let html = "";
 let productSet = new Set();
 
-      // ✅ نحافظ على index الأصلي
-      let sorted = data.map((row, i) => ({ ...row, originalIndex: i }));
+// نحافظ على index
+let sorted = data.map((row, i) => ({ ...row, originalIndex: i }));
 
-      // ✅ ترتيب حسب التاريخ (الأحدث أولاً)
-      sorted.sort((a, b) => {
+// ترتيب حسب التاريخ
+sorted.sort((a, b) => {
   let dateA = new Date(a.date);
   let dateB = new Date(b.date);
 
-  // إذا التاريخ غير صالح نحطو 0
   if (isNaN(dateA)) dateA = 0;
   if (isNaN(dateB)) dateB = 0;
 
-  return dateB - dateA; // الأحدث أولاً
+  return dateB - dateA;
 });
-      sorted.forEach((row) => {
-        html += `
-        <tr>
-          <td><input value="${row.name || ''}" onchange="updateRow(${row.originalIndex},'name',this.value)"></td>
-          <td><input value="${row.phone || ''}" onchange="updateRow(${row.originalIndex},'phone',this.value)"></td>
-          <td><input value="${row.wilaya || ''}" onchange="updateRow(${row.originalIndex},'wilaya',this.value)"></td>
-          <td><input value="${row.commune || ''}" onchange="updateRow(${row.originalIndex},'commune',this.value)"></td>
-          <td><input value="${row.adresse || ''}" onchange="updateRow(${row.originalIndex},'adresse',this.value)"></td>
-          <td><input value="${row.product || ''}" onchange="updateRow(${row.originalIndex},'product',this.value)"></td>
-          <td>
-            <input value="${formatDate(row.date) || ''}" onchange="updateRow(${row.originalIndex},'date',this.value)">
-          </td>
-          <td>
-            <textarea onchange="updateRow(${row.originalIndex},'note',this.value)" style="width:100%; height:80px;">${row.note || ''}</textarea>
-          </td>
-          <td><button onclick="deleteRow(${row.originalIndex})">❌</button></td>
-        </tr>`;
-      });
 
+sorted.forEach((row) => {
+
+  // ✅ نجمع المنتجات
+  if (row.product) productSet.add(row.product);
+
+  html += `
+  <tr>
+    <td><input value="${row.name || ''}" onchange="updateRow(${row.originalIndex},'name',this.value)"></td>
+    <td><input value="${row.phone || ''}" onchange="updateRow(${row.originalIndex},'phone',this.value)"></td>
+    <td><input value="${row.wilaya || ''}" onchange="updateRow(${row.originalIndex},'wilaya',this.value)"></td>
+    <td><input value="${row.commune || ''}" onchange="updateRow(${row.originalIndex},'commune',this.value)"></td>
+    <td><input value="${row.adresse || ''}" onchange="updateRow(${row.originalIndex},'adresse',this.value)"></td>
+    <td><input value="${row.product || ''}" onchange="updateRow(${row.originalIndex},'product',this.value)"></td>
+    <td>
+      <input value="${formatDate(row.date) || ''}" onchange="updateRow(${row.originalIndex},'date',this.value)">
+    </td>
+    <td>
+      <textarea onchange="updateRow(${row.originalIndex},'note',this.value)" style="width:100%; height:80px;">${row.note || ''}</textarea>
+    </td>
+    <td><button onclick="deleteRow(${row.originalIndex})">❌</button></td>
+  </tr>`;
+});
+
+// عرض الجدول
+document.getElementById("data").innerHTML = html;
+
+// ✅ تعبئة قائمة المنتجات
+let select = document.getElementById("productSelect");
+select.innerHTML = `<option value="">الكل</option>`;
+
+productSet.forEach(p => {
+  select.innerHTML += `<option value="${p}">${p}</option>`;
+});
       document.getElementById("data").innerHTML = html;
     })
     .catch(err => {
@@ -192,15 +205,6 @@ function filterByProduct() {
   let rows = document.querySelectorAll("#data tr");
 
   rows.forEach(row => {
-let select = document.getElementById("productSelect");
-select.innerHTML = `<option value="">الكل</option>`;
-
-productSet.forEach(p => {
-  if (p) {
-    select.innerHTML += `<option value="${p}">${p}</option>`;
-  }
-});
-productSet.add(row.product);
     let productText = row.children[5].innerText.toLowerCase();
 
     if (selected === "" || productText === selected) {
