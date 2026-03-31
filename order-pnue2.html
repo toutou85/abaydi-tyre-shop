@@ -126,40 +126,30 @@ function login() {
 // تحميل البيانات
 function loadData() {
     fetch(API)
-    .then(res => res.json())
-    .then(data => {
-       allData = data.sort((a, b) => new Date(b.date) - new Date(a.date));
+    .then(res => res.text()) // 👈 بدل json
+    .then(text => {
+
+        console.log("API RESPONSE:", text); // 👈 مهم للتجربة
+
+        let data;
+
+        try {
+            data = JSON.parse(text);
+        } catch (e) {
+            alert("❌ خطأ في API: " + text);
+            return;
+        }
+
+        allData = data.sort((a, b) => new Date(b.date) - new Date(a.date));
+
         showData(allData);
-        document.getElementById("stats").innerText = "📊 عدد الطلبات: " + allData.length;
-    });
-}
 
-// عرض البيانات
-function showData(data) {
-
-    let table = document.getElementById("table");
-    table.innerHTML = "";
-
-    data.forEach((order, i) => {
-
-        let isNew = i < 3 ? "new" : ""; // آخر 3 طلبات
-
-        let row = `
-        <tr class="${isNew}">
-            <td>${order.date}</td>
-            <td>${order.name}</td>
-            <td>${order.phone}</td>
-            <td>${order.wilaya}</td>
-            <td>${order.commune}</td>
-            <td>${order.adresse}</td>
-            <td>${order.tireInfo}</td>
-            <td>${order.qty}</td>
-            <td><button class="delete" onclick="deleteOrder(${order.index})">🗑</button></td>
-            <td>${order.note || ""}</td>
-        </tr>
-        `;
-
-        table.innerHTML += row;
+        document.getElementById("stats").innerText =
+            "📊 عدد الطلبات: " + allData.length;
+    })
+    .catch(err => {
+        alert("❌ فشل الاتصال بالسيرفر");
+        console.error(err);
     });
 }
 
