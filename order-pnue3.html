@@ -65,7 +65,8 @@ button:hover {
   type="text" 
   id="search" 
   placeholder="🔍 ابحث هنا..." 
-  onkeyup="searchTable()"
+ 
+onkeyup="applyFilters()"
   style="width:100%; padding:10px; margin-bottom:10px; font-size:16px;"
 >
 <h2>📋 جدول الطلبات PNUE</h2>
@@ -81,7 +82,8 @@ button:hover {
 <th>
   المنتج ⬇️
   <br>
-  <select id="productSelect" onchange="filterByProduct()">
+  <select id="productSelect" onchange="applyFilters()"
+>
     <option value="">الكل</option>
   </select>
 </th>
