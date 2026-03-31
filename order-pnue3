@@ -84,7 +84,7 @@ button:hover {
 
 <script>
 
-const url = "https://script.google.com/macros/s/AKfycbwkfcrHXAyVKO5p3I5Ij1x12zi5ljvJdIwKmImn_4nrP1eJR7Dj2hGoPkouFApbQX5JaA/exec";
+const url = "https://script.google.com/macros/s/AKfycbxMvk18kFiQSqmvhFvukyqYGEUqdaLp7_pimMZqwKy7jODtzTQYQsTVX-d15hwrsulKyQ/exec";
 
 // تحميل البيانات
 function loadData() {
