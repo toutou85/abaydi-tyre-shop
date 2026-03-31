@@ -199,28 +199,20 @@ function formatDate(dateString) {
 }
 
 
-function filterByProduct() {
+function applyFilters() {
+  let search = document.getElementById("search").value.toLowerCase();
   let selected = document.getElementById("productSelect").value.toLowerCase();
-  let rows = document.querySelectorAll("#data tr");
 
-  rows.forEach(row => {
-    let productText = row.children[5].innerText.toLowerCase();
-
-    if (selected === "" || productText === selected) {
-      row.style.display = "";
-    } else {
-      row.style.display = "none";
-    }
-  });
-}
-function searchTable() {
-  let input = document.getElementById("search").value.toLowerCase();
   let rows = document.querySelectorAll("#data tr");
 
   rows.forEach(row => {
     let text = row.innerText.toLowerCase();
+    let productText = row.children[5].innerText.toLowerCase();
 
-    if (text.includes(input)) {
+    let matchSearch = text.includes(search);
+    let matchProduct = (selected === "" || productText === selected);
+
+    if (matchSearch && matchProduct) {
       row.style.display = "";
     } else {
       row.style.display = "none";
