@@ -95,6 +95,7 @@ button.delete {
 <th>الإطار</th>
 <th>الكمية</th>
 <th>حذف</th>
+    <th>ملاحظات</th>
 </tr>
 </thead>
 <tbody id="table"></tbody>
@@ -104,7 +105,7 @@ button.delete {
 
 <script>
 
-const API = "https://script.google.com/macros/s/AKfycbxLvMoeXSCmHe5vDqTYGsW24hcGjWu_2TyUPlEyc57TUEQe5DHDWjLzPcpmgKYBJmL1-Q/exec";
+const API = "https://script.google.com/macros/s/AKfycbxTK5l2Di5HJ09KcOH6KTIVhkqTJjq6z85llHWSPb5tfa1sMERKv_STFTz5-a12Q7QSeQ/exec";
 const PASSWORD = "1234"; // غيرها
 
 let allData = [];
@@ -127,7 +128,7 @@ function loadData() {
     fetch(API)
     .then(res => res.json())
     .then(data => {
-        allData = data.reverse();
+       allData = data.sort((a, b) => new Date(b.date) - new Date(a.date));
         showData(allData);
         document.getElementById("stats").innerText = "📊 عدد الطلبات: " + allData.length;
     });
@@ -154,6 +155,7 @@ function showData(data) {
             <td>${order.tireInfo}</td>
             <td>${order.qty}</td>
             <td><button class="delete" onclick="deleteOrder(${order.index})">🗑</button></td>
+            <td>${order.note || ""}</td>
         </tr>
         `;
 
