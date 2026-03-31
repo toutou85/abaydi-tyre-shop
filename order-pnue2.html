@@ -2,179 +2,119 @@
 <html lang="ar">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>لوحة التحكم</title>
+<title>جدول pnue</title>
 
 <style>
 body {
-    font-family: Arial;
-    direction: rtl;
-    background: #f4f4f4;
-}
-
-.container {
-    max-width: 1100px;
-    margin: auto;
-    background: white;
-    padding: 15px;
-    border-radius: 10px;
-}
-
-h2 {
-    text-align: center;
-}
-
-#search {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 10px;
-}
-
-.stats {
-    background: #e8f5e9;
-    padding: 10px;
-    margin-bottom: 10px;
-    border-radius: 5px;
+  font-family: Arial;
+  direction: rtl;
+  padding: 20px;
 }
 
 table {
-    width: 100%;
-    border-collapse: collapse;
+  width: 100%;
+  border-collapse: collapse;
 }
 
 th, td {
-    padding: 8px;
-    border: 1px solid #ddd;
-    text-align: center;
+  border: 1px solid #ccc;
+  padding: 8px;
+  text-align: center;
 }
 
-th {
-    background: green;
-    color: white;
+input {
+  width: 100%;
+  border: none;
+  outline: none;
 }
 
-.new {
-    background: #d4edda;
-}
-
-button.delete {
-    background: red;
-    color: white;
-    border: none;
-    padding: 5px;
-    cursor: pointer;
+button {
+  padding: 5px 10px;
+  cursor: pointer;
 }
 </style>
 </head>
 
 <body>
 
-<div class="container" id="loginBox">
-<h2>🔐 تسجيل الدخول</h2>
-<input type="password" id="password" placeholder="ادخل كلمة السر">
-<button onclick="login()">دخول</button>
-</div>
-
-<div class="container" id="panel" style="display:none;">
-
-<h2>📦 طلبات الزبائن</h2>
-
-<div class="stats" id="stats"></div>
-
-<input type="text" id="search" placeholder="🔍 ابحث...">
+<h2>📋 جدول الطلبات (pnue)</h2>
 
 <table>
 <thead>
 <tr>
-<th>التاريخ</th>
 <th>الاسم</th>
 <th>الهاتف</th>
 <th>الولاية</th>
-<th>المكتب</th>
-<th>العنوان</th>
-<th>الإطار</th>
-<th>الكمية</th>
+<th>المنتج</th>
+<th>التاريخ</th>
+<th>الملاحظات</th>
 <th>حذف</th>
-    <th>ملاحظات</th>
 </tr>
 </thead>
-<tbody id="table"></tbody>
+
+<tbody id="data"></tbody>
 </table>
 
-</div>
-
 <script>
-
-const API = "https://script.google.com/macros/s/AKfycbwAtKP4r5Kr9i7nNHZfdhGOZVME5lwK--bfLdOmUWMzeEUtmHAYWmg2PGTwO52LGRGjxg/exec";
-const PASSWORD = "1234"; // غيرها
-
-let allData = [];
-
-// تسجيل الدخول
-function login() {
-    let pass = document.getElementById("password").value;
-
-    if (pass === PASSWORD) {
-        document.getElementById("loginBox").style.display = "none";
-        document.getElementById("panel").style.display = "block";
-        loadData();
-    } else {
-        alert("❌ كلمة السر خاطئة");
-    }
-}
+const url = "https://script.google.com/macros/s/AKfycbwkfcrHXAyVKO5p3I5Ij1x12zi5ljvJdIwKmImn_4nrP1eJR7Dj2hGoPkouFApbQX5JaA/exec";
 
 // تحميل البيانات
 function loadData() {
-    fetch(API)
-    .then(res => res.text()) // 👈 بدل json
-    .then(text => {
+  fetch(url)
+    .then(res => res.json())
+    .then(data => {
+      let html = "";
 
-        console.log("API RESPONSE:", text); // 👈 مهم للتجربة
+      data.forEach((row, i) => {
+        html += `
+        <tr>
+          <td>${row.name || ""}</td>
+          <td>${row.phone || ""}</td>
+          <td>${row.wilaya || ""}</td>
+          <td>${row.product || ""}</td>
+          <td>${row.date || ""}</td>
 
-        let data;
+          <td>
+            <input value="${row.note || ""}" 
+            onchange="updateNote(${i}, this.value)">
+          </td>
 
-        try {
-            data = JSON.parse(text);
-        } catch (e) {
-            alert("❌ خطأ في API: " + text);
-            return;
-        }
+          <td>
+            <button onclick="deleteRow(${i})">❌</button>
+          </td>
+        </tr>`;
+      });
 
-        allData = data.sort((a, b) => new Date(b.date) - new Date(a.date));
+      document.getElementById("data").innerHTML = html;
+    });
+}
 
-        showData(allData);
-
-        document.getElementById("stats").innerText =
-            "📊 عدد الطلبات: " + allData.length;
+// تعديل note
+function updateNote(index, note) {
+  fetch(url, {
+    method: "POST",
+    body: JSON.stringify({
+      action: "update",
+      index: index,
+      note: note
     })
-    .catch(err => {
-        alert("❌ فشل الاتصال بالسيرفر");
-        console.error(err);
-    });
+  });
 }
 
-// البحث
-document.getElementById("search").addEventListener("input", function () {
-    let value = this.value.toLowerCase();
-
-    let filtered = allData.filter(o =>
-        Object.values(o).join(" ").toLowerCase().includes(value)
-    );
-
-    showData(filtered);
-});
-
-// حذف
-function deleteOrder(index) {
-
-    if (!confirm("هل تريد حذف الطلب؟")) return;
-
-    fetch(API + "?action=delete&index=" + index)
-    .then(() => {
-        loadData();
-    });
+// حذف صف
+function deleteRow(index) {
+  if(confirm("هل تريد حذف هذا الصف؟")) {
+    fetch(url, {
+      method: "POST",
+      body: JSON.stringify({
+        action: "delete",
+        index: index
+      })
+    }).then(() => loadData());
+  }
 }
 
+loadData();
 </script>
 
 </body>
