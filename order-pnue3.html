@@ -143,14 +143,14 @@ sorted.forEach((row) => {
     <td><input value="${row.name || ''}" onchange="updateRow(${row.originalIndex},'name',this.value)"></td>
     <td><input value="${row.phone || ''}" onchange="updateRow(${row.originalIndex},'phone',this.value)"></td>
     <td><input value="${row.wilaya || ''}" onchange="updateRow(${row.originalIndex},'wilaya',this.value)"></td>
-    <td><input value="${row.commune || ''}" onchange="updateRow(${row.originalIndex},'commune',this.value)"></td>
-    <td><input value="${row.adresse || ''}" onchange="updateRow(${row.originalIndex},'adresse',this.value)"></td>
-    <td><input value="${row.product || ''}" onchange="updateRow(${row.originalIndex},'product',this.value)"></td>
+    <td><input value="${row.commune || ''}" oninput="updateRow(${row.originalIndex},'commune',this.value)"></td>
+    <td><input value="${row.adresse || ''}" oninput="updateRow(${row.originalIndex},'adresse',this.value)"></td>
+    <td><input value="${row.product || ''}" oninput="updateRow(${row.originalIndex},'product',this.value)"></td>
     <td>
-      <input value="${formatDate(row.date) || ''}" onchange="updateRow(${row.originalIndex},'date',this.value)">
+      <input value="${formatDate(row.date) || ''}" oninput="updateRow(${row.originalIndex},'date',this.value)">
     </td>
     <td>
-      <textarea onchange="updateRow(${row.originalIndex},'note',this.value)" style="width:100%; height:80px;">${row.note || ''}</textarea>
+      <textarea oninput="updateRow(${row.originalIndex},'note',this.value)" style="width:100%; height:80px;">${row.note || ''}</textarea>
     </td>
     <td><button onclick="deleteRow(${row.originalIndex})">❌</button></td>
   </tr>`;
@@ -178,11 +178,8 @@ productSet.forEach(p => {
 function updateRow(index, field, value) {
 
   if (field === "note") {
-
     let now = new Date();
     let formattedDate = formatDate(now);
-
-    // إضافة الملاحظة في سطر جديد
     value = value + "\n🕒 " + formattedDate + "\n-----------------\n";
   }
 
@@ -194,6 +191,12 @@ function updateRow(index, field, value) {
       field: field,
       value: value
     })
+  })
+  .then(() => {
+    showToast("✅ تم حفظ التعديل");
+  })
+  .catch(() => {
+    showToast("❌ خطأ في الحفظ");
   });
 }
 function showToast(message = "✅ تم الحفظ") {
