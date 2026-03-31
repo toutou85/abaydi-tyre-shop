@@ -107,9 +107,22 @@ function loadData() {
           <td><input value="${row.commune || ''}" onchange="updateRow(${i},'commune',this.value)"></td>
           <td><input value="${row.adresse || ''}" onchange="updateRow(${i},'adresse',this.value)"></td>
           <td><input value="${row.product || ''}" onchange="updateRow(${i},'product',this.value)"></td>
-          <td><input value="${row.date || ''}" onchange="updateRow(${i},'date',this.value)"></td>
+        
+<td>
+  <input 
+    value="${formatDate(row.date) || ''}" 
+    onchange="updateRow(${i},'date',this.value)"
+  >
+</td>
+
+
+
+
+
           <td><input value="${row.note || ''}" onchange="updateRow(${i},'note',this.value)"></td>
-          <td><button onclick="deleteRow(${i})">❌</button></td>
+        
+
+  <td><button onclick="deleteRow(${i})">❌</button></td>
         </tr>`;
       });
 
@@ -132,6 +145,20 @@ function updateRow(index, field, value) {
       value: value
     })
   });
+}
+function formatDate(dateString) {
+  if (!dateString) return "";
+
+  let date = new Date(dateString);
+
+  let y = date.getFullYear();
+  let m = String(date.getMonth() + 1).padStart(2, '0');
+  let d = String(date.getDate()).padStart(2, '0');
+
+  let h = String(date.getHours()).padStart(2, '0');
+  let min = String(date.getMinutes()).padStart(2, '0');
+
+  return `${y}-${m}-${d} ${h}:${min}`;
 }
 
 // حذف
