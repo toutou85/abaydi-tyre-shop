@@ -61,7 +61,13 @@ button:hover {
 
 </head>
 <body>
-
+<input 
+  type="text" 
+  id="search" 
+  placeholder="🔍 ابحث هنا..." 
+  onkeyup="searchTable()"
+  style="width:100%; padding:10px; margin-bottom:10px; font-size:16px;"
+>
 <h2>📋 جدول الطلبات PNUE</h2>
 
 <table>
@@ -188,7 +194,20 @@ function deleteRow(index) {
 
 // تشغيل
 loadData();
+function searchTable() {
+  let input = document.getElementById("search").value.toLowerCase();
+  let rows = document.querySelectorAll("#data tr");
 
+  rows.forEach(row => {
+    let text = row.innerText.toLowerCase();
+
+    if (text.includes(input)) {
+      row.style.display = "";
+    } else {
+      row.style.display = "none";
+    }
+  });
+}
 </script>
 
 </body>
