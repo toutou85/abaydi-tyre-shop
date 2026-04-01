@@ -112,9 +112,15 @@ function loadMore(){
 }
 
 function applyFilters(){
-  let filter = document.getElementById("search").value.toLowerCase();
-  document.querySelectorAll("#data tr").forEach(tr => {
-    tr.style.display = tr.textContent.toLowerCase().includes(filter) ? "" : "none";
+  let filter = document.getElementById("search").value.toLowerCase().trim();
+  let rows = Array.from(document.querySelectorAll("#data tr"));
+
+  rows.forEach(tr => {
+    let product = tr.children[7].querySelector("input").value.toLowerCase();
+
+    let match = filter.split(" ").every(word => product.includes(word));
+
+    tr.style.display = match ? "" : "none";
   });
 }
 
