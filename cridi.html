@@ -2,7 +2,7 @@
 <html lang="ar">
 <head>
 <meta charset="UTF-8">
-<title>نظام الكريدي</title>
+<title>VIP CREDIT SYSTEM</title>
 
 <style>
 body {
@@ -10,30 +10,43 @@ body {
   direction: rtl;
   background: #0f172a;
   color: white;
-  padding: 15px;
+  padding: 10px;
 }
 
-input, button {
-  width: 100%;
-  padding: 10px;
-  margin: 5px 0;
+/* شريط علوي */
+.top-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
 }
 
 button {
-  background: #22c55e;
+  padding: 8px;
   border: none;
-  color: white;
   cursor: pointer;
+  color: white;
 }
 
-button:hover {
-  opacity: 0.8;
+.add { background: #22c55e; }
+.edit { background: #3b82f6; }
+.delete { background: #ef4444; }
+.pay { background: #f59e0b; }
+
+input {
+  padding: 8px;
+  margin: 5px 0;
+  width: 100%;
+}
+
+/* جدول */
+.table-container {
+  overflow-x: auto;
+  max-height: 400px;
 }
 
 table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 20px;
 }
 
 th, td {
@@ -42,43 +55,64 @@ th, td {
   text-align: center;
 }
 
-th {
-  background: #1e293b;
+th { background: #1e293b; }
+
+tr.selected { background: #334155; }
+
+.red { color: #ef4444; font-weight: bold; }
+
+/* إحصائيات */
+.stats {
+  display: flex;
+  justify-content: space-around;
+  margin: 10px 0;
 }
 
-/* نافذة */
+.card {
+  background: #1e293b;
+  padding: 10px;
+  border-radius: 5px;
+}
+
+/* مودال */
 .modal {
   display: none;
   position: fixed;
-  top:0;
-  left:0;
-  width:100%;
-  height:100%;
+  top:0; left:0;
+  width:100%; height:100%;
   background: rgba(0,0,0,0.7);
 }
 
 .modal-content {
   background:#1e293b;
-  margin:10% auto;
+  margin:5% auto;
   padding:20px;
-  width:400px;
+  width:90%;
+  max-width:400px;
 }
 </style>
 </head>
 
 <body>
 
-<h2>📋 نظام الكريدي</h2>
+<h2>🔥 نظام الكريدي VIP</h2>
 
-<input id="name" placeholder="الاسم">
-<input id="date" type="date">
-<input id="phone" placeholder="الهاتف">
-<input id="product" placeholder="المنتج">
-<input id="total" type="number" placeholder="الإجمالي">
-<input id="paid" type="number" placeholder="المدفوع">
+<div class="top-bar">
+  <button class="add" onclick="openAdd()">➕</button>
+  <button class="edit" onclick="openEdit()">✏️</button>
+  <button class="delete" onclick="remove()">🗑</button>
+  <button class="pay" onclick="quickPay()">💰</button>
+</div>
 
-<button onclick="add()">➕ إضافة</button>
+<input id="search" placeholder="🔍 بحث..." onkeyup="filter()">
 
+<div class="stats">
+  <div class="card">الإجمالي: <span id="totalSum">0</span></div>
+  <div class="card">المدفوع: <span id="paidSum">0</span></div>
+  <div class="card">الباقي: <span id="remainSum">0</span></div>
+</div>
+
+<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -90,123 +124,171 @@ th {
 <th>الإجمالي</th>
 <th>المدفوع</th>
 <th>الباقي</th>
-<th>إجراءات</th>
 </tr>
 </thead>
 <tbody id="data"></tbody>
 </table>
+</div>
 
-<!-- نافذة الملاحظات -->
-<div id="modal" class="modal">
+<!-- مودال -->
+<div class="modal" id="modal">
 <div class="modal-content">
-<h3>ملاحظة</h3>
-<textarea id="noteText" style="width:100%;height:100px"></textarea>
-<button onclick="saveNote()">حفظ</button>
-<button onclick="closeModal()">إغلاق</button>
+
+<h3 id="title"></h3>
+
+<input id="name" placeholder="الاسم">
+<input id="date" type="date">
+<input id="phone" placeholder="الهاتف">
+<input id="product" placeholder="المنتج">
+<input id="total" type="number" placeholder="الإجمالي">
+<input id="paid" type="number" placeholder="المدفوع">
+
+<button onclick="save()">💾 حفظ</button>
+<button onclick="closeModal()">❌</button>
+
 </div>
 </div>
 
 <script>
-let currentId = null;
-const dataEl = document.getElementById("data");
-const modal = document.getElementById("modal");
-const noteText = document.getElementById("noteText");
+let selectedId = null;
+let allData = [];
+let mode = "add";
 
-// تحميل البيانات
+// تحميل
 function load() {
   google.script.run.withSuccessHandler(function(data) {
 
-    let html = "";
-
-    for (let i = 1; i < data.length; i++) {
-
-      let total = Number(data[i][5]) || 0;
-      let paid = Number(data[i][6]) || 0;
-      let remain = total - paid;
-
-      html += `
-      <tr>
-        <td>${data[i][0]}</td>
-        <td>${data[i][1]}</td>
-        <td>${data[i][2]}</td>
-        <td>${data[i][3]}</td>
-        <td>${data[i][4]}</td>
-        <td>${total}</td>
-        <td>${paid}</td>
-        <td>${remain}</td>
-        <td>
-          <button onclick="del(${data[i][0]})">🗑</button>
-          <button onclick="openNote(${data[i][0]})">📝</button>
-        </td>
-      </tr>`;
-    }
-
-    dataEl.innerHTML = html;
+    allData = data.slice(1);
+    render(allData);
 
   }).getData();
 }
 
-// إضافة كريدي
-function add() {
+// عرض
+function render(data) {
 
-  let name = document.getElementById("name").value;
-  let date = document.getElementById("date").value;
-  let phone = document.getElementById("phone").value;
-  let product = document.getElementById("product").value;
-  let total = document.getElementById("total").value;
-  let paid = document.getElementById("paid").value;
+  let html = "";
+  let totalSum=0, paidSum=0, remainSum=0;
 
-  if (!name || !date || !phone || !product || !total) {
-    alert("⚠️ املأ جميع الحقول");
-    return;
-  }
+  data.forEach(row => {
 
-  let obj = { name, date, phone, product, total, paid };
+    let total = Number(row[5])||0;
+    let paid = Number(row[6])||0;
+    let remain = total - paid;
 
-  google.script.run.withSuccessHandler(function(){
-    clearInputs();
-    load();
-  }).addCredit(obj);
+    totalSum += total;
+    paidSum += paid;
+    remainSum += remain;
+
+    html += `
+    <tr onclick="selectRow(this, ${row[0]})">
+      <td>${row[0]}</td>
+      <td>${row[1]}</td>
+      <td>${row[2]}</td>
+      <td>${row[3]}</td>
+      <td>${row[4]}</td>
+      <td>${total}</td>
+      <td>${paid}</td>
+      <td class="${remain>0?'red':''}">${remain}</td>
+    </tr>`;
+  });
+
+  document.getElementById("data").innerHTML = html;
+  totalSumEl.innerText = totalSum;
+  paidSumEl.innerText = paidSum;
+  remainSumEl.innerText = remainSum;
 }
 
-// تفريغ الحقول
-function clearInputs() {
-  document.getElementById("name").value = "";
-  document.getElementById("date").value = "";
-  document.getElementById("phone").value = "";
-  document.getElementById("product").value = "";
-  document.getElementById("total").value = "";
-  document.getElementById("paid").value = "";
+// بحث
+function filter() {
+  let q = search.value.toLowerCase();
+  let filtered = allData.filter(r =>
+    r.join(" ").toLowerCase().includes(q)
+  );
+  render(filtered);
+}
+
+// اختيار
+function selectRow(row,id){
+  document.querySelectorAll("tr").forEach(r=>r.classList.remove("selected"));
+  row.classList.add("selected");
+  selectedId=id;
+}
+
+// إضافة
+function openAdd(){
+  mode="add";
+  title.innerText="إضافة";
+  clearInputs();
+  modal.style.display="block";
+}
+
+// تعديل
+function openEdit(){
+  if(!selectedId)return alert("اختر صف");
+
+  mode="edit";
+
+  let row = allData.find(r=>r[0]==selectedId);
+
+  name.value=row[1];
+  date.value=row[2];
+  phone.value=row[3];
+  product.value=row[4];
+  total.value=row[5];
+  paid.value=row[6];
+
+  modal.style.display="block";
+}
+
+// حفظ
+function save(){
+  let obj={
+    id:selectedId,
+    name:name.value,
+    date:date.value,
+    phone:phone.value,
+    product:product.value,
+    total:total.value,
+    paid:paid.value
+  };
+
+  if(mode=="add"){
+    google.script.run.withSuccessHandler(load).addCredit(obj);
+  }else{
+    google.script.run.withSuccessHandler(load).updateCredit(obj);
+  }
+
+  modal.style.display="none";
 }
 
 // حذف
-function del(id) {
-  if (confirm("هل أنت متأكد من الحذف؟")) {
-    google.script.run.withSuccessHandler(load).deleteCredit(id);
+function remove(){
+  if(!selectedId)return alert("اختر صف");
+  if(confirm("حذف؟")){
+    google.script.run.withSuccessHandler(load).deleteCredit(selectedId);
   }
 }
 
-// فتح ملاحظة
-function openNote(id) {
-  currentId = id;
+// تسديد سريع
+function quickPay(){
+  if(!selectedId)return alert("اختر صف");
 
-  google.script.run.withSuccessHandler(function(note){
-    noteText.value = note || "";
-    modal.style.display = "block";
-  }).getNote(id);
+  let amount = prompt("كم تريد تسديده؟");
+
+  if(!amount)return;
+
+  google.script.run.withSuccessHandler(load).payDebt(selectedId, amount);
 }
 
-// حفظ ملاحظة
-function saveNote() {
-  google.script.run.withSuccessHandler(function(){
-    modal.style.display = "none";
-    load();
-  }).addNote(currentId, noteText.value);
+// تنظيف
+function clearInputs(){
+  name.value=date.value=phone.value=product.value=total.value=paid.value="";
 }
 
-// غلق
-function closeModal() {
-  modal.style.display = "none";
+// إغلاق
+function closeModal(){
+  modal.style.display="none";
 }
 
 load();
