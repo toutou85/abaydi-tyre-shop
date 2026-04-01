@@ -41,6 +41,7 @@ button:hover {background: darkred;}
 </table>
 
 <button onclick="loadMore()">عرض المزيد</button>
+<button onclick="showLess()">عرض أقل</button>
 <button onclick="showAll()">عرض الكل</button>
 
 <script>
@@ -48,6 +49,7 @@ const url = "https://script.google.com/macros/s/AKfycby5JcMkevQJJhtjEcTkYY7EYrES
 
 let allData = [];
 let visibleCount = 10;
+let isFiltering = false;
 
 function loadData(){
   fetch(url)
@@ -61,7 +63,8 @@ function loadData(){
 function renderTable(){
   let html = "";
   let sorted = [...allData].sort((a,b) => b.id - a.id);
-  let limited = sorted.slice(0, visibleCount);
+
+  let limited = isFiltering ? sorted : sorted.slice(0, visibleCount);
 
   limited.forEach((row, index) => {
     html += `
@@ -109,19 +112,30 @@ function deleteRow(id){
 
 function loadMore(){
   visibleCount += 10;
+  isFiltering = false;
   renderTable();
 }
 
 function showAll(){
   visibleCount = allData.length;
+  isFiltering = false;
+  renderTable();
+}
+
+function showLess(){
+  visibleCount = 10;
+  isFiltering = false;
   renderTable();
 }
 
 function applyFilters(){
   let filter = document.getElementById("search").value.toLowerCase().trim();
+
   let rows = Array.from(document.querySelectorAll("#data tr"));
 
-  // تحويل الصفوف إلى مصفوفة مع قيمة التوافق
+  // إذا يوجد بحث → عرض كل النتائج
+  isFiltering = filter.length > 0;
+
   let scoredRows = rows.map(tr => {
     let product = tr.children[7].querySelector("input").value.toLowerCase();
 
@@ -135,15 +149,12 @@ function applyFilters(){
     return {tr, score};
   });
 
-  // ترتيب حسب الأفضل تطابقًا
   scoredRows.sort((a, b) => b.score - a.score);
 
-  // إظهار / إخفاء
   scoredRows.forEach(item => {
-    item.tr.style.display = item.score > 0 || filter === "" ? "" : "none";
+    item.tr.style.display = (item.score > 0 || filter === "") ? "" : "none";
   });
 
-  // إعادة ترتيب الصفوف في الجدول
   let tbody = document.getElementById("data");
   scoredRows.forEach(item => tbody.appendChild(item.tr));
 }
