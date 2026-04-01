@@ -12,16 +12,23 @@ body {
   background: #f4f4f4;
 }
 
-table {
+/* ===== شريط تمرير أفقي ===== */
+.table-container {
+  overflow-x: auto;
   width: 100%;
-  border-collapse: collapse;
   background: #fff;
+}
+
+table {
+  width: 1500px; /* عرض أكبر لإجبار التمرير */
+  border-collapse: collapse;
 }
 
 th, td {
   border: 1px solid #ccc;
   padding: 8px;
   text-align: center;
+  white-space: nowrap; /* عرض كامل بدون سطر جديد */
 }
 
 th { background: #eee; }
@@ -31,8 +38,10 @@ input, textarea {
   border: none;
   background: transparent;
   text-align: center;
+  white-space: nowrap;
 }
 
+/* ===== الأزرار ===== */
 button {
   padding: 5px 10px;
   background: red;
@@ -65,14 +74,15 @@ button:hover { background: darkred; }
 .modal-content {
   background: #fff;
   padding: 20px;
-  width: 400px;
-  margin: 10% auto;
+  width: 450px;
+  margin: 8% auto;
   border-radius: 10px;
   text-align: center;
 }
 
 .modal textarea {
-  height: 100px;
+  width: 100%;
+  height: 80px;
   border: 1px solid #ccc;
   margin-top: 10px;
 }
@@ -91,6 +101,7 @@ button:hover { background: darkred; }
 
 <input type="text" id="search" placeholder="🔍 بحث..." onkeyup="applyFilters()">
 
+<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -103,12 +114,13 @@ button:hover { background: darkred; }
 <th>العنوان</th>
 <th>المنتج</th>
 <th>التاريخ</th>
-<th>ملاحظات</th>
+<th>الملاحظات</th>
 <th>حذف</th>
 </tr>
 </thead>
 <tbody id="data"></tbody>
 </table>
+</div>
 
 <button onclick="loadMore()">عرض المزيد</button>
 <button onclick="showLess()">عرض أقل</button>
@@ -120,7 +132,7 @@ button:hover { background: darkred; }
     <span class="close" onclick="closeModal()">✖</span>
     <h3>📌 الملاحظات</h3>
 
-    <div id="modalData" style="margin-bottom:10px;"></div>
+    <div id="modalData" style="text-align:right; max-height:200px; overflow-y:auto;"></div>
 
     <textarea id="newNote" placeholder="اكتب ملاحظة جديدة..."></textarea>
 
@@ -137,8 +149,9 @@ const url = "https://script.google.com/macros/s/AKfycby5JcMkevQJJhtjEcTkYY7EYrES
 let allData = [];
 let visibleCount = 10;
 let isFiltering = false;
+
 let currentRowId = null;
-let currentNotes = "";
+let currentNotes = [];
 
 function loadData(){
   fetch(url)
@@ -152,6 +165,7 @@ function loadData(){
 function renderTable(){
   let html = "";
   let sorted = [...allData].sort((a,b) => b.id - a.id);
+
   let limited = isFiltering ? sorted : sorted.slice(0, visibleCount);
 
   limited.forEach((row, index) => {
@@ -167,7 +181,7 @@ function renderTable(){
       <td><input value="${row.product || ''}" onchange="updateRow(${row.id}, 'product', this.value)"></td>
       <td><input value="${row.date || ''}" onchange="updateRow(${row.id}, 'date', this.value)"></td>
       <td>
-        <button onclick="openNotes(${row.id}, \`${row.note || ''}\`)">👁 عرض</button>
+        <button onclick="openNotes(${row.id}, \`${JSON.stringify(row.note || [])}\`)">👁 عرض</button>
       </td>
       <td><button onclick="deleteRow(${row.id})">❌</button></td>
     </tr>`;
@@ -178,22 +192,43 @@ function renderTable(){
 
 function openNotes(id, notes){
   currentRowId = id;
-  currentNotes = notes || "";
-  document.getElementById("modalData").innerHTML = "<b>الملاحظات:</b><br>" + currentNotes;
+
+  try {
+    currentNotes = JSON.parse(notes) || [];
+  } catch {
+    currentNotes = [];
+  }
+
+  renderModalNotes();
   document.getElementById("modal").style.display = "block";
 }
 
-function closeModal(){
-  document.getElementById("modal").style.display = "none";
+function renderModalNotes(){
+  let html = "";
+
+  currentNotes.forEach(n => {
+    html += `<div style="border-bottom:1px solid #ccc; padding:5px;">
+      <b>${n.date}</b><br>
+      ${n.text}
+    </div>`;
+  });
+
+  document.getElementById("modalData").innerHTML = html;
 }
 
 function addNote(){
-  let newNote = document.getElementById("newNote").value;
-  if(newNote.trim() === "") return;
+  let text = document.getElementById("newNote").value;
+  if(text.trim() === "") return;
 
-  currentNotes += (currentNotes ? "\n" : "") + newNote;
-  document.getElementById("modalData").innerHTML = "<b>الملاحظات:</b><br>" + currentNotes;
+  let now = new Date().toLocaleString();
+
+  currentNotes.push({
+    text: text,
+    date: now
+  });
+
   document.getElementById("newNote").value = "";
+  renderModalNotes();
 }
 
 function saveNotes(){
@@ -203,7 +238,7 @@ function saveNotes(){
       action: "updateAll",
       index: currentRowId,
       field: "note",
-      value: currentNotes
+      value: JSON.stringify(currentNotes)
     })
   }).then(() => {
     loadData();
@@ -212,8 +247,12 @@ function saveNotes(){
 }
 
 function deleteNotes(){
-  currentNotes = "";
-  document.getElementById("modalData").innerHTML = "";
+  currentNotes = [];
+  renderModalNotes();
+}
+
+function closeModal(){
+  document.getElementById("modal").style.display = "none";
 }
 
 function updateRow(id, field, value){
@@ -291,7 +330,7 @@ function applyFilters(){
       <td><input value="${row.product || ''}"></td>
       <td><input value="${row.date || ''}"></td>
       <td>
-        <button onclick="openNotes(${row.id}, \`${row.note || ''}\`)">👁 عرض</button>
+        <button onclick="openNotes(${row.id}, \`${JSON.stringify(row.note || [])}\`)">👁 عرض</button>
       </td>
       <td><button onclick="deleteRow(${row.id})">❌</button></td>
     </tr>`;
