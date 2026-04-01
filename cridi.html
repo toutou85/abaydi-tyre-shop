@@ -12,13 +12,57 @@ body {
   color: white;
   padding: 15px;
 }
-input, button { width: 100%; padding: 10px; margin: 5px 0; }
-button { background: #22c55e; border: none; color: white; cursor: pointer; }
-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-th, td { border: 1px solid #334155; padding: 6px; text-align: center; }
-th { background: #1e293b; }
-.modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.7); }
-.modal-content { background:#1e293b; margin:10% auto; padding:20px; width:400px; }
+
+input, button {
+  width: 100%;
+  padding: 10px;
+  margin: 5px 0;
+}
+
+button {
+  background: #22c55e;
+  border: none;
+  color: white;
+  cursor: pointer;
+}
+
+button:hover {
+  opacity: 0.8;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+th, td {
+  border: 1px solid #334155;
+  padding: 6px;
+  text-align: center;
+}
+
+th {
+  background: #1e293b;
+}
+
+/* نافذة */
+.modal {
+  display: none;
+  position: fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background: rgba(0,0,0,0.7);
+}
+
+.modal-content {
+  background:#1e293b;
+  margin:10% auto;
+  padding:20px;
+  width:400px;
+}
 </style>
 </head>
 
@@ -71,8 +115,15 @@ const noteText = document.getElementById("noteText");
 // تحميل البيانات
 function load() {
   google.script.run.withSuccessHandler(function(data) {
-    let html = "https://script.google.com/macros/s/AKfycbyYuVj9S1acpjtOZvEt6Wl7XQ9APBO6HtMIVbekc9TBM1dwsJd4WPVyKBCVkKcxiPJ4/exec";
+
+    let html = "";
+
     for (let i = 1; i < data.length; i++) {
+
+      let total = Number(data[i][5]) || 0;
+      let paid = Number(data[i][6]) || 0;
+      let remain = total - paid;
+
       html += `
       <tr>
         <td>${data[i][0]}</td>
@@ -80,40 +131,65 @@ function load() {
         <td>${data[i][2]}</td>
         <td>${data[i][3]}</td>
         <td>${data[i][4]}</td>
-        <td>${data[i][5]}</td>
-        <td>${data[i][6]}</td>
-        <td>${data[i][7]}</td>
+        <td>${total}</td>
+        <td>${paid}</td>
+        <td>${remain}</td>
         <td>
           <button onclick="del(${data[i][0]})">🗑</button>
           <button onclick="openNote(${data[i][0]})">📝</button>
         </td>
       </tr>`;
     }
+
     dataEl.innerHTML = html;
+
   }).getData();
 }
 
 // إضافة كريدي
 function add() {
-  let obj = {
-    name: document.getElementById("name").value,
-    date: document.getElementById("date").value,
-    phone: document.getElementById("phone").value,
-    product: document.getElementById("product").value,
-    total: document.getElementById("total").value,
-    paid: document.getElementById("paid").value
-  };
-  google.script.run.withSuccessHandler(function(){ load(); }).addCredit(obj);
+
+  let name = document.getElementById("name").value;
+  let date = document.getElementById("date").value;
+  let phone = document.getElementById("phone").value;
+  let product = document.getElementById("product").value;
+  let total = document.getElementById("total").value;
+  let paid = document.getElementById("paid").value;
+
+  if (!name || !date || !phone || !product || !total) {
+    alert("⚠️ املأ جميع الحقول");
+    return;
+  }
+
+  let obj = { name, date, phone, product, total, paid };
+
+  google.script.run.withSuccessHandler(function(){
+    clearInputs();
+    load();
+  }).addCredit(obj);
 }
 
-// حذف كريدي
+// تفريغ الحقول
+function clearInputs() {
+  document.getElementById("name").value = "";
+  document.getElementById("date").value = "";
+  document.getElementById("phone").value = "";
+  document.getElementById("product").value = "";
+  document.getElementById("total").value = "";
+  document.getElementById("paid").value = "";
+}
+
+// حذف
 function del(id) {
-  google.script.run.withSuccessHandler(function(){ load(); }).deleteCredit(id);
+  if (confirm("هل أنت متأكد من الحذف؟")) {
+    google.script.run.withSuccessHandler(load).deleteCredit(id);
+  }
 }
 
-// فتح نافذة الملاحظات
+// فتح ملاحظة
 function openNote(id) {
   currentId = id;
+
   google.script.run.withSuccessHandler(function(note){
     noteText.value = note || "";
     modal.style.display = "block";
@@ -128,7 +204,10 @@ function saveNote() {
   }).addNote(currentId, noteText.value);
 }
 
-function closeModal() { modal.style.display = "none"; }
+// غلق
+function closeModal() {
+  modal.style.display = "none";
+}
 
 load();
 </script>
