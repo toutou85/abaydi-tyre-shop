@@ -5,16 +5,86 @@
 <title>جدول الطلبات</title>
 
 <style>
-body {font-family: Arial; direction: rtl; padding: 15px; background: #f4f4f4;}
-table {width: 100%; border-collapse: collapse; background: #fff;}
-th, td {border: 1px solid #ccc; padding: 8px; text-align: center;}
-th {background: #eee;}
-input, textarea {width: 100%; border: none; background: transparent; text-align: center;}
-button {padding: 5px 10px; background: red; color: #fff; border: none; cursor: pointer; margin-top: 10px;}
-button:hover {background: darkred;}
-#search {width: 100%; padding: 10px; margin-bottom: 10px;}
+body {
+  font-family: Arial;
+  direction: rtl;
+  padding: 15px;
+  background: #f4f4f4;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+}
+
+th, td {
+  border: 1px solid #ccc;
+  padding: 8px;
+  text-align: center;
+}
+
+th { background: #eee; }
+
+input, textarea {
+  width: 100%;
+  border: none;
+  background: transparent;
+  text-align: center;
+}
+
+button {
+  padding: 5px 10px;
+  background: red;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  margin: 3px;
+}
+
+button:hover { background: darkred; }
+
+#search {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+/* ===== Modal ===== */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 999;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.6);
+}
+
+.modal-content {
+  background: #fff;
+  padding: 20px;
+  width: 400px;
+  margin: 10% auto;
+  border-radius: 10px;
+  text-align: center;
+}
+
+.modal textarea {
+  height: 100px;
+  border: 1px solid #ccc;
+  margin-top: 10px;
+}
+
+.close {
+  float: left;
+  cursor: pointer;
+  font-size: 20px;
+}
 </style>
 </head>
+
 <body>
 
 <h2>📋 جدول الطلبات</h2>
@@ -44,12 +114,31 @@ button:hover {background: darkred;}
 <button onclick="showLess()">عرض أقل</button>
 <button onclick="showAll()">عرض الكل</button>
 
+<!-- ===== Modal ===== -->
+<div id="modal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal()">✖</span>
+    <h3>📌 الملاحظات</h3>
+
+    <div id="modalData" style="margin-bottom:10px;"></div>
+
+    <textarea id="newNote" placeholder="اكتب ملاحظة جديدة..."></textarea>
+
+    <br><br>
+    <button onclick="addNote()">➕ إضافة</button>
+    <button onclick="saveNotes()">💾 حفظ</button>
+    <button onclick="deleteNotes()">🗑 حذف</button>
+  </div>
+</div>
+
 <script>
 const url = "https://script.google.com/macros/s/AKfycby5JcMkevQJJhtjEcTkYY7EYrESFjc1lBjfLlEiaKQEUVx625i0Z7EbVL6UM-XvOPvW6w/exec";
 
 let allData = [];
 let visibleCount = 10;
 let isFiltering = false;
+let currentRowId = null;
+let currentNotes = "";
 
 function loadData(){
   fetch(url)
@@ -63,7 +152,6 @@ function loadData(){
 function renderTable(){
   let html = "";
   let sorted = [...allData].sort((a,b) => b.id - a.id);
-
   let limited = isFiltering ? sorted : sorted.slice(0, visibleCount);
 
   limited.forEach((row, index) => {
@@ -78,12 +166,54 @@ function renderTable(){
       <td><input value="${row.adresse || ''}" onchange="updateRow(${row.id}, 'adresse', this.value)"></td>
       <td><input value="${row.product || ''}" onchange="updateRow(${row.id}, 'product', this.value)"></td>
       <td><input value="${row.date || ''}" onchange="updateRow(${row.id}, 'date', this.value)"></td>
-      <td><textarea onchange="updateRow(${row.id}, 'note', this.value)">${row.note || ''}</textarea></td>
+      <td>
+        <button onclick="openNotes(${row.id}, \`${row.note || ''}\`)">👁 عرض</button>
+      </td>
       <td><button onclick="deleteRow(${row.id})">❌</button></td>
     </tr>`;
   });
 
   document.getElementById("data").innerHTML = html;
+}
+
+function openNotes(id, notes){
+  currentRowId = id;
+  currentNotes = notes || "";
+  document.getElementById("modalData").innerHTML = "<b>الملاحظات:</b><br>" + currentNotes;
+  document.getElementById("modal").style.display = "block";
+}
+
+function closeModal(){
+  document.getElementById("modal").style.display = "none";
+}
+
+function addNote(){
+  let newNote = document.getElementById("newNote").value;
+  if(newNote.trim() === "") return;
+
+  currentNotes += (currentNotes ? "\n" : "") + newNote;
+  document.getElementById("modalData").innerHTML = "<b>الملاحظات:</b><br>" + currentNotes;
+  document.getElementById("newNote").value = "";
+}
+
+function saveNotes(){
+  fetch(url, {
+    method: "POST",
+    body: JSON.stringify({
+      action: "updateAll",
+      index: currentRowId,
+      field: "note",
+      value: currentNotes
+    })
+  }).then(() => {
+    loadData();
+    closeModal();
+  });
+}
+
+function deleteNotes(){
+  currentNotes = "";
+  document.getElementById("modalData").innerHTML = "";
 }
 
 function updateRow(id, field, value){
@@ -99,7 +229,7 @@ function updateRow(id, field, value){
 }
 
 function deleteRow(id){
-  if (confirm("هل تريد حذف هذا السجل؟")) {
+  if(confirm("هل تريد حذف هذا السجل؟")){
     fetch(url, {
       method: "POST",
       body: JSON.stringify({
@@ -129,9 +259,9 @@ function showLess(){
 }
 
 function applyFilters(){
-  let filter = document.getElementById("search").value.toLowerCase().trim();
+  let filter = document.getElementById("search").value.toLowerCase();
 
-  if (filter === "") {
+  if(filter === ""){
     isFiltering = false;
     renderTable();
     return;
@@ -139,14 +269,12 @@ function applyFilters(){
 
   isFiltering = true;
 
-  let words = filter.split(" ").filter(w => w !== "");
+  let words = filter.split(" ").filter(w => w);
 
   let results = allData.filter(row => {
     let product = (row.product || "").toLowerCase();
     return words.every(word => product.includes(word));
   });
-
-  results.sort((a, b) => b.id - a.id);
 
   let html = "";
 
@@ -155,14 +283,16 @@ function applyFilters(){
     <tr>
       <td>${index + 1}</td>
       <td>${row.id}</td>
-      <td><input value="${row.name || ''}" onchange="updateRow(${row.id}, 'name', this.value)"></td>
-      <td><input value="${row.phone || ''}" onchange="updateRow(${row.id}, 'phone', this.value)"></td>
-      <td><input value="${row.wilaya || ''}" onchange="updateRow(${row.id}, 'wilaya', this.value)"></td>
-      <td><input value="${row.commune || ''}" onchange="updateRow(${row.id}, 'commune', this.value)"></td>
-      <td><input value="${row.adresse || ''}" onchange="updateRow(${row.id}, 'adresse', this.value)"></td>
-      <td><input value="${row.product || ''}" onchange="updateRow(${row.id}, 'product', this.value)"></td>
-      <td><input value="${row.date || ''}" onchange="updateRow(${row.id}, 'date', this.value)"></td>
-      <td><textarea onchange="updateRow(${row.id}, 'note', this.value)">${row.note || ''}</textarea></td>
+      <td><input value="${row.name || ''}"></td>
+      <td><input value="${row.phone || ''}"></td>
+      <td><input value="${row.wilaya || ''}"></td>
+      <td><input value="${row.commune || ''}"></td>
+      <td><input value="${row.adresse || ''}"></td>
+      <td><input value="${row.product || ''}"></td>
+      <td><input value="${row.date || ''}"></td>
+      <td>
+        <button onclick="openNotes(${row.id}, \`${row.note || ''}\`)">👁 عرض</button>
+      </td>
       <td><button onclick="deleteRow(${row.id})">❌</button></td>
     </tr>`;
   });
