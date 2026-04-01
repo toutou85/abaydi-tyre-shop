@@ -62,19 +62,25 @@ button:hover {
   background: darkred;
 }
 
+/* ===== Modal FIXED ===== */
 .modal {
   display: none;
   position: fixed;
-  z-index: 999;
+  z-index: 99999;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0,0,0,0.6);
+  background: rgba(0,0,0,0.7);
+
+  justify-content: center;
+  align-items: center;
 }
 
 .modal-content {
   background: #fff;
-  width: 500px;
-  margin: 5% auto;
+  width: 90%;
+  max-width: 500px;
   padding: 15px;
   border-radius: 10px;
 }
@@ -157,18 +163,28 @@ let limit = 10;
 let currentIndex = null;
 let currentNotes = [];
 
+/* ===== تنظيف القيم ===== */
+function clean(val){
+  return (val && val !== "null" && val !== "undefined") ? val : "";
+}
+
 /* ===== تحميل ===== */
 function loadData(){
   fetch(url)
   .then(r => r.json())
   .then(data => {
 
-    // ✅ حذف الصفوف الفارغة
+    // حذف الصفوف الفارغة مع تجاهل id
     allData = (data || []).filter(row => {
-      return Object.values(row).some(v => v && v.toString().trim() !== "");
+
+      let values = Object.entries(row)
+        .filter(([key]) => key !== "id")
+        .map(([_, v]) => v);
+
+      return values.some(v => v && v.toString().trim() !== "");
     });
 
-    // ✅ الأحدث أولاً
+    // الأحدث أولاً
     allData.reverse();
 
     render();
@@ -196,7 +212,6 @@ function render(){
 
   let filtered = [];
 
-  // ✅ فلترة قبل limit
   allData.forEach((row,i)=>{
 
     let notes = getNotes(row.note);
@@ -210,7 +225,6 @@ function render(){
     filtered.push({row, i, notes});
   });
 
-  // ✅ تطبيق limit بعد الفلترة
   let sliced = filtered.slice(0, limit);
 
   let html = "";
@@ -224,13 +238,13 @@ function render(){
 
       <td>${index+1}</td>
 
-      <td>${item.row.name||""}</td>
-      <td>${item.row.phone||""}</td>
-      <td>${item.row.wilaya||""}</td>
-      <td>${item.row.commune||""}</td>
-      <td>${item.row.adresse||""}</td>
-      <td>${item.row.product||""}</td>
-      <td>${item.row.date||""}</td>
+      <td>${clean(item.row.name)}</td>
+      <td>${clean(item.row.phone)}</td>
+      <td>${clean(item.row.wilaya)}</td>
+      <td>${clean(item.row.commune)}</td>
+      <td>${clean(item.row.adresse)}</td>
+      <td>${clean(item.row.product)}</td>
+      <td>${clean(item.row.date)}</td>
 
       <td>
         ${lastNote}
@@ -280,7 +294,9 @@ function openNotes(i){
   currentNotes = getNotes(allData[i].note);
 
   renderNotes();
-  document.getElementById("modal").style.display="block";
+
+  let modal = document.getElementById("modal");
+  modal.style.display = "flex";
 }
 
 function renderNotes(){
@@ -343,6 +359,7 @@ function closeModal(){
   document.getElementById("modal").style.display="none";
 }
 
+/* ===== تشغيل ===== */
 loadData();
 
 </script>
