@@ -12,14 +12,18 @@ body {
   background: #f4f4f4;
 }
 
-.table-container {
-  overflow-x: auto;
+/* ===== شريط تمرير ثابت ===== */
+.table-wrapper {
   width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden; /* مهم لمنع النزول */
   background: #fff;
+  border: 1px solid #ccc;
 }
 
+/* عرض الجدول أكبر من الشاشة */
 table {
-  width: 1500px;
+  min-width: 1500px;
   border-collapse: collapse;
 }
 
@@ -83,13 +87,11 @@ button:hover {
 .modal textarea {
   width: 100%;
   height: 80px;
-  margin-top: 10px;
 }
 
 .close {
   float: left;
   cursor: pointer;
-  font-size: 20px;
 }
 </style>
 </head>
@@ -100,7 +102,7 @@ button:hover {
 
 <input type="text" id="search" placeholder="🔍 بحث..." onkeyup="applyFilters()">
 
-<div class="table-container">
+<div class="table-wrapper">
 <table>
 <thead>
 <tr>
@@ -121,19 +123,16 @@ button:hover {
 </table>
 </div>
 
-<button onclick="loadMore()">عرض المزيد</button>
-<button onclick="showLess()">عرض أقل</button>
-<button onclick="showAll()">عرض الكل</button>
-
 <!-- Modal -->
 <div id="modal" class="modal">
   <div class="modal-content">
     <span class="close" onclick="closeModal()">✖</span>
+
     <h3>📌 الملاحظات</h3>
 
     <div id="modalData" style="max-height:200px; overflow-y:auto;"></div>
 
-    <textarea id="newNote" placeholder="اكتب ملاحظة..."></textarea>
+    <textarea id="newNote"></textarea>
 
     <br><br>
     <button onclick="addNote()">➕ إضافة</button>
@@ -143,12 +142,10 @@ button:hover {
 </div>
 
 <script>
+
 const url = "https://script.google.com/macros/s/AKfycby5JcMkevQJJhtjEcTkYY7EYrESFjc1lBjfLlEiaKQEUVx625i0Z7EbVL6UM-XvOPvW6w/exec";
 
 let allData = [];
-let visibleCount = 10;
-let isFiltering = false;
-
 let currentRowId = null;
 let currentNotes = [];
 
@@ -156,70 +153,76 @@ function loadData(){
   fetch(url)
   .then(res => res.json())
   .then(data => {
-    allData = data;
+    allData = data || [];
     renderTable();
+  })
+  .catch(err => {
+    console.log("خطأ في جلب البيانات", err);
   });
 }
 
 function renderTable(){
+
   let html = "";
+
   let sorted = [...allData].sort((a,b) => b.id - a.id);
-  let limited = isFiltering ? sorted : sorted.slice(0, visibleCount);
 
-  limited.forEach((row, index) => {
+  sorted.forEach((row, index) => {
 
-    let notes = Array.isArray(row.note) ? row.note : [];
+    let notes = [];
 
-    let lastNote = notes.length > 0 ? notes[notes.length - 1].text : "";
+    try {
+      notes = Array.isArray(row.note) ? row.note : JSON.parse(row.note || "[]");
+    } catch {
+      notes = [];
+    }
+
+    let lastNote = notes.length ? notes[notes.length - 1].text : "";
 
     html += `
     <tr>
       <td>${index + 1}</td>
-      <td>${row.id}</td>
-      <td><input value="${row.name || ''}" onchange="updateRow(${row.id}, 'name', this.value)"></td>
-      <td><input value="${row.phone || ''}" onchange="updateRow(${row.id}, 'phone', this.value)"></td>
-      <td><input value="${row.wilaya || ''}" onchange="updateRow(${row.id}, 'wilaya', this.value)"></td>
-      <td><input value="${row.commune || ''}" onchange="updateRow(${row.id}, 'commune', this.value)"></td>
-      <td><input value="${row.adresse || ''}" onchange="updateRow(${row.id}, 'adresse', this.value)"></td>
-      <td><input value="${row.product || ''}" onchange="updateRow(${row.id}, 'product', this.value)"></td>
-      <td><input value="${row.date || ''}" onchange="updateRow(${row.id}, 'date', this.value)"></td>
+      <td>${row.id || ""}</td>
+      <td>${row.name || ""}</td>
+      <td>${row.phone || ""}</td>
+      <td>${row.wilaya || ""}</td>
+      <td>${row.commune || ""}</td>
+      <td>${row.adresse || ""}</td>
+      <td>${row.product || ""}</td>
+      <td>${row.date || ""}</td>
 
       <td>
         ${lastNote}
         <br>
-        <button 
-          onclick="openNotes(this)"
-          data-id="${row.id}"
-          data-notes="${btoa(unescape(encodeURIComponent(JSON.stringify(notes))))}"
-        >
+        <button onclick='openNotes(${row.id}, "${btoa(unescape(encodeURIComponent(JSON.stringify(notes))))}")'>
           👁 عرض
         </button>
       </td>
 
       <td><button onclick="deleteRow(${row.id})">❌</button></td>
-    </tr>`;
+    </tr>
+    `;
   });
 
   document.getElementById("data").innerHTML = html;
 }
 
-function openNotes(btn){
-  currentRowId = btn.getAttribute("data-id");
-
-  let data = btn.getAttribute("data-notes");
+/* ===== ملاحظات ===== */
+function openNotes(id, notes){
+  currentRowId = id;
 
   try {
-    let decoded = decodeURIComponent(escape(atob(data)));
+    let decoded = decodeURIComponent(escape(atob(notes)));
     currentNotes = JSON.parse(decoded) || [];
   } catch {
     currentNotes = [];
   }
 
-  renderModalNotes();
+  renderNotes();
   document.getElementById("modal").style.display = "block";
 }
 
-function renderModalNotes(){
+function renderNotes(){
   let html = "";
 
   currentNotes.forEach(n => {
@@ -242,7 +245,7 @@ function addNote(){
   });
 
   document.getElementById("newNote").value = "";
-  renderModalNotes();
+  renderNotes();
 }
 
 function saveNotes(){
@@ -254,35 +257,23 @@ function saveNotes(){
       field: "note",
       value: JSON.stringify(currentNotes)
     })
-  }).then(() => {
-    loadData();
-    closeModal();
-  });
+  }).then(loadData);
+
+  closeModal();
 }
 
 function deleteNotes(){
   currentNotes = [];
-  renderModalNotes();
+  renderNotes();
 }
 
 function closeModal(){
   document.getElementById("modal").style.display = "none";
 }
 
-function updateRow(id, field, value){
-  fetch(url, {
-    method: "POST",
-    body: JSON.stringify({
-      action: "updateAll",
-      index: id,
-      field: field,
-      value: value
-    })
-  }).then(loadData);
-}
-
+/* ===== حذف ===== */
 function deleteRow(id){
-  if(confirm("هل تريد الحذف؟")){
+  if(confirm("حذف؟")){
     fetch(url, {
       method: "POST",
       body: JSON.stringify({
@@ -293,81 +284,26 @@ function deleteRow(id){
   }
 }
 
-function loadMore(){
-  visibleCount += 10;
-  isFiltering = false;
-  renderTable();
-}
-
-function showAll(){
-  visibleCount = allData.length;
-  isFiltering = false;
-  renderTable();
-}
-
-function showLess(){
-  visibleCount = 10;
-  isFiltering = false;
-  renderTable();
-}
-
+/* ===== بحث ===== */
 function applyFilters(){
-  let f = document.getElementById("search").value.toLowerCase();
+  let val = document.getElementById("search").value.toLowerCase();
 
-  if(!f){
-    isFiltering = false;
+  if(!val){
     renderTable();
     return;
   }
 
-  isFiltering = true;
+  let filtered = allData.filter(r =>
+    (r.product || "").toLowerCase().includes(val)
+  );
 
-  let words = f.split(" ").filter(w => w);
-
-  let results = allData.filter(r => {
-    let p = (r.product || "").toLowerCase();
-    return words.every(w => p.includes(w));
-  });
-
-  let html = "";
-
-  results.forEach((row, index) => {
-
-    let notes = Array.isArray(row.note) ? row.note : [];
-    let lastNote = notes.length > 0 ? notes[notes.length - 1].text : "";
-
-    html += `
-    <tr>
-      <td>${index + 1}</td>
-      <td>${row.id}</td>
-      <td><input value="${row.name || ''}"></td>
-      <td><input value="${row.phone || ''}"></td>
-      <td><input value="${row.wilaya || ''}"></td>
-      <td><input value="${row.commune || ''}"></td>
-      <td><input value="${row.adresse || ''}"></td>
-      <td><input value="${row.product || ''}"></td>
-      <td><input value="${row.date || ''}"></td>
-
-      <td>
-        ${lastNote}
-        <br>
-        <button 
-          onclick="openNotes(this)"
-          data-id="${row.id}"
-          data-notes="${btoa(unescape(encodeURIComponent(JSON.stringify(notes))))}"
-        >
-          👁 عرض
-        </button>
-      </td>
-
-      <td><button onclick="deleteRow(${row.id})">❌</button></td>
-    </tr>`;
-  });
-
-  document.getElementById("data").innerHTML = html;
+  allData = filtered;
+  renderTable();
 }
 
+/* تشغيل */
 loadData();
+
 </script>
 
 </body>
