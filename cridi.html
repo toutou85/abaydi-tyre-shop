@@ -12,53 +12,13 @@ body {
   color: white;
   padding: 15px;
 }
-
-input, button {
-  width: 100%;
-  padding: 10px;
-  margin: 5px 0;
-}
-
-button {
-  background: #22c55e;
-  border: none;
-  color: white;
-  cursor: pointer;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 20px;
-}
-
-th, td {
-  border: 1px solid #334155;
-  padding: 6px;
-  text-align: center;
-}
-
-th {
-  background: #1e293b;
-}
-
-/* نافذة */
-.modal {
-  display: none;
-  position: fixed;
-  top:0;
-  left:0;
-  width:100%;
-  height:100%;
-  background: rgba(0,0,0,0.7);
-}
-
-.modal-content {
-  background:#1e293b;
-  margin:10% auto;
-  padding:20px;
-  width:400px;
-}
+input, button { width: 100%; padding: 10px; margin: 5px 0; }
+button { background: #22c55e; border: none; color: white; cursor: pointer; }
+table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+th, td { border: 1px solid #334155; padding: 6px; text-align: center; }
+th { background: #1e293b; }
+.modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.7); }
+.modal-content { background:#1e293b; margin:10% auto; padding:20px; width:400px; }
 </style>
 </head>
 
@@ -72,15 +32,15 @@ th {
 <input id="product" placeholder="المنتج">
 <input id="total" type="number" placeholder="الإجمالي">
 <input id="paid" type="number" placeholder="المدفوع">
-<input id="rest" type="number" placeholder="الباقي">
 
 <button onclick="add()">➕ إضافة</button>
 
 <table>
 <thead>
 <tr>
-<th>#</th>
+<th>ID</th>
 <th>الاسم</th>
+<th>التاريخ</th>
 <th>الهاتف</th>
 <th>المنتج</th>
 <th>الإجمالي</th>
@@ -103,18 +63,15 @@ th {
 </div>
 
 <script>
-
 let currentId = null;
-
 const dataEl = document.getElementById("data");
 const modal = document.getElementById("modal");
 const noteText = document.getElementById("noteText");
 
+// تحميل البيانات
 function load() {
   google.script.run.withSuccessHandler(function(data) {
-
-    let html = "";
-
+    let html = "https://script.google.com/macros/s/AKfycbyYuVj9S1acpjtOZvEt6Wl7XQ9APBO6HtMIVbekc9TBM1dwsJd4WPVyKBCVkKcxiPJ4/exec";
     for (let i = 1; i < data.length; i++) {
       html += `
       <tr>
@@ -125,52 +82,45 @@ function load() {
         <td>${data[i][4]}</td>
         <td>${data[i][5]}</td>
         <td>${data[i][6]}</td>
+        <td>${data[i][7]}</td>
         <td>
-          <button onclick="del(${data[i][0]})">🗑 حذف</button>
-          <button onclick="openNote(${data[i][0]})">📝 ملاحظة</button>
+          <button onclick="del(${data[i][0]})">🗑</button>
+          <button onclick="openNote(${data[i][0]})">📝</button>
         </td>
-      </tr>
-      `;
+      </tr>`;
     }
-
     dataEl.innerHTML = html;
-
   }).getData();
 }
 
+// إضافة كريدي
 function add() {
-
   let obj = {
     name: document.getElementById("name").value,
     date: document.getElementById("date").value,
     phone: document.getElementById("phone").value,
     product: document.getElementById("product").value,
     total: document.getElementById("total").value,
-    paid: document.getElementById("paid").value,
-    rest: document.getElementById("rest").value
+    paid: document.getElementById("paid").value
   };
-
-  google.script.run.withSuccessHandler(function(){
-    load();
-  }).addCredit(obj);
-
+  google.script.run.withSuccessHandler(function(){ load(); }).addCredit(obj);
 }
 
+// حذف كريدي
 function del(id) {
-  google.script.run.withSuccessHandler(function(){
-    load();
-  }).deleteCredit(id);
+  google.script.run.withSuccessHandler(function(){ load(); }).deleteCredit(id);
 }
 
+// فتح نافذة الملاحظات
 function openNote(id) {
   currentId = id;
-
   google.script.run.withSuccessHandler(function(note){
     noteText.value = note || "";
     modal.style.display = "block";
   }).getNote(id);
 }
 
+// حفظ ملاحظة
 function saveNote() {
   google.script.run.withSuccessHandler(function(){
     modal.style.display = "none";
@@ -178,12 +128,9 @@ function saveNote() {
   }).addNote(currentId, noteText.value);
 }
 
-function closeModal() {
-  modal.style.display = "none";
-}
+function closeModal() { modal.style.display = "none"; }
 
 load();
-
 </script>
 
 </body>
