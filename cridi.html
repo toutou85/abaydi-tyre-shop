@@ -13,10 +13,8 @@ body {
   padding: 10px;
 }
 
-/* شريط علوي */
 .top-bar {
   display: flex;
-  flex-wrap: wrap;
   gap: 5px;
 }
 
@@ -33,15 +31,9 @@ button {
 .pay { background: #f59e0b; }
 
 input {
+  width: 100%;
   padding: 8px;
   margin: 5px 0;
-  width: 100%;
-}
-
-/* جدول */
-.table-container {
-  overflow-x: auto;
-  max-height: 400px;
 }
 
 table {
@@ -59,22 +51,8 @@ th { background: #1e293b; }
 
 tr.selected { background: #334155; }
 
-.red { color: #ef4444; font-weight: bold; }
+.red { color: red; }
 
-/* إحصائيات */
-.stats {
-  display: flex;
-  justify-content: space-around;
-  margin: 10px 0;
-}
-
-.card {
-  background: #1e293b;
-  padding: 10px;
-  border-radius: 5px;
-}
-
-/* مودال */
 .modal {
   display: none;
   position: fixed;
@@ -101,18 +79,11 @@ tr.selected { background: #334155; }
   <button class="add" onclick="openAdd()">➕</button>
   <button class="edit" onclick="openEdit()">✏️</button>
   <button class="delete" onclick="remove()">🗑</button>
-  <button class="pay" onclick="quickPay()">💰</button>
+  <button class="pay" onclick="pay()">💰</button>
 </div>
 
 <input id="search" placeholder="🔍 بحث..." onkeyup="filter()">
 
-<div class="stats">
-  <div class="card">الإجمالي: <span id="totalSum">0</span></div>
-  <div class="card">المدفوع: <span id="paidSum">0</span></div>
-  <div class="card">الباقي: <span id="remainSum">0</span></div>
-</div>
-
-<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -128,13 +99,10 @@ tr.selected { background: #334155; }
 </thead>
 <tbody id="data"></tbody>
 </table>
-</div>
 
 <!-- مودال -->
 <div class="modal" id="modal">
 <div class="modal-content">
-
-<h3 id="title"></h3>
 
 <input id="name" placeholder="الاسم">
 <input id="date" type="date">
@@ -150,29 +118,31 @@ tr.selected { background: #334155; }
 </div>
 
 <script>
-const API = "https://script.google.com/macros/s/AKfycbzFUYkNearRdUQj21cwUfjkzxglmHpXuxrY49XJY7gLyRoGd-E0JOwYuCKL9sT-e8zN7w/exec";
+const API = "https://script.google.com/macros/s/AKfycbyZDr8GtwpG4hz53KcKaBs__9em59neGR1HjvMaZNonOLXGja5v7-oNG5AyzFohN1z3Mg/exec";
 
+let selectedId = null;
 let allData = [];
+let mode = "add";
 
-// تحميل البيانات
+// تحميل
 function load() {
   fetch(API)
-    .then(res => res.json())
-    .then(data => {
-      allData = data.slice(1);
-      render(allData);
-    });
+  .then(r=>r.json())
+  .then(data=>{
+    allData = data.slice(1);
+    render(allData);
+  });
 }
 
 // عرض
-function render(data) {
+function render(data){
   let html = "";
 
-  data.forEach(row => {
+  data.forEach(row=>{
     let remain = (row[5]||0) - (row[6]||0);
 
     html += `
-    <tr>
+    <tr onclick="selectRow(this,${row[0]})">
       <td>${row[0]}</td>
       <td>${row[1]}</td>
       <td>${row[2]}</td>
@@ -180,55 +150,116 @@ function render(data) {
       <td>${row[4]}</td>
       <td>${row[5]}</td>
       <td>${row[6]}</td>
-      <td>${remain}</td>
+      <td class="${remain>0?'red':''}">${remain}</td>
     </tr>`;
   });
 
-  document.getElementById("data").innerHTML = html;
+  dataEl.innerHTML = html;
 }
 
-// إضافة
-function add() {
-  fetch(API, {
-    method: "POST",
-    body: JSON.stringify({
-      action: "add",
-      name: name.value,
-      date: date.value,
-      phone: phone.value,
-      product: product.value,
-      total: total.value,
-      paid: paid.value
-    })
-  }).then(() => load());
+// اختيار
+function selectRow(row,id){
+  document.querySelectorAll("tr").forEach(r=>r.classList.remove("selected"));
+  row.classList.add("selected");
+  selectedId = id;
 }
 
-// حذف
-function del(id) {
-  fetch(API, {
-    method: "POST",
-    body: JSON.stringify({
-      action: "delete",
-      id: id
-    })
-  }).then(() => load());
+// بحث
+function filter(){
+  let q = search.value.toLowerCase();
+  render(allData.filter(r=>r.join(" ").toLowerCase().includes(q)));
+}
+
+// فتح إضافة
+function openAdd(){
+  mode="add";
+  clearInputs();
+  modal.style.display="block";
 }
 
 // تعديل
-function update() {
-  fetch(API, {
-    method: "POST",
-    body: JSON.stringify({
-      action: "update",
-      id: selectedId,
-      name: name.value,
-      date: date.value,
-      phone: phone.value,
-      product: product.value,
-      total: total.value,
-      paid: paid.value
+function openEdit(){
+  if(!selectedId) return alert("اختر صف");
+
+  mode="edit";
+
+  let row = allData.find(r=>r[0]==selectedId);
+
+  name.value=row[1];
+  date.value=row[2];
+  phone.value=row[3];
+  product.value=row[4];
+  total.value=row[5];
+  paid.value=row[6];
+
+  modal.style.display="block";
+}
+
+// حفظ
+function save(){
+  let obj={
+    id:selectedId,
+    name:name.value,
+    date:date.value,
+    phone:phone.value,
+    product:product.value,
+    total:total.value,
+    paid:paid.value
+  };
+
+  fetch(API,{
+    method:"POST",
+    body:JSON.stringify({
+      action: mode==="add"?"add":"update",
+      ...obj
     })
-  }).then(() => load());
+  }).then(()=>load());
+
+  modal.style.display="none";
+}
+
+// حذف
+function remove(){
+  if(!selectedId) return alert("اختر صف");
+
+  fetch(API,{
+    method:"POST",
+    body:JSON.stringify({
+      action:"delete",
+      id:selectedId
+    })
+  }).then(()=>load());
+}
+
+// تسديد
+function pay(){
+  if(!selectedId) return alert("اختر صف");
+
+  let amount = prompt("المبلغ:");
+
+  fetch(API,{
+    method:"POST",
+    body:JSON.stringify({
+      action:"pay",
+      id:selectedId,
+      amount:amount
+    })
+  }).then(()=>load());
+}
+
+// تنظيف
+function clearInputs(){
+  name.value="";
+  date.value="";
+  phone.value="";
+  product.value="";
+  total.value="";
+  paid.value="";
+}
+
+// إغلاق
+function closeModal(){
+  modal.style.display="none";
 }
 
 load();
