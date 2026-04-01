@@ -2,7 +2,7 @@
 <html lang="ar">
 <head>
 <meta charset="UTF-8">
-<title>نظام متقدم</title>
+<title>نظام PNUE الاحترافي</title>
 
 <style>
 body {
@@ -16,8 +16,8 @@ body {
 .controls {
   display: flex;
   gap: 10px;
-  margin-bottom: 10px;
   flex-wrap: wrap;
+  margin-bottom: 10px;
 }
 
 input, select, button {
@@ -26,7 +26,7 @@ input, select, button {
 
 /* ===== جدول ===== */
 .table-wrapper {
-  overflow: auto;
+  overflow-x: auto;
   max-height: 75vh;
   background: #fff;
   border: 1px solid #ccc;
@@ -35,12 +35,12 @@ input, select, button {
 table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 1600px;
+  min-width: 1500px;
 }
 
 th, td {
   border: 1px solid #ccc;
-  padding: 10px;
+  padding: 8px;
   text-align: center;
   white-space: nowrap;
 }
@@ -51,25 +51,28 @@ th {
   position: sticky;
   top: 0;
   z-index: 2;
-  cursor: pointer;
 }
 
 /* ===== ملاحظات ===== */
 .note-cell {
-  min-width: 260px;
+  min-width: 250px;
   white-space: normal;
 }
 
-/* ===== زر ===== */
+/* ===== أزرار ===== */
 button {
-  cursor: pointer;
+  background: red;
+  color: white;
   border: none;
-  background: #d33;
-  color: #fff;
+  cursor: pointer;
   border-radius: 5px;
 }
 
-/* ===== مودال ===== */
+button:hover {
+  background: darkred;
+}
+
+/* ===== Modal ===== */
 .modal {
   display: none;
   position: fixed;
@@ -92,10 +95,9 @@ button {
   cursor: pointer;
 }
 
-/* ===== ملاحظات ===== */
 .note-item {
   border-bottom: 1px solid #ccc;
-  padding: 6px;
+  padding: 5px;
 }
 </style>
 
@@ -103,21 +105,21 @@ button {
 
 <body>
 
-<h2 style="text-align:center;">📊 نظام إدارة متقدم</h2>
+<h2 style="text-align:center;">📊 نظام PNUE الاحترافي</h2>
 
 <!-- ===== أدوات التحكم ===== -->
 <div class="controls">
 
-<input type="text" id="search" placeholder="🔍 بحث..." oninput="renderTable()">
+<input type="text" id="search" placeholder="🔍 بحث..." oninput="render()">
 
-<select id="filter" onchange="renderTable()">
+<select id="filter" onchange="render()">
   <option value="all">📄 الكل</option>
-  <option value="hasNote">📝 فيه ملاحظات</option>
-  <option value="noNote">🚫 بدون ملاحظات</option>
+  <option value="has">📝 فيه ملاحظات</option>
+  <option value="no">🚫 بدون ملاحظات</option>
 </select>
 
-<button onclick="showAll()">عرض كل</button>
-<button onclick="showLess()">عرض أقل</button>
+<button onclick="showMore()">عرض المزيد</button>
+<button onclick="showAll()">عرض الكل</button>
 
 </div>
 
@@ -127,14 +129,15 @@ button {
 
 <thead>
 <tr>
-<th onclick="sortTable(0)">الاسم</th>
+<th>الاسم</th>
 <th>الهاتف</th>
 <th>الولاية</th>
 <th>البلدية</th>
 <th>العنوان</th>
 <th>المنتج</th>
-<th onclick="sortTable(6)">التاريخ ⬍</th>
+<th>التاريخ</th>
 <th>الملاحظات</th>
+<th>حذف</th>
 </tr>
 </thead>
 
@@ -145,15 +148,22 @@ button {
 
 <!-- ===== Modal ===== -->
 <div id="modal" class="modal">
-  <div class="modal-content">
-    <span class="close" onclick="closeModal()">✖</span>
-    <h3>📌 الملاحظات</h3>
-    <div id="notesBox"></div>
-    <textarea id="newNote"></textarea>
-    <br><br>
-    <button onclick="addNote()">➕ إضافة</button>
-    <button onclick="saveNotes()">💾 حفظ</button>
-  </div>
+<div class="modal-content">
+
+<span class="close" onclick="closeModal()">✖</span>
+
+<h3>📌 الملاحظات</h3>
+
+<div id="notesBox"></div>
+
+<textarea id="newNote" style="width:100%;height:80px;"></textarea>
+
+<br><br>
+
+<button onclick="addNote()">➕ إضافة</button>
+<button onclick="saveNotes()">💾 حفظ</button>
+
+</div>
 </div>
 
 <script>
@@ -161,27 +171,26 @@ button {
 const url = "https://script.google.com/macros/s/AKfycby5JcMkevQJJhtjEcTkYY7EYrESFjc1lBjfLlEiaKQEUVx625i0Z7EbVL6UM-XvOPvW6w/exec";
 
 let allData = [];
+let limit = 10;
 let currentIndex = null;
 let currentNotes = [];
-let showLimit = 50;
 
 /* ===== تحميل ===== */
 function loadData(){
   fetch(url)
   .then(r => r.json())
   .then(data => {
-
     allData = data || [];
 
-    // ترتيب من الأقدم
+    // الأقدم أولاً
     allData.sort((a,b)=> new Date(a.date) - new Date(b.date));
 
-    renderTable();
+    render();
   });
 }
 
 /* ===== عرض ===== */
-function renderTable(){
+function render(){
 
   let search = document.getElementById("search").value.toLowerCase();
   let filter = document.getElementById("filter").value;
@@ -192,33 +201,34 @@ function renderTable(){
   allData.forEach((row,i)=>{
 
     let notes = [];
-    try { notes = row.note ? JSON.parse(row.note) : []; } catch {}
+    try {
+      notes = row.note ? JSON.parse(row.note) : [];
+    } catch {}
 
-    let lastNote = notes.length ? notes[notes.length - 1].text : "";
+    let lastNote = notes.length ? notes[notes.length-1].text : "";
 
-    // ===== فلترة =====
-    if(filter === "hasNote" && notes.length === 0) return;
-    if(filter === "noNote" && notes.length > 0) return;
+    // ===== فلتر =====
+    if(filter==="has" && notes.length===0) return;
+    if(filter==="no" && notes.length>0) return;
 
     // ===== بحث =====
-    let rowText = Object.values(row).join(" ").toLowerCase();
-    if(!rowText.includes(search)) return;
+    let text = Object.values(row).join(" ").toLowerCase();
+    if(!text.includes(search)) return;
 
-    // ===== عرض أقل =====
-    if(count >= showLimit) return;
+    // ===== عرض محدود =====
+    if(count >= limit) return;
 
     count++;
 
     html += `
     <tr>
-
-      <td>${row.name || ""}</td>
-      <td>${row.phone || ""}</td>
-      <td>${row.wilaya || ""}</td>
-      <td>${row.commune || ""}</td>
-      <td>${row.adresse || ""}</td>
-      <td>${row.product || ""}</td>
-      <td>${row.date || ""}</td>
+      <td>${row.name||""}</td>
+      <td>${row.phone||""}</td>
+      <td>${row.wilaya||""}</td>
+      <td>${row.commune||""}</td>
+      <td>${row.adresse||""}</td>
+      <td>${row.product||""}</td>
+      <td>${row.date||""}</td>
 
       <td class="note-cell">
         ${lastNote || ""}
@@ -226,6 +236,9 @@ function renderTable(){
         <button onclick="openNotes(${i})">👁 عرض</button>
       </td>
 
+      <td>
+        <button onclick="deleteRow(${i})">❌</button>
+      </td>
     </tr>
     `;
   });
@@ -233,42 +246,37 @@ function renderTable(){
   document.getElementById("data").innerHTML = html;
 }
 
-/* ===== عرض أقل / كل ===== */
-function showLess(){
-  showLimit = 50;
-  renderTable();
+/* ===== عرض المزيد / الكل ===== */
+function showMore(){
+  limit += 10;
+  render();
 }
 
 function showAll(){
-  showLimit = 100000;
-  renderTable();
+  limit = 100000;
+  render();
 }
 
-/* ===== فرز ===== */
-let sortAsc = true;
-
-function sortTable(col){
-
-  allData.sort((a,b)=>{
-    let x = Object.values(a)[col] || "";
-    let y = Object.values(b)[col] || "";
-
-    return sortAsc ? 
-      x.localeCompare(y) :
-      y.localeCompare(x);
-  });
-
-  sortAsc = !sortAsc;
-  renderTable();
+/* ===== حذف ===== */
+function deleteRow(i){
+  if(confirm("حذف؟")){
+    fetch(url,{
+      method:"POST",
+      body: JSON.stringify({
+        action:"delete",
+        index:i
+      })
+    }).then(()=>loadData());
+  }
 }
 
 /* ===== ملاحظات ===== */
-function openNotes(index){
+function openNotes(i){
 
-  currentIndex = index;
+  currentIndex = i;
 
   try {
-    currentNotes = allData[index].note ? JSON.parse(allData[index].note) : [];
+    currentNotes = allData[i].note ? JSON.parse(allData[i].note) : [];
   } catch {
     currentNotes = [];
   }
@@ -281,11 +289,13 @@ function renderNotes(){
 
   let html = "";
 
-  currentNotes.forEach(n=>{
+  currentNotes.forEach((n,index)=>{
     html += `
     <div class="note-item">
       <b>${n.date}</b><br>
       ${n.text}
+      <br>
+      <button onclick="deleteNote(${index})">❌</button>
     </div>
     `;
   });
@@ -304,7 +314,13 @@ function addNote(){
     date: new Date().toLocaleString()
   });
 
-  document.getElementById("newNote").value = "";
+  document.getElementById("newNote").value="";
+  renderNotes();
+}
+
+/* ===== حذف ملاحظة ===== */
+function deleteNote(index){
+  currentNotes.splice(index,1);
   renderNotes();
 }
 
@@ -315,7 +331,7 @@ function saveNotes(){
     method:"POST",
     body: JSON.stringify({
       action:"updateAll",
-      index:currentIndex,
+      index: currentIndex,
       field:"note",
       value: JSON.stringify(currentNotes)
     })
@@ -326,9 +342,10 @@ function saveNotes(){
 
 /* ===== إغلاق ===== */
 function closeModal(){
-  document.getElementById("modal").style.display = "none";
+  document.getElementById("modal").style.display="none";
 }
 
+/* ===== تشغيل ===== */
 loadData();
 
 </script>
