@@ -45,6 +45,11 @@ input:focus {
   background: #ffffcc;
 }
 
+textarea {
+  width: 100%;
+  height: 80px;
+}
+
 button {
   background: red;
   color: white;
@@ -57,6 +62,7 @@ button {
 button:hover {
   background: darkred;
 }
+
 #toast {
   position: fixed;
   bottom: 20px;
@@ -72,14 +78,15 @@ button:hover {
 
 </head>
 <body>
+
 <input 
   type="text" 
   id="search" 
   placeholder="🔍 ابحث هنا..." 
- 
-onkeyup="applyFilters()"
+  onkeyup="applyFilters()"
   style="width:100%; padding:10px; margin-bottom:10px; font-size:16px;"
 >
+
 <h2>📋 جدول الطلبات PNUE</h2>
 
 <table>
@@ -93,8 +100,7 @@ onkeyup="applyFilters()"
 <th>
   المنتج ⬇️
   <br>
-  <select id="productSelect" onchange="applyFilters()"
->
+  <select id="productSelect" onchange="applyFilters()">
     <option value="">الكل</option>
   </select>
 </th>
@@ -106,24 +112,26 @@ onkeyup="applyFilters()"
 
 <tbody id="data"></tbody>
 </table>
+
 <div id="toast">✅ تم حفظ التعديل</div>
+
 <button onclick="loadMore()" style="margin-top:10px; padding:10px;">
   ⬇️ عرض المزيد
 </button>
+
 <script>
 
 const url = "https://script.google.com/macros/s/AKfycbxk0VpVSa4ZRXX5UOPqDrTfPwK467qCMcQ0c9f-Dd4s49Do7IayFJnXpBwXzqn3AIzAIQ/exec";
 
-
 let allData = [];
 let visibleCount = 5;
+
 // تحميل البيانات
 function loadData() {
   fetch(url)
     .then(res => res.json())
     .then(data => {
-      allData = data; // تخزين البيانات
-
+      allData = data;
       renderTable();
     })
     .catch(err => {
@@ -132,85 +140,11 @@ function loadData() {
     });
 }
 
-
-
-
-// تعديل
-
-function updateRow(index, field, value) {
-
-  if (field === "note") {
-    let now = new Date();
-    let formattedDate = formatDate(now);
-    value = value + "\n🕒 " + formattedDate + "\n-----------------\n";
-  }
-
-  fetch(url, {
-    method: "POST",
-    body: JSON.stringify({
-      action: "updateAll",
-      index: index,
-      field: field,
-      value: value
-    })
-  })
-  .then(() => {
-    showToast("✅ تم حفظ التعديل");
-  })
-  .catch(() => {
-    showToast("❌ خطأ في الحفظ");
-  });
-}
-function showToast(message = "✅ تم الحفظ") {
-  let toast = document.getElementById("toast");
-  toast.innerText = message;
-  toast.style.display = "block";
-
-  setTimeout(() => {
-    toast.style.display = "none";
-  }, 2000);
-}
-function formatDate(dateString) {
-  if (!dateString) return "";
-
-  let date = new Date(dateString);
-
-  let y = date.getFullYear();
-  let m = String(date.getMonth() + 1).padStart(2, '0');
-  let d = String(date.getDate()).padStart(2, '0');
-
-  let h = String(date.getHours()).padStart(2, '0');
-  let min = String(date.getMinutes()).padStart(2, '0');
-
-  return `${y}-${m}-${d} ${h}:${min}`;
-}
-
-
-function applyFilters() {
-  let search = document.getElementById("search").value.toLowerCase();
-  let selected = document.getElementById("productSelect").value.toLowerCase();
-
-  let rows = document.querySelectorAll("#data tr");
-
-  rows.forEach(row => {
-    let text = row.innerText.toLowerCase();
-    let productText = row.children[5].innerText.toLowerCase();
-
-    let matchSearch = text.includes(search);
-    let matchProduct = (selected === "" || productText === selected);
-
-    if (matchSearch && matchProduct) {
-      row.style.display = "";
-    } else {
-      row.style.display = "none";
-    }
-  });
-}
+// عرض الجدول
 function renderTable() {
   let html = "";
   let productSet = new Set();
 
-  // إضافة index الأصلي
   let sorted = allData.map((row, i) => ({ ...row, originalIndex: i }));
 
   sorted.sort((a, b) => {
@@ -243,7 +177,6 @@ function renderTable() {
 
   document.getElementById("data").innerHTML = html;
 
-  // قائمة المنتجات
   let select = document.getElementById("productSelect");
   select.innerHTML = `<option value="">الكل</option>`;
 
@@ -252,16 +185,38 @@ function renderTable() {
   });
 }
 
-  document.getElementById("data").innerHTML = html;
+// عرض المزيد
+function loadMore() {
+  visibleCount += 5;
+  renderTable();
+}
 
-  // تحديث قائمة المنتجات
-  let select = document.getElementById("productSelect");
-  select.innerHTML = `<option value="">الكل</option>`;
+// تعديل
+function updateRow(index, field, value) {
 
-  productSet.forEach(p => {
-    select.innerHTML += `<option value="${p}">${p}</option>`;
+  if (field === "note") {
+    let now = new Date();
+    let formattedDate = formatDate(now);
+    value = value + "\n🕒 " + formattedDate + "\n-----------------\n";
+  }
+
+  fetch(url, {
+    method: "POST",
+    body: JSON.stringify({
+      action: "updateAll",
+      index: index,
+      field: field,
+      value: value
+    })
+  })
+  .then(() => {
+    showToast("✅ تم حفظ التعديل");
+  })
+  .catch(() => {
+    showToast("❌ خطأ في الحفظ");
   });
 }
+
 // حذف
 function deleteRow(index) {
   if(confirm("هل تريد حذف هذا الصف؟")) {
@@ -273,6 +228,51 @@ function deleteRow(index) {
       })
     }).then(() => loadData());
   }
+}
+
+// فلترة
+function applyFilters() {
+  let search = document.getElementById("search").value.toLowerCase();
+  let selected = document.getElementById("productSelect").value.toLowerCase();
+
+  let rows = document.querySelectorAll("#data tr");
+
+  rows.forEach(row => {
+    let text = row.innerText.toLowerCase();
+    let productText = row.children[5].innerText.toLowerCase();
+
+    let matchSearch = text.includes(search);
+    let matchProduct = (selected === "" || productText === selected);
+
+    row.style.display = (matchSearch && matchProduct) ? "" : "none";
+  });
+}
+
+// تنسيق التاريخ
+function formatDate(dateString) {
+  if (!dateString) return "";
+
+  let date = new Date(dateString);
+
+  let y = date.getFullYear();
+  let m = String(date.getMonth() + 1).padStart(2, '0');
+  let d = String(date.getDate()).padStart(2, '0');
+
+  let h = String(date.getHours()).padStart(2, '0');
+  let min = String(date.getMinutes()).padStart(2, '0');
+
+  return `${y}-${m}-${d} ${h}:${min}`;
+}
+
+// Toast
+function showToast(message = "✅ تم الحفظ") {
+  let toast = document.getElementById("toast");
+  toast.innerText = message;
+  toast.style.display = "block";
+
+  setTimeout(() => {
+    toast.style.display = "none";
+  }, 2000);
 }
 
 // تشغيل
