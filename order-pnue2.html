@@ -131,32 +131,43 @@ function showLess(){
 function applyFilters(){
   let filter = document.getElementById("search").value.toLowerCase().trim();
 
-  let rows = Array.from(document.querySelectorAll("#data tr"));
+  if (filter === "") {
+    isFiltering = false;
+    renderTable();
+    return;
+  }
 
-  // إذا يوجد بحث → عرض كل النتائج
-  isFiltering = filter.length > 0;
+  isFiltering = true;
 
-  let scoredRows = rows.map(tr => {
-    let product = tr.children[7].querySelector("input").value.toLowerCase();
+  let words = filter.split(" ").filter(w => w !== "");
 
-    let score = 0;
-    let words = filter.split(" ").filter(w => w !== "");
-
-    words.forEach(word => {
-      if (product.includes(word)) score++;
-    });
-
-    return {tr, score};
+  let results = allData.filter(row => {
+    let product = (row.product || "").toLowerCase();
+    return words.every(word => product.includes(word));
   });
 
-  scoredRows.sort((a, b) => b.score - a.score);
+  results.sort((a, b) => b.id - a.id);
 
-  scoredRows.forEach(item => {
-    item.tr.style.display = (item.score > 0 || filter === "") ? "" : "none";
+  let html = "";
+
+  results.forEach((row, index) => {
+    html += `
+    <tr>
+      <td>${index + 1}</td>
+      <td>${row.id}</td>
+      <td><input value="${row.name || ''}" onchange="updateRow(${row.id}, 'name', this.value)"></td>
+      <td><input value="${row.phone || ''}" onchange="updateRow(${row.id}, 'phone', this.value)"></td>
+      <td><input value="${row.wilaya || ''}" onchange="updateRow(${row.id}, 'wilaya', this.value)"></td>
+      <td><input value="${row.commune || ''}" onchange="updateRow(${row.id}, 'commune', this.value)"></td>
+      <td><input value="${row.adresse || ''}" onchange="updateRow(${row.id}, 'adresse', this.value)"></td>
+      <td><input value="${row.product || ''}" onchange="updateRow(${row.id}, 'product', this.value)"></td>
+      <td><input value="${row.date || ''}" onchange="updateRow(${row.id}, 'date', this.value)"></td>
+      <td><textarea onchange="updateRow(${row.id}, 'note', this.value)">${row.note || ''}</textarea></td>
+      <td><button onclick="deleteRow(${row.id})">❌</button></td>
+    </tr>`;
   });
 
-  let tbody = document.getElementById("data");
-  scoredRows.forEach(item => tbody.appendChild(item.tr));
+  document.getElementById("data").innerHTML = html;
 }
 
 loadData();
