@@ -126,13 +126,6 @@ const url = "https://script.google.com/macros/s/AKfycbxk0VpVSa4ZRXX5UOPqDrTfPwK4
 let allData = [];
 let visibleCount = 5;
 
-// تحويل التاريخ بشكل آمن
-function safeDate(d) {
-  let date = new Date(d);
-  if (isNaN(date)) return new Date(0);
-  return date;
-}
-
 // تحميل البيانات
 function loadData() {
   fetch(url)
@@ -152,37 +145,36 @@ function renderTable() {
   let html = "";
   let productSet = new Set();
 
-  let sorted = allData.map((row, i) => ({ ...row, originalIndex: i }));
+  // 🔥 الحل النهائي: عكس البيانات
+  let reversed = [...allData].reverse();
 
-  // 🔥 ترتيب قوي حسب التاريخ
-  sorted.sort((a, b) => {
-    return safeDate(b.date) - safeDate(a.date);
-  });
-
-  let limited = sorted.slice(0, visibleCount);
+  let limited = reversed.slice(0, visibleCount);
 
   limited.forEach((row) => {
+
+    let originalIndex = allData.indexOf(row);
 
     if (row.product) productSet.add(row.product);
 
     html += `
     <tr>
-      <td><input value="${row.name || ''}" onchange="updateRow(${row.originalIndex},'name',this.value)"></td>
-      <td><input value="${row.phone || ''}" onchange="updateRow(${row.originalIndex},'phone',this.value)"></td>
-      <td><input value="${row.wilaya || ''}" onchange="updateRow(${row.originalIndex},'wilaya',this.value)"></td>
-      <td><input value="${row.commune || ''}" onchange="updateRow(${row.originalIndex},'commune',this.value)"></td>
-      <td><input value="${row.adresse || ''}" onchange="updateRow(${row.originalIndex},'adresse',this.value)"></td>
-      <td><input value="${row.product || ''}" onchange="updateRow(${row.originalIndex},'product',this.value)"></td>
-      <td><input value="${formatDate(row.date) || ''}" onchange="updateRow(${row.originalIndex},'date',this.value)"></td>
+      <td><input value="${row.name || ''}" onchange="updateRow(${originalIndex},'name',this.value)"></td>
+      <td><input value="${row.phone || ''}" onchange="updateRow(${originalIndex},'phone',this.value)"></td>
+      <td><input value="${row.wilaya || ''}" onchange="updateRow(${originalIndex},'wilaya',this.value)"></td>
+      <td><input value="${row.commune || ''}" onchange="updateRow(${originalIndex},'commune',this.value)"></td>
+      <td><input value="${row.adresse || ''}" onchange="updateRow(${originalIndex},'adresse',this.value)"></td>
+      <td><input value="${row.product || ''}" onchange="updateRow(${originalIndex},'product',this.value)"></td>
+      <td><input value="${formatDate(row.date) || ''}" onchange="updateRow(${originalIndex},'date',this.value)"></td>
       <td>
-        <textarea oninput="updateRow(${row.originalIndex},'note',this.value)">${row.note || ''}</textarea>
+        <textarea oninput="updateRow(${originalIndex},'note',this.value)">${row.note || ''}</textarea>
       </td>
-      <td><button onclick="deleteRow(${row.originalIndex})">❌</button></td>
+      <td><button onclick="deleteRow(${originalIndex})">❌</button></td>
     </tr>`;
   });
 
   document.getElementById("data").innerHTML = html;
 
+  // قائمة المنتجات
   let select = document.getElementById("productSelect");
   select.innerHTML = `<option value="">الكل</option>`;
 
