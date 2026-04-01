@@ -12,7 +12,7 @@ body {
   background: #f4f4f4;
 }
 
-/* ===== شريط تمرير أفقي ===== */
+/* ===== شريط تمرير ===== */
 .table-container {
   overflow-x: auto;
   width: 100%;
@@ -20,7 +20,7 @@ body {
 }
 
 table {
-  width: 1500px; /* عرض أكبر لإجبار التمرير */
+  width: 1500px;
   border-collapse: collapse;
 }
 
@@ -28,7 +28,7 @@ th, td {
   border: 1px solid #ccc;
   padding: 8px;
   text-align: center;
-  white-space: nowrap; /* عرض كامل بدون سطر جديد */
+  white-space: nowrap;
 }
 
 th { background: #eee; }
@@ -38,10 +38,8 @@ input, textarea {
   border: none;
   background: transparent;
   text-align: center;
-  white-space: nowrap;
 }
 
-/* ===== الأزرار ===== */
 button {
   padding: 5px 10px;
   background: red;
@@ -165,10 +163,14 @@ function loadData(){
 function renderTable(){
   let html = "";
   let sorted = [...allData].sort((a,b) => b.id - a.id);
-
   let limited = isFiltering ? sorted : sorted.slice(0, visibleCount);
 
   limited.forEach((row, index) => {
+
+    let notes = row.note || [];
+
+    let lastNote = notes.length > 0 ? notes[notes.length - 1].text : "";
+
     html += `
     <tr>
       <td>${index + 1}</td>
@@ -180,9 +182,21 @@ function renderTable(){
       <td><input value="${row.adresse || ''}" onchange="updateRow(${row.id}, 'adresse', this.value)"></td>
       <td><input value="${row.product || ''}" onchange="updateRow(${row.id}, 'product', this.value)"></td>
       <td><input value="${row.date || ''}" onchange="updateRow(${row.id}, 'date', this.value)"></td>
+
       <td>
-        <button onclick="openNotes(${row.id}, \`${JSON.stringify(row.note || [])}\`)">👁 عرض</button>
+        ${lastNote}
+
+        <br>
+
+        <button 
+          onclick="openNotes(this)"
+          data-id="${row.id}"
+          data-notes='${encodeURIComponent(JSON.stringify(notes))}'
+        >
+          👁 عرض
+        </button>
       </td>
+
       <td><button onclick="deleteRow(${row.id})">❌</button></td>
     </tr>`;
   });
@@ -190,11 +204,14 @@ function renderTable(){
   document.getElementById("data").innerHTML = html;
 }
 
-function openNotes(id, notes){
-  currentRowId = id;
+/* ===== فتح الملاحظات ===== */
+function openNotes(btn){
+  currentRowId = btn.getAttribute("data-id");
+
+  let notesData = btn.getAttribute("data-notes");
 
   try {
-    currentNotes = JSON.parse(notes) || [];
+    currentNotes = JSON.parse(decodeURIComponent(notesData)) || [];
   } catch {
     currentNotes = [];
   }
@@ -203,6 +220,7 @@ function openNotes(id, notes){
   document.getElementById("modal").style.display = "block";
 }
 
+/* ===== عرض الملاحظات ===== */
 function renderModalNotes(){
   let html = "";
 
@@ -216,8 +234,10 @@ function renderModalNotes(){
   document.getElementById("modalData").innerHTML = html;
 }
 
+/* ===== إضافة ملاحظة ===== */
 function addNote(){
   let text = document.getElementById("newNote").value;
+
   if(text.trim() === "") return;
 
   let now = new Date().toLocaleString();
@@ -228,9 +248,11 @@ function addNote(){
   });
 
   document.getElementById("newNote").value = "";
+
   renderModalNotes();
 }
 
+/* ===== حفظ ===== */
 function saveNotes(){
   fetch(url, {
     method: "POST",
@@ -246,6 +268,7 @@ function saveNotes(){
   });
 }
 
+/* ===== حذف ===== */
 function deleteNotes(){
   currentNotes = [];
   renderModalNotes();
@@ -318,6 +341,10 @@ function applyFilters(){
   let html = "";
 
   results.forEach((row, index) => {
+
+    let notes = row.note || [];
+    let lastNote = notes.length > 0 ? notes[notes.length - 1].text : "";
+
     html += `
     <tr>
       <td>${index + 1}</td>
@@ -330,7 +357,17 @@ function applyFilters(){
       <td><input value="${row.product || ''}"></td>
       <td><input value="${row.date || ''}"></td>
       <td>
-        <button onclick="openNotes(${row.id}, \`${JSON.stringify(row.note || [])}\`)">👁 عرض</button>
+        ${lastNote}
+
+        <br>
+
+        <button 
+          onclick="openNotes(this)"
+          data-id="${row.id}"
+          data-notes='${encodeURIComponent(JSON.stringify(notes))}'
+        >
+          👁 عرض
+        </button>
       </td>
       <td><button onclick="deleteRow(${row.id})">❌</button></td>
     </tr>`;
