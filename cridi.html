@@ -150,145 +150,85 @@ tr.selected { background: #334155; }
 </div>
 
 <script>
-let selectedId = null;
+const API = "https://script.google.com/macros/s/AKfycbwWK0iB0HiSFFlzEurv1RgDDP2ul5KkjNgsmAhAEDD1q_BB7emyo7IYV5G2MZSOVIpiSg/exec";
+
 let allData = [];
-let mode = "add";
 
-// تحميل
+// تحميل البيانات
 function load() {
-  google.script.run.withSuccessHandler(function(data) {
-
-    allData = data.slice(1);
-    render(allData);
-
-  }).getData();
+  fetch(API)
+    .then(res => res.json())
+    .then(data => {
+      allData = data.slice(1);
+      render(allData);
+    });
 }
 
 // عرض
 function render(data) {
-
   let html = "";
-  let totalSum=0, paidSum=0, remainSum=0;
 
   data.forEach(row => {
-
-    let total = Number(row[5])||0;
-    let paid = Number(row[6])||0;
-    let remain = total - paid;
-
-    totalSum += total;
-    paidSum += paid;
-    remainSum += remain;
+    let remain = (row[5]||0) - (row[6]||0);
 
     html += `
-    <tr onclick="selectRow(this, ${row[0]})">
+    <tr>
       <td>${row[0]}</td>
       <td>${row[1]}</td>
       <td>${row[2]}</td>
       <td>${row[3]}</td>
       <td>${row[4]}</td>
-      <td>${total}</td>
-      <td>${paid}</td>
-      <td class="${remain>0?'red':''}">${remain}</td>
+      <td>${row[5]}</td>
+      <td>${row[6]}</td>
+      <td>${remain}</td>
     </tr>`;
   });
 
   document.getElementById("data").innerHTML = html;
-  totalSumEl.innerText = totalSum;
-  paidSumEl.innerText = paidSum;
-  remainSumEl.innerText = remainSum;
-}
-
-// بحث
-function filter() {
-  let q = search.value.toLowerCase();
-  let filtered = allData.filter(r =>
-    r.join(" ").toLowerCase().includes(q)
-  );
-  render(filtered);
-}
-
-// اختيار
-function selectRow(row,id){
-  document.querySelectorAll("tr").forEach(r=>r.classList.remove("selected"));
-  row.classList.add("selected");
-  selectedId=id;
 }
 
 // إضافة
-function openAdd(){
-  mode="add";
-  title.innerText="إضافة";
-  clearInputs();
-  modal.style.display="block";
-}
-
-// تعديل
-function openEdit(){
-  if(!selectedId)return alert("اختر صف");
-
-  mode="edit";
-
-  let row = allData.find(r=>r[0]==selectedId);
-
-  name.value=row[1];
-  date.value=row[2];
-  phone.value=row[3];
-  product.value=row[4];
-  total.value=row[5];
-  paid.value=row[6];
-
-  modal.style.display="block";
-}
-
-// حفظ
-function save(){
-  let obj={
-    id:selectedId,
-    name:name.value,
-    date:date.value,
-    phone:phone.value,
-    product:product.value,
-    total:total.value,
-    paid:paid.value
-  };
-
-  if(mode=="add"){
-    google.script.run.withSuccessHandler(load).addCredit(obj);
-  }else{
-    google.script.run.withSuccessHandler(load).updateCredit(obj);
-  }
-
-  modal.style.display="none";
+function add() {
+  fetch(API, {
+    method: "POST",
+    body: JSON.stringify({
+      action: "add",
+      name: name.value,
+      date: date.value,
+      phone: phone.value,
+      product: product.value,
+      total: total.value,
+      paid: paid.value
+    })
+  }).then(() => load());
 }
 
 // حذف
-function remove(){
-  if(!selectedId)return alert("اختر صف");
-  if(confirm("حذف؟")){
-    google.script.run.withSuccessHandler(load).deleteCredit(selectedId);
-  }
+function del(id) {
+  fetch(API, {
+    method: "POST",
+    body: JSON.stringify({
+      action: "delete",
+      id: id
+    })
+  }).then(() => load());
 }
 
-// تسديد سريع
-function quickPay(){
-  if(!selectedId)return alert("اختر صف");
-
-  let amount = prompt("كم تريد تسديده؟");
-
-  if(!amount)return;
-
-  google.script.run.withSuccessHandler(load).payDebt(selectedId, amount);
-}
-
-// تنظيف
-function clearInputs(){
-  name.value=date.value=phone.value=product.value=total.value=paid.value="";
-}
-
-// إغلاق
-function closeModal(){
-  modal.style.display="none";
+// تعديل
+function update() {
+  fetch(API, {
+    method: "POST",
+    body: JSON.stringify({
+      action: "update",
+      id: selectedId,
+      name: name.value,
+      date: date.value,
+      phone: phone.value,
+      product: product.value,
+      total: total.value,
+      paid: paid.value
+    })
+  }).then(() => load());
 }
 
 load();
