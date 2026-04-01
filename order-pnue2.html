@@ -79,11 +79,6 @@ button:hover {
   border-radius: 10px;
 }
 
-.close {
-  float: left;
-  cursor: pointer;
-}
-
 .note-item {
   border-bottom: 1px solid #ccc;
   padding: 5px;
@@ -138,8 +133,6 @@ button:hover {
 <div id="modal" class="modal">
 <div class="modal-content">
 
-<span class="close" onclick="closeModal()">✖</span>
-
 <h3>📌 الملاحظات</h3>
 
 <div id="notesBox"></div>
@@ -150,6 +143,7 @@ button:hover {
 
 <button onclick="addNote()">➕ إضافة</button>
 <button onclick="saveNotes()">💾 حفظ</button>
+<button onclick="closeModal()">✖ إغلاق</button>
 
 </div>
 </div>
@@ -169,13 +163,29 @@ function loadData(){
   .then(r => r.json())
   .then(data => {
 
-    allData = data || [];
+    // ✅ حذف الصفوف الفارغة
+    allData = (data || []).filter(row => {
+      return Object.values(row).some(v => v && v.toString().trim() !== "");
+    });
 
-    // ✅ الأحدث أولاً (آخر سطر في Google Sheets)
+    // ✅ الأحدث أولاً
     allData.reverse();
 
     render();
   });
+}
+
+/* ===== استخراج الملاحظات ===== */
+function getNotes(note){
+  if(!note) return [];
+
+  try {
+    let parsed = JSON.parse(note);
+    if(Array.isArray(parsed)) return parsed;
+    return [{text: note, date:""}];
+  } catch {
+    return [{text: note, date:""}];
+  }
 }
 
 /* ===== عرض ===== */
@@ -184,59 +194,52 @@ function render(){
   let search = document.getElementById("search").value.toLowerCase();
   let filter = document.getElementById("filter").value;
 
-  let html = "";
-  let count = 0;
+  let filtered = [];
 
+  // ✅ فلترة قبل limit
   allData.forEach((row,i)=>{
 
-    let notes = [];
+    let notes = getNotes(row.note);
 
-    // ✅ إصلاح قراءة الملاحظات (JSON + نص عادي)
-    if(row.note){
-      try {
-        notes = JSON.parse(row.note);
-        if(!Array.isArray(notes)) notes = [{text: row.note, date:""}];
-      } catch {
-        notes = [{text: row.note, date:""}];
-      }
-    }
-
-    let lastNote = notes.length ? notes[notes.length-1].text : "";
-
-    // فلتر
     if(filter==="has" && notes.length===0) return;
     if(filter==="no" && notes.length>0) return;
 
-    // بحث
     let text = Object.values(row).join(" ").toLowerCase();
     if(!text.includes(search)) return;
 
-    // عرض 10 فقط
-    if(count >= limit) return;
+    filtered.push({row, i, notes});
+  });
 
-    count++;
+  // ✅ تطبيق limit بعد الفلترة
+  let sliced = filtered.slice(0, limit);
+
+  let html = "";
+
+  sliced.forEach((item,index)=>{
+
+    let lastNote = item.notes.length ? item.notes[item.notes.length-1].text : "";
 
     html += `
     <tr>
 
-      <td>${count}</td>
+      <td>${index+1}</td>
 
-      <td>${row.name||""}</td>
-      <td>${row.phone||""}</td>
-      <td>${row.wilaya||""}</td>
-      <td>${row.commune||""}</td>
-      <td>${row.adresse||""}</td>
-      <td>${row.product||""}</td>
-      <td>${row.date||""}</td>
+      <td>${item.row.name||""}</td>
+      <td>${item.row.phone||""}</td>
+      <td>${item.row.wilaya||""}</td>
+      <td>${item.row.commune||""}</td>
+      <td>${item.row.adresse||""}</td>
+      <td>${item.row.product||""}</td>
+      <td>${item.row.date||""}</td>
 
       <td>
         ${lastNote}
         <br>
-        <button onclick="openNotes(${i})">👁 عرض</button>
+        <button onclick="openNotes(${item.i})">👁 عرض</button>
       </td>
 
       <td>
-        <button onclick="deleteRow(${i})">❌</button>
+        <button onclick="deleteRow(${item.i})">❌</button>
       </td>
 
     </tr>
@@ -253,7 +256,7 @@ function showMore(){
 }
 
 function showAll(){
-  limit = 100000;
+  limit = allData.length;
   render();
 }
 
@@ -274,19 +277,7 @@ function deleteRow(i){
 function openNotes(i){
 
   currentIndex = i;
-
-  let notes = [];
-
-  if(allData[i].note){
-    try {
-      notes = JSON.parse(allData[i].note);
-      if(!Array.isArray(notes)) notes = [{text: allData[i].note, date:""}];
-    } catch {
-      notes = [{text: allData[i].note, date:""}];
-    }
-  }
-
-  currentNotes = notes;
+  currentNotes = getNotes(allData[i].note);
 
   renderNotes();
   document.getElementById("modal").style.display="block";
