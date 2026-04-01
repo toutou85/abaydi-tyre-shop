@@ -12,7 +12,6 @@ body {
   padding: 10px;
 }
 
-/* ===== أدوات ===== */
 .controls {
   display: flex;
   gap: 10px;
@@ -24,7 +23,6 @@ input, select, button {
   padding: 8px;
 }
 
-/* ===== جدول ===== */
 .table-wrapper {
   overflow-x: auto;
   max-height: 75vh;
@@ -45,7 +43,6 @@ th, td {
   white-space: nowrap;
 }
 
-/* ===== رأس ثابت ===== */
 th {
   background: #eee;
   position: sticky;
@@ -53,13 +50,6 @@ th {
   z-index: 2;
 }
 
-/* ===== ملاحظات ===== */
-.note-cell {
-  min-width: 250px;
-  white-space: normal;
-}
-
-/* ===== أزرار ===== */
 button {
   background: red;
   color: white;
@@ -72,7 +62,6 @@ button:hover {
   background: darkred;
 }
 
-/* ===== Modal ===== */
 .modal {
   display: none;
   position: fixed;
@@ -107,7 +96,6 @@ button:hover {
 
 <h2 style="text-align:center;">📊 نظام PNUE الاحترافي</h2>
 
-<!-- ===== أدوات التحكم ===== -->
 <div class="controls">
 
 <input type="text" id="search" placeholder="🔍 بحث..." oninput="render()">
@@ -123,12 +111,12 @@ button:hover {
 
 </div>
 
-<!-- ===== جدول ===== -->
 <div class="table-wrapper">
 <table>
 
 <thead>
 <tr>
+<th>#</th>
 <th>الاسم</th>
 <th>الهاتف</th>
 <th>الولاية</th>
@@ -146,7 +134,7 @@ button:hover {
 </table>
 </div>
 
-<!-- ===== Modal ===== -->
+<!-- Modal -->
 <div id="modal" class="modal">
 <div class="modal-content">
 
@@ -180,10 +168,11 @@ function loadData(){
   fetch(url)
   .then(r => r.json())
   .then(data => {
+
     allData = data || [];
 
-    // الأقدم أولاً
-    allData.sort((a,b)=> new Date(a.date) - new Date(b.date));
+    // ✅ الأحدث أولاً (آخر سطر في Google Sheets)
+    allData.reverse();
 
     render();
   });
@@ -201,27 +190,37 @@ function render(){
   allData.forEach((row,i)=>{
 
     let notes = [];
-    try {
-      notes = row.note ? JSON.parse(row.note) : [];
-    } catch {}
+
+    // ✅ إصلاح قراءة الملاحظات (JSON + نص عادي)
+    if(row.note){
+      try {
+        notes = JSON.parse(row.note);
+        if(!Array.isArray(notes)) notes = [{text: row.note, date:""}];
+      } catch {
+        notes = [{text: row.note, date:""}];
+      }
+    }
 
     let lastNote = notes.length ? notes[notes.length-1].text : "";
 
-    // ===== فلتر =====
+    // فلتر
     if(filter==="has" && notes.length===0) return;
     if(filter==="no" && notes.length>0) return;
 
-    // ===== بحث =====
+    // بحث
     let text = Object.values(row).join(" ").toLowerCase();
     if(!text.includes(search)) return;
 
-    // ===== عرض محدود =====
+    // عرض 10 فقط
     if(count >= limit) return;
 
     count++;
 
     html += `
     <tr>
+
+      <td>${count}</td>
+
       <td>${row.name||""}</td>
       <td>${row.phone||""}</td>
       <td>${row.wilaya||""}</td>
@@ -230,8 +229,8 @@ function render(){
       <td>${row.product||""}</td>
       <td>${row.date||""}</td>
 
-      <td class="note-cell">
-        ${lastNote || ""}
+      <td>
+        ${lastNote}
         <br>
         <button onclick="openNotes(${i})">👁 عرض</button>
       </td>
@@ -239,6 +238,7 @@ function render(){
       <td>
         <button onclick="deleteRow(${i})">❌</button>
       </td>
+
     </tr>
     `;
   });
@@ -246,7 +246,7 @@ function render(){
   document.getElementById("data").innerHTML = html;
 }
 
-/* ===== عرض المزيد / الكل ===== */
+/* ===== عرض المزيد ===== */
 function showMore(){
   limit += 10;
   render();
@@ -275,14 +275,21 @@ function openNotes(i){
 
   currentIndex = i;
 
-  try {
-    currentNotes = allData[i].note ? JSON.parse(allData[i].note) : [];
-  } catch {
-    currentNotes = [];
+  let notes = [];
+
+  if(allData[i].note){
+    try {
+      notes = JSON.parse(allData[i].note);
+      if(!Array.isArray(notes)) notes = [{text: allData[i].note, date:""}];
+    } catch {
+      notes = [{text: allData[i].note, date:""}];
+    }
   }
 
+  currentNotes = notes;
+
   renderNotes();
-  document.getElementById("modal").style.display = "block";
+  document.getElementById("modal").style.display="block";
 }
 
 function renderNotes(){
@@ -292,7 +299,7 @@ function renderNotes(){
   currentNotes.forEach((n,index)=>{
     html += `
     <div class="note-item">
-      <b>${n.date}</b><br>
+      <b>${n.date || ""}</b><br>
       ${n.text}
       <br>
       <button onclick="deleteNote(${index})">❌</button>
@@ -345,7 +352,6 @@ function closeModal(){
   document.getElementById("modal").style.display="none";
 }
 
-/* ===== تشغيل ===== */
 loadData();
 
 </script>
