@@ -118,7 +118,7 @@ tr.selected { background: #334155; }
 </div>
 
 <script>
-const API = "https://script.google.com/macros/s/AKfycbzVMPZ-Yc0Du1dFz5E1ozT7oTMHhOHVHvMDATKgLsgIGDk24Qgs-3JdM8YvAiFgHB9AUA/exec";
+const API = "https://script.google.com/macros/s/AKfycbwoAv0hrN4f8Q2-aM9yOzqaGj_TCGUA9ws6Ebb368dY7giYUWesJpktf_nhAVlNwM6Ehg/exec";
 
 let selectedId = null;
 let allData = [];
@@ -126,14 +126,15 @@ let mode = "add";
 
 // تحميل
 function load() {
-  fetch(API)
-  .then(r=>r.json())
-  .then(data=>{
-    allData = data.slice(1);
-    render(allData);
-  });
-}
 
+fetch(API)
+.then(res => res.text())
+.then(text => {
+  let data = JSON.parse(text).data;
+
+  allData = data.slice(1);
+  render(allData);
+});
 // عرض
 function render(data){
   let html = "";
