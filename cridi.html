@@ -120,30 +120,45 @@ tr.selected { background: #334155; }
 <script>
 const API = "https://script.google.com/macros/s/AKfycbwoAv0hrN4f8Q2-aM9yOzqaGj_TCGUA9ws6Ebb368dY7giYUWesJpktf_nhAVlNwM6Ehg/exec";
 
+
 let selectedId = null;
 let allData = [];
-let mode = "add";
 
-// تحميل
+/* عناصر */
+const dataEl = document.getElementById("data");
+const modal = document.getElementById("modal");
+const search = document.getElementById("search");
+
+const nameEl = document.getElementById("name");
+const dateEl = document.getElementById("date");
+const phoneEl = document.getElementById("phone");
+const productEl = document.getElementById("product");
+const totalEl = document.getElementById("total");
+const paidEl = document.getElementById("paid");
+
+/* تحميل البيانات */
 function load() {
+  fetch(API)
+  .then(res => res.text())
+  .then(text => {
+    let json = JSON.parse(text);
+    let data = json.data;
 
-fetch(API)
-.then(res => res.text())
-.then(text => {
-  let data = JSON.parse(text).data;
+    allData = data.slice(1);
+    render(allData);
+  });
+}
 
-  allData = data.slice(1);
-  render(allData);
-});
-// عرض
-function render(data){
+/* عرض */
+function render(data) {
   let html = "";
 
-  data.forEach(row=>{
-    let remain = (row[5]||0) - (row[6]||0);
+  data.forEach(row => {
+
+    let remain = (row[5] || 0) - (row[6] || 0);
 
     html += `
-    <tr onclick="selectRow(this,${row[0]})">
+    <tr onclick="selectRow(this, ${row[0]})">
       <td>${row[0]}</td>
       <td>${row[1]}</td>
       <td>${row[2]}</td>
@@ -151,116 +166,136 @@ function render(data){
       <td>${row[4]}</td>
       <td>${row[5]}</td>
       <td>${row[6]}</td>
-      <td class="${remain>0?'red':''}">${remain}</td>
+      <td>${remain}</td>
     </tr>`;
   });
 
   dataEl.innerHTML = html;
 }
 
-// اختيار
-function selectRow(row,id){
-  document.querySelectorAll("tr").forEach(r=>r.classList.remove("selected"));
+/* اختيار */
+function selectRow(row, id) {
+  document.querySelectorAll("tr").forEach(r => r.classList.remove("selected"));
   row.classList.add("selected");
   selectedId = id;
 }
 
-// بحث
-function filter(){
+/* بحث */
+function filter() {
   let q = search.value.toLowerCase();
-  render(allData.filter(r=>r.join(" ").toLowerCase().includes(q)));
+
+  let filtered = allData.filter(r =>
+    r.join(" ").toLowerCase().includes(q)
+  );
+
+  render(filtered);
 }
 
-// فتح إضافة
-function openAdd(){
-  mode="add";
+/* فتح إضافة */
+function openAdd() {
   clearInputs();
-  modal.style.display="block";
+  modal.style.display = "block";
 }
 
-// تعديل
-function openEdit(){
-  if(!selectedId) return alert("اختر صف");
+/* فتح تعديل */
+function openEdit() {
 
-  mode="edit";
+  if (!selectedId) {
+    alert("اختر صف");
+    return;
+  }
 
-  let row = allData.find(r=>r[0]==selectedId);
+  let row = allData.find(r => r[0] == selectedId);
 
-  name.value=row[1];
-  date.value=row[2];
-  phone.value=row[3];
-  product.value=row[4];
-  total.value=row[5];
-  paid.value=row[6];
+  nameEl.value = row[1];
+  dateEl.value = row[2];
+  phoneEl.value = row[3];
+  productEl.value = row[4];
+  totalEl.value = row[5];
+  paidEl.value = row[6];
 
-  modal.style.display="block";
+  modal.style.display = "block";
 }
 
-// حفظ
-function save(){
-  let obj={
-    id:selectedId,
-    name:name.value,
-    date:date.value,
-    phone:phone.value,
-    product:product.value,
-    total:total.value,
-    paid:paid.value
+/* حفظ */
+function save() {
+
+  let action = selectedId ? "update" : "add";
+
+  let body = {
+    action: action,
+    id: selectedId,
+    name: nameEl.value,
+    date: dateEl.value,
+    phone: phoneEl.value,
+    product: productEl.value,
+    total: totalEl.value,
+    paid: paidEl.value
   };
 
-  fetch(API,{
-    method:"POST",
-    body:JSON.stringify({
-      action: mode==="add"?"add":"update",
-      ...obj
+  fetch(API, {
+    method: "POST",
+    body: JSON.stringify(body)
+  }).then(() => {
+    modal.style.display = "none";
+    load();
+  });
+}
+
+/* حذف */
+function remove() {
+
+  if (!selectedId) {
+    alert("اختر صف");
+    return;
+  }
+
+  if (confirm("هل تريد الحذف؟")) {
+    fetch(API, {
+      method: "POST",
+      body: JSON.stringify({
+        action: "delete",
+        id: selectedId
+      })
+    }).then(() => load());
+  }
+}
+
+/* تسديد */
+function pay() {
+
+  if (!selectedId) {
+    alert("اختر صف");
+    return;
+  }
+
+  let amount = prompt("كم تريد تسديد؟");
+
+  if (!amount) return;
+
+  fetch(API, {
+    method: "POST",
+    body: JSON.stringify({
+      action: "pay",
+      id: selectedId,
+      amount: amount
     })
-  }).then(()=>load());
-
-  modal.style.display="none";
+  }).then(() => load());
 }
 
-// حذف
-function remove(){
-  if(!selectedId) return alert("اختر صف");
-
-  fetch(API,{
-    method:"POST",
-    body:JSON.stringify({
-      action:"delete",
-      id:selectedId
-    })
-  }).then(()=>load());
+/* تنظيف */
+function clearInputs() {
+  nameEl.value = "";
+  dateEl.value = "";
+  phoneEl.value = "";
+  productEl.value = "";
+  totalEl.value = "";
+  paidEl.value = "";
 }
 
-// تسديد
-function pay(){
-  if(!selectedId) return alert("اختر صف");
-
-  let amount = prompt("المبلغ:");
-
-  fetch(API,{
-    method:"POST",
-    body:JSON.stringify({
-      action:"pay",
-      id:selectedId,
-      amount:amount
-    })
-  }).then(()=>load());
-}
-
-// تنظيف
-function clearInputs(){
-  name.value="";
-  date.value="";
-  phone.value="";
-  product.value="";
-  total.value="";
-  paid.value="";
-}
-
-// إغلاق
-function closeModal(){
-  modal.style.display="none";
+/* إغلاق */
+function closeModal() {
+  modal.style.display = "none";
 }
 
 load();
