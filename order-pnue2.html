@@ -2,7 +2,7 @@
 <html lang="ar">
 <head>
 <meta charset="UTF-8">
-<title>جدول الطلبات</title>
+<title>PNUE TABLE</title>
 
 <style>
 body {
@@ -12,84 +12,81 @@ body {
   background: #f4f4f4;
 }
 
-.table-wrapper {
-  width: 100%;
-  overflow-x: auto;
-  background: #fff;
-  border: 1px solid #ccc;
+h2 {
+  text-align: center;
 }
 
 table {
-  min-width: 1500px;
+  width: 100%;
   border-collapse: collapse;
+  background: #fff;
 }
 
 th, td {
   border: 1px solid #ccc;
-  padding: 8px;
+  padding: 5px;
   text-align: center;
-  white-space: nowrap;
 }
 
-th { background: #eee; }
+th {
+  background: #eee;
+  position: sticky;
+  top: 0;
+}
+
+input {
+  width: 100%;
+  border: none;
+  text-align: center;
+  background: transparent;
+}
+
+textarea {
+  width: 100%;
+  height: 80px;
+}
 
 button {
-  padding: 5px 10px;
   background: red;
-  color: #fff;
+  color: white;
   border: none;
+  padding: 5px;
   cursor: pointer;
+  border-radius: 4px;
 }
 
 button:hover {
   background: darkred;
 }
 
-#search {
-  width: 100%;
-  padding: 10px;
-  margin-bottom: 10px;
-}
-
-/* Modal */
-.modal {
-  display: none;
+#toast {
   position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: #4CAF50;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 5px;
+  display: none;
   z-index: 999;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.6);
-}
-
-.modal-content {
-  background: #fff;
-  padding: 20px;
-  width: 450px;
-  margin: 8% auto;
-  border-radius: 10px;
-}
-
-.close {
-  float: left;
-  cursor: pointer;
 }
 </style>
-</head>
 
+</head>
 <body>
 
-<h2>📋 جدول الطلبات</h2>
+<input 
+  type="text" 
+  id="search" 
+  placeholder="🔍 ابحث هنا..." 
+  onkeyup="applyFilters()"
+>
 
-<input type="text" id="search" placeholder="🔍 بحث..." onkeyup="applyFilters()">
+<h2>📋 جدول الطلبات PNUE</h2>
 
-<div class="table-wrapper">
 <table>
 <thead>
 <tr>
-<th>ترقيم</th>
-<th>ID</th>
 <th>الاسم</th>
 <th>الهاتف</th>
 <th>الولاية</th>
@@ -101,86 +98,62 @@ button:hover {
 <th>حذف</th>
 </tr>
 </thead>
+
 <tbody id="data"></tbody>
 </table>
-</div>
 
-<!-- Modal -->
-<div id="modal" class="modal">
-  <div class="modal-content">
-    <span class="close" onclick="closeModal()">✖</span>
+<div id="toast"></div>
 
-    <h3>📌 الملاحظات</h3>
-    <div id="modalData"></div>
-
-    <textarea id="newNote"></textarea>
-
-    <br><br>
-    <button onclick="addNote()">➕ إضافة</button>
-    <button onclick="saveNotes()">💾 حفظ</button>
-    <button onclick="deleteNotes()">🗑 حذف</button>
-  </div>
-</div>
+<button onclick="loadMore()">⬇️ عرض المزيد</button>
 
 <script>
 
-const url = "https://script.google.com/macros/s/AKfycby5JcMkevQJJhtjEcTkYY7EYrESFjc1lBjfLlEiaKQEUVx625i0Z7EbVL6UM-XvOPvW6w/exec";
+const url = "https://script.google.com/macros/s/AKfycbxk0VpVSa4ZRXX5UOPqDrTfPwK467qCMcQ0c9f-Dd4s49Do7IayFJnXpBwXzqn3AIzAIQ/exec";
 
 let allData = [];
-let filteredData = [];
-let currentRowId = null;
-let currentNotes = [];
+let visibleCount = 5;
 
-/* تحميل البيانات */
-function loadData(){
+// تحميل البيانات
+function loadData() {
   fetch(url)
-  .then(res => res.json())
-  .then(data => {
-    allData = data || [];
-    filteredData = [...allData];
-    renderTable();
-  })
-  .catch(err => console.log(err));
+    .then(res => res.json())
+    .then(data => {
+      allData = data || [];
+      renderTable(allData);
+    })
+    .catch(err => {
+      console.error("خطأ:", err);
+    });
 }
 
-/* عرض الجدول */
-function renderTable(){
+// عرض الجدول
+function renderTable(data) {
 
   let html = "";
 
-  let sorted = [...filteredData].sort((a,b) => b.id - a.id);
+  let sorted = [...data].sort((a,b)=> new Date(b.date) - new Date(a.date));
 
-  sorted.forEach((row, index) => {
+  let limited = sorted.slice(0, visibleCount);
 
-    let notes = [];
-
-    try {
-      notes = row.note ? JSON.parse(row.note) : [];
-    } catch {
-      notes = [];
-    }
-
-    let lastNote = notes.length ? notes[notes.length - 1].text : "";
+  limited.forEach((row, index) => {
 
     html += `
     <tr>
-      <td>${index + 1}</td>
-      <td>${row.id || ""}</td>
-      <td>${row.name || ""}</td>
-      <td>${row.phone || ""}</td>
-      <td>${row.wilaya || ""}</td>
-      <td>${row.commune || ""}</td>
-      <td>${row.adresse || ""}</td>
-      <td>${row.product || ""}</td>
-      <td>${row.date || ""}</td>
+      <td><input value="${row.name || ''}" onchange="updateRow(${index},'name',this.value)"></td>
+      <td><input value="${row.phone || ''}" onchange="updateRow(${index},'phone',this.value)"></td>
+      <td><input value="${row.wilaya || ''}" onchange="updateRow(${index},'wilaya',this.value)"></td>
+      <td><input value="${row.commune || ''}" onchange="updateRow(${index},'commune',this.value)"></td>
+      <td><input value="${row.adresse || ''}" onchange="updateRow(${index},'adresse',this.value)"></td>
+      <td><input value="${row.product || ''}" onchange="updateRow(${index},'product',this.value)"></td>
+      <td><input value="${row.date || ''}" onchange="updateRow(${index},'date',this.value)"></td>
 
       <td>
-        ${lastNote}
-        <br>
-        <button onclick="openNotes(${row.id})">👁 عرض</button>
+        <textarea onchange="updateRow(${index},'note',this.value)">
+        ${row.note || ''}
+        </textarea>
       </td>
 
-      <td><button onclick="deleteRow(${row.id})">❌</button></td>
+      <td><button onclick="deleteRow(${index})">❌</button></td>
     </tr>
     `;
   });
@@ -188,109 +161,64 @@ function renderTable(){
   document.getElementById("data").innerHTML = html;
 }
 
-/* فتح الملاحظات */
-function openNotes(id){
-  currentRowId = id;
-
-  let row = allData.find(r => r.id == id);
-
-  try {
-    currentNotes = row && row.note ? JSON.parse(row.note) : [];
-  } catch {
-    currentNotes = [];
-  }
-
-  renderNotes();
-  document.getElementById("modal").style.display = "block";
+// عرض المزيد
+function loadMore(){
+  visibleCount += 5;
+  renderTable(allData);
 }
 
-/* عرض الملاحظات */
-function renderNotes(){
-  let html = "";
+// تعديل
+function updateRow(index, field, value){
 
-  currentNotes.forEach(n => {
-    html += `
-      <div style="border-bottom:1px solid #ccc;padding:5px;">
-        <b>${n.date}</b><br>
-        ${n.text}
-      </div>
-    `;
-  });
-
-  document.getElementById("modalData").innerHTML = html;
-}
-
-/* إضافة ملاحظة */
-function addNote(){
-  let text = document.getElementById("newNote").value;
-  if(!text) return;
-
-  currentNotes.push({
-    text: text,
-    date: new Date().toLocaleString()
-  });
-
-  document.getElementById("newNote").value = "";
-  renderNotes();
-}
-
-/* حفظ */
-function saveNotes(){
   fetch(url, {
     method: "POST",
     body: JSON.stringify({
       action: "updateAll",
-      index: currentRowId,
-      field: "note",
-      value: JSON.stringify(currentNotes)
+      index: index,
+      field: field,
+      value: value
     })
-  }).then(() => loadData());
-
-  closeModal();
+  })
+  .then(()=> showToast("تم الحفظ"));
 }
 
-/* حذف ملاحظات */
-function deleteNotes(){
-  currentNotes = [];
-  renderNotes();
-}
-
-/* إغلاق */
-function closeModal(){
-  document.getElementById("modal").style.display = "none";
-}
-
-/* حذف سطر */
-function deleteRow(id){
+// حذف
+function deleteRow(index){
   if(confirm("حذف؟")){
-    fetch(url, {
-      method: "POST",
+    fetch(url,{
+      method:"POST",
       body: JSON.stringify({
-        action: "delete",
-        index: id
+        action:"delete",
+        index:index
       })
-    }).then(() => loadData());
+    }).then(()=> loadData());
   }
 }
 
-/* البحث */
+// بحث
 function applyFilters(){
-  let val = document.getElementById("search").value.toLowerCase();
 
-  if(!val){
-    filteredData = [...allData];
-  } else {
-    filteredData = allData.filter(r =>
-      (r.product || "").toLowerCase().includes(val) ||
-      (r.name || "").toLowerCase().includes(val) ||
-      (r.phone || "").toLowerCase().includes(val)
-    );
-  }
+  let search = document.getElementById("search").value.toLowerCase();
 
-  renderTable();
+  let filtered = allData.filter(r =>
+    (r.name || "").toLowerCase().includes(search) ||
+    (r.phone || "").toLowerCase().includes(search) ||
+    (r.product || "").toLowerCase().includes(search)
+  );
+
+  renderTable(filtered);
 }
 
-/* تشغيل */
+// Toast
+function showToast(msg){
+  let t = document.getElementById("toast");
+  t.innerText = msg;
+  t.style.display = "block";
+
+  setTimeout(()=> t.style.display="none", 2000);
+}
+
+// تشغيل
 loadData();
 
 </script>
