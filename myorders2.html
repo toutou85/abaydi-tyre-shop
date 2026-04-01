@@ -1,123 +1,290 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar">
 <head>
-  <meta charset="UTF-8">
-  <title>📦 طلباتي</title>
-  <style>
-    body { font-family: Tahoma, sans-serif; background: #f5f5f5; padding: 20px; text-align: center; }
-    .box { max-width: 400px; background: white; margin: auto; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-    input, button { width: 100%; padding: 10px; margin-top: 10px; font-size: 16px; }
-    table { width: 100%; border-collapse: collapse; margin-top: 30px; font-size: 14px; }
-    th, td { border: 1px solid #ccc; padding: 8px; }
-    th { background: #007bff; color: white; }
-    .error { color: red; font-size: 14px; margin-top: 10px; }
-    #countdown { font-size: 16px; color: #007bff; margin-top: 10px; }
-  </style>
+<meta charset="UTF-8">
+<title>PNUE TABLE</title>
+
+<style>
+body {
+  font-family: Arial;
+  direction: rtl;
+  padding: 15px;
+  background: #f4f4f4;
+}
+
+h2 {
+  text-align: center;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+}
+
+th, td {
+  border: 1px solid #ccc;
+  padding: 5px;
+  text-align: center;
+}
+
+th {
+  background: #eee;
+  position: sticky;
+  top: 0;
+}
+
+input {
+  width: 100%;
+  border: none;
+  text-align: center;
+  background: transparent;
+}
+
+input:focus {
+  background: #ffffcc;
+}
+
+textarea {
+  width: 100%;
+  height: 80px;
+}
+
+button {
+  background: red;
+  color: white;
+  border: none;
+  padding: 5px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+button:hover {
+  background: darkred;
+}
+
+#toast {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: #4CAF50;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 5px;
+  display: none;
+  z-index: 999;
+}
+</style>
+
 </head>
 <body>
 
-<div class="box">
-  <h2>📦 عرض طلبياتك</h2>
-  <input type="tel" id="phoneInput" placeholder="أدخل رقم هاتفك (مثال: 065...)" />
-  <button id="fetchBtn" onclick="fetchMyOrders()">🔍 عرض طلباتي</button>
-  <p class="error" id="errorMsg"></p>
-  <div id="countdown"></div>
-</div>
+<input 
+  type="text" 
+  id="search" 
+  placeholder="🔍 ابحث هنا..." 
+  onkeyup="applyFilters()"
+  style="width:100%; padding:10px; margin-bottom:10px; font-size:16px;"
+>
 
-<div id="ordersSection" style="display:none;">
-  <h3>📋 قائمة الطلبيات</h3>
-  <table>
-    <thead>
-      <tr>
-        <th>الاسم</th><th>الهاتف</th><th>النوع</th><th>رقم</th><th>السعر</th><th>الكمية</th>
-        <th>الولاية</th><th>طريقة التوصيل</th><th>سعر التوصيل</th><th>المجموع</th>
-        <th>العنوان</th><th>ملاحظة</th><th>التاريخ</th><th>الحالة</th>
-      </tr>
-    </thead>
-    <tbody id="ordersTable"></tbody>
-  </table>
-</div>
+<h2>📋 جدول الطلبات PNUE</h2>
+
+<table>
+<thead>
+<tr>
+<th>الاسم</th>
+<th>الهاتف1</th>
+<th>الولاية</th>
+<th>البلدية</th>
+<th>العنوان</th>
+<th>
+  المنتج ⬇️
+  <br>
+  <select id="productSelect" onchange="applyFilters()">
+    <option value="">الكل</option>
+  </select>
+</th>
+<th>التاريخ</th>
+<th>الملاحظات</th>
+<th>حذف</th>
+</tr>
+</thead>
+
+<tbody id="data"></tbody>
+</table>
+
+<div id="toast">✅ تم حفظ التعديل</div>
+
+<button onclick="loadMore()" style="margin-top:10px; padding:10px;">
+  ⬇️ عرض المزيد
+</button>
 
 <script>
-const sheetURL = "https://script.google.com/macros/s/AKfycbzDvYBtARWmMr8xVdJEfQ0ojgNMxjHXdTGyO_76D732SfJ15kazIXQa5eTQYp411CsSfA/exec";
 
-function validatePhone(phone) {
-  return /^0(5|6|7)\d{8}$/.test(phone);
+const url = "https://script.google.com/macros/s/AKfycbxk0VpVSa4ZRXX5UOPqDrTfPwK467qCMcQ0c9f-Dd4s49Do7IayFJnXpBwXzqn3AIzAIQ/exec";
+
+let allData = [];
+let visibleCount = 5;
+
+// تحويل التاريخ بشكل آمن
+function safeDate(d) {
+  let date = new Date(d);
+  if (isNaN(date)) return new Date(0);
+  return date;
 }
 
-function fetchMyOrders() {
-  const phone = document.getElementById("phoneInput").value.trim();
-  const errorMsg = document.getElementById("errorMsg");
-  const table = document.getElementById("ordersTable");
-  const section = document.getElementById("ordersSection");
-
-  if (!validatePhone(phone)) {
-    errorMsg.textContent = "⚠️ رقم الهاتف غير صحيح. يجب أن يبدأ بـ 05 أو 06 أو 07 ويحتوي على 10 أرقام.";
-    section.style.display = "none";
-    return;
-  }
-
-  errorMsg.textContent = "⏳ جاري تحميل الطلبات...";
-  fetch(sheetURL)
-    .then(res => res.text())
-    .then(text => {
-      const rows = text.trim().split('\n').slice(1).reverse(); // أحدث الطلبات أولاً
-      const myOrders = rows
-        .map(r => r.split(","))
-        .filter(r => r[2] === phone);
-
-      if (myOrders.length === 0) {
-        errorMsg.textContent = "❌ لم يتم العثور على أي طلبات.";
-        section.style.display = "none";
-        return;
-      }
-
-      errorMsg.textContent = "";
-      section.style.display = "block";
-      table.innerHTML = "";
-
-      myOrders.forEach(row => {
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${row[1]}</td><td>${row[2]}</td><td>${row[3]}</td><td>${row[4]}</td><td>${row[5]}</td>
-          <td>${row[12] || "1"}</td><td>${row[6]}</td><td>${row[7]}</td><td>${row[8]}</td>
-          <td>${row[9]}</td><td>${row[10]}</td><td>${row[11]}</td><td>${row[0]}</td><td>${row[13] || "قيد المعالجة"}</td>
-        `;
-        table.appendChild(tr);
-      });
+// تحميل البيانات
+function loadData() {
+  fetch(url)
+    .then(res => res.json())
+    .then(data => {
+      allData = data;
+      renderTable();
     })
     .catch(err => {
-      errorMsg.textContent = "❌ حدث خطأ أثناء تحميل الطلبات.";
+      alert("❌ خطأ في تحميل البيانات");
       console.error(err);
     });
 }
 
-// ✅ تنفيذ تلقائي مع عد تنازلي عند فتح الصفحة
-window.onload = function () {
-  const url = new URL(window.location.href);
-  const phone = url.searchParams.get("phone");
-  const wait = parseInt(url.searchParams.get("wait")) || 10;
+// عرض الجدول
+function renderTable() {
+  let html = "";
+  let productSet = new Set();
 
-  if (phone) {
-    document.getElementById("phoneInput").value = phone;
+  let sorted = allData.map((row, i) => ({ ...row, originalIndex: i }));
 
-    const countdownEl = document.getElementById("countdown");
-    const fetchBtn = document.getElementById("fetchBtn");
-    fetchBtn.disabled = true;
+  // 🔥 ترتيب قوي حسب التاريخ
+  sorted.sort((a, b) => {
+    return safeDate(b.date) - safeDate(a.date);
+  });
 
-    let counter = wait;
-    const interval = setInterval(() => {
-      countdownEl.textContent = `⌛ الرجاء الانتظار ${counter} ثانية لتحميل الطلبيات...`;
-      counter--;
-      if (counter < 0) {
-        clearInterval(interval);
-        countdownEl.textContent = "";
-        fetchBtn.disabled = false;
-        fetchMyOrders();
-      }
-    }, 1000);
+  let limited = sorted.slice(0, visibleCount);
+
+  limited.forEach((row) => {
+
+    if (row.product) productSet.add(row.product);
+
+    html += `
+    <tr>
+      <td><input value="${row.name || ''}" onchange="updateRow(${row.originalIndex},'name',this.value)"></td>
+      <td><input value="${row.phone || ''}" onchange="updateRow(${row.originalIndex},'phone',this.value)"></td>
+      <td><input value="${row.wilaya || ''}" onchange="updateRow(${row.originalIndex},'wilaya',this.value)"></td>
+      <td><input value="${row.commune || ''}" onchange="updateRow(${row.originalIndex},'commune',this.value)"></td>
+      <td><input value="${row.adresse || ''}" onchange="updateRow(${row.originalIndex},'adresse',this.value)"></td>
+      <td><input value="${row.product || ''}" onchange="updateRow(${row.originalIndex},'product',this.value)"></td>
+      <td><input value="${formatDate(row.date) || ''}" onchange="updateRow(${row.originalIndex},'date',this.value)"></td>
+      <td>
+        <textarea oninput="updateRow(${row.originalIndex},'note',this.value)">${row.note || ''}</textarea>
+      </td>
+      <td><button onclick="deleteRow(${row.originalIndex})">❌</button></td>
+    </tr>`;
+  });
+
+  document.getElementById("data").innerHTML = html;
+
+  let select = document.getElementById("productSelect");
+  select.innerHTML = `<option value="">الكل</option>`;
+
+  productSet.forEach(p => {
+    select.innerHTML += `<option value="${p}">${p}</option>`;
+  });
+}
+
+// عرض المزيد
+function loadMore() {
+  visibleCount += 5;
+  renderTable();
+}
+
+// تعديل
+function updateRow(index, field, value) {
+
+  if (field === "note") {
+    let now = new Date();
+    let formattedDate = formatDate(now);
+    value = value + "\n🕒 " + formattedDate + "\n-----------------\n";
   }
-};
+
+  fetch(url, {
+    method: "POST",
+    body: JSON.stringify({
+      action: "updateAll",
+      index: index,
+      field: field,
+      value: value
+    })
+  })
+  .then(() => {
+    showToast("✅ تم حفظ التعديل");
+  })
+  .catch(() => {
+    showToast("❌ خطأ في الحفظ");
+  });
+}
+
+// حذف
+function deleteRow(index) {
+  if(confirm("هل تريد حذف هذا الصف؟")) {
+    fetch(url, {
+      method: "POST",
+      body: JSON.stringify({
+        action: "delete",
+        index: index
+      })
+    }).then(() => loadData());
+  }
+}
+
+// فلترة
+function applyFilters() {
+  let search = document.getElementById("search").value.toLowerCase();
+  let selected = document.getElementById("productSelect").value.toLowerCase();
+
+  let rows = document.querySelectorAll("#data tr");
+
+  rows.forEach(row => {
+    let text = row.innerText.toLowerCase();
+    let productText = row.children[5].innerText.toLowerCase();
+
+    let matchSearch = text.includes(search);
+    let matchProduct = (selected === "" || productText === selected);
+
+    row.style.display = (matchSearch && matchProduct) ? "" : "none";
+  });
+}
+
+// تنسيق التاريخ
+function formatDate(dateString) {
+  if (!dateString) return "";
+
+  let date = new Date(dateString);
+  if (isNaN(date)) return dateString;
+
+  let y = date.getFullYear();
+  let m = String(date.getMonth() + 1).padStart(2, '0');
+  let d = String(date.getDate()).padStart(2, '0');
+
+  let h = String(date.getHours()).padStart(2, '0');
+  let min = String(date.getMinutes()).padStart(2, '0');
+
+  return `${y}-${m}-${d} ${h}:${min}`;
+}
+
+// Toast
+function showToast(message = "✅ تم الحفظ") {
+  let toast = document.getElementById("toast");
+  toast.innerText = message;
+  toast.style.display = "block";
+
+  setTimeout(() => {
+    toast.style.display = "none";
+  }, 2000);
+}
+
+// تشغيل
+loadData();
+
 </script>
 
 </body>
