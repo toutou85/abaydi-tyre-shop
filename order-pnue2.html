@@ -2,29 +2,34 @@
 <html lang="ar">
 <head>
 <meta charset="UTF-8">
-<title>PNUE TABLE</title>
+<title>نظام الطلبات الاحترافي</title>
 
 <style>
 body {
   font-family: Arial;
   direction: rtl;
-  padding: 15px;
   background: #f4f4f4;
+  padding: 15px;
 }
 
-h2 {
-  text-align: center;
+h2 { text-align: center; }
+
+/* ===== جدول ===== */
+.table-wrapper {
+  overflow-x: auto;
+  background: #fff;
+  border: 1px solid #ccc;
 }
 
 table {
   width: 100%;
   border-collapse: collapse;
-  background: #fff;
+  min-width: 1400px;
 }
 
 th, td {
   border: 1px solid #ccc;
-  padding: 5px;
+  padding: 6px;
   text-align: center;
 }
 
@@ -34,6 +39,7 @@ th {
   top: 0;
 }
 
+/* ===== Inputs ===== */
 input {
   width: 100%;
   border: none;
@@ -41,16 +47,12 @@ input {
   background: transparent;
 }
 
-textarea {
-  width: 100%;
-  height: 60px;
-}
-
+/* ===== أزرار ===== */
 button {
+  padding: 5px 8px;
+  border: none;
   background: red;
   color: white;
-  border: none;
-  padding: 5px;
   cursor: pointer;
   border-radius: 4px;
 }
@@ -59,16 +61,18 @@ button:hover {
   background: darkred;
 }
 
-#toast {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  background: #4CAF50;
-  color: white;
-  padding: 10px 20px;
-  border-radius: 5px;
-  display: none;
-  z-index: 999;
+/* ===== شريط التحكم ===== */
+.controls {
+  margin-bottom: 10px;
+}
+
+.controls button {
+  background: #333;
+  margin: 2px;
+}
+
+.controls button:hover {
+  background: black;
 }
 
 /* ===== Modal ===== */
@@ -76,8 +80,6 @@ button:hover {
   display: none;
   position: fixed;
   z-index: 999;
-  left: 0;
-  top: 0;
   width: 100%;
   height: 100%;
   background: rgba(0,0,0,0.6);
@@ -85,9 +87,9 @@ button:hover {
 
 .modal-content {
   background: #fff;
-  padding: 20px;
   width: 400px;
   margin: 10% auto;
+  padding: 15px;
   border-radius: 10px;
 }
 
@@ -101,15 +103,17 @@ button:hover {
 
 <body>
 
-<input 
-  type="text" 
-  id="search" 
-  placeholder="🔍 ابحث..." 
-  onkeyup="applyFilters()"
->
+<h2>📋 نظام الطلبات الاحترافي</h2>
 
-<h2>📋 جدول الطلبات PNUE</h2>
+<input id="search" placeholder="🔍 بحث..." onkeyup="applyFilters()">
 
+<div class="controls">
+  <button onclick="setView(5)">عرض أقل</button>
+  <button onclick="setView(20)">عرض متوسط</button>
+  <button onclick="setView(allData.length)">عرض الكل</button>
+</div>
+
+<div class="table-wrapper">
 <table>
 <thead>
 <tr>
@@ -127,10 +131,7 @@ button:hover {
 
 <tbody id="data"></tbody>
 </table>
-
-<button onclick="loadMore()">⬇️ عرض المزيد</button>
-
-<div id="toast"></div>
+</div>
 
 <!-- Modal -->
 <div id="modal" class="modal">
@@ -153,59 +154,58 @@ button:hover {
 const url = "https://script.google.com/macros/s/AKfycbxk0VpVSa4ZRXX5UOPqDrTfPwK467qCMcQ0c9f-Dd4s49Do7IayFJnXpBwXzqn3AIzAIQ/exec";
 
 let allData = [];
+let filteredData = [];
 let visibleCount = 5;
 let currentIndex = null;
 let currentNotes = [];
 
-/* تحميل */
+/* ===== تحميل ===== */
 function loadData(){
   fetch(url)
-    .then(res => res.json())
+    .then(r => r.json())
     .then(data => {
       allData = data || [];
-      renderTable(allData);
+      filteredData = [...allData];
+      renderTable();
     })
     .catch(err => console.error(err));
 }
 
-/* عرض */
-function renderTable(data){
+/* ===== عرض ===== */
+function renderTable(){
 
   let html = "";
 
-  let sorted = [...data].sort((a,b)=> new Date(b.date) - new Date(a.date));
+  let sorted = [...filteredData].sort((a,b)=> new Date(b.date) - new Date(a.date));
 
   let limited = sorted.slice(0, visibleCount);
 
-  limited.forEach((row, index)=>{
+  limited.forEach((row, i)=>{
 
     let notes = [];
-
     try {
       notes = row.note ? JSON.parse(row.note) : [];
-    } catch {
-      notes = [];
-    }
+    } catch {}
 
     let lastNote = notes.length ? notes[notes.length - 1].text : "";
 
     html += `
     <tr>
-      <td><input value="${row.name || ''}" onchange="updateRow(${index},'name',this.value)"></td>
-      <td><input value="${row.phone || ''}" onchange="updateRow(${index},'phone',this.value)"></td>
-      <td><input value="${row.wilaya || ''}" onchange="updateRow(${index},'wilaya',this.value)"></td>
-      <td><input value="${row.commune || ''}" onchange="updateRow(${index},'commune',this.value)"></td>
-      <td><input value="${row.adresse || ''}" onchange="updateRow(${index},'adresse',this.value)"></td>
-      <td><input value="${row.product || ''}" onchange="updateRow(${index},'product',this.value)"></td>
-      <td><input value="${row.date || ''}" onchange="updateRow(${index},'date',this.value)"></td>
+      <td><input value="${row.name||''}" onchange="updateRow(${i},'name',this.value)"></td>
+      <td><input value="${row.phone||''}" onchange="updateRow(${i},'phone',this.value)"></td>
+      <td><input value="${row.wilaya||''}" onchange="updateRow(${i},'wilaya',this.value)"></td>
+      <td><input value="${row.commune||''}" onchange="updateRow(${i},'commune',this.value)"></td>
+      <td><input value="${row.adresse||''}" onchange="updateRow(${i},'adresse',this.value)"></td>
+      <td><input value="${row.product||''}" onchange="updateRow(${i},'product',this.value)"></td>
+      <td><input value="${row.date||''}" onchange="updateRow(${i},'date',this.value)"></td>
 
       <td>
         ${lastNote}
         <br>
-        <button onclick="openNotes(${index})">👁 عرض</button>
+        <button onclick="openNotes(${i})">👁 عرض</button>
       </td>
 
-      <td><button onclick="deleteRow(${index})">❌</button></td>
+      <td><button onclick="deleteRow(${i})">❌</button></td>
     </tr>
     `;
   });
@@ -213,15 +213,14 @@ function renderTable(data){
   document.getElementById("data").innerHTML = html;
 }
 
-/* عرض المزيد */
-function loadMore(){
-  visibleCount += 5;
-  renderTable(allData);
+/* ===== التحكم في العرض ===== */
+function setView(count){
+  visibleCount = count;
+  renderTable();
 }
 
-/* تحديث */
+/* ===== تعديل ===== */
 function updateRow(index, field, value){
-
   fetch(url,{
     method:"POST",
     body: JSON.stringify({
@@ -230,15 +229,12 @@ function updateRow(index, field, value){
       field:field,
       value:value
     })
-  })
-  .then(()=> showToast("تم الحفظ"));
+  });
 }
 
-/* حذف */
+/* ===== حذف ===== */
 function deleteRow(index){
-
-  if(confirm("هل تريد الحذف؟")){
-
+  if(confirm("حذف؟")){
     fetch(url,{
       method:"POST",
       body: JSON.stringify({
@@ -249,12 +245,12 @@ function deleteRow(index){
   }
 }
 
-/* فتح الملاحظات */
+/* ===== فتح الملاحظات ===== */
 function openNotes(index){
 
   currentIndex = index;
 
-  let row = allData[index];
+  let row = filteredData[index];
 
   try {
     currentNotes = row.note ? JSON.parse(row.note) : [];
@@ -266,22 +262,24 @@ function openNotes(index){
   document.getElementById("modal").style.display = "block";
 }
 
-/* عرض الملاحظات */
+/* ===== عرض الملاحظات ===== */
 function renderNotes(){
 
   let html = "";
 
   currentNotes.forEach(n=>{
-    html += `<div style="border-bottom:1px solid #ccc;padding:5px;">
-      <b>${n.date}</b><br>
-      ${n.text}
-    </div>`;
+    html += `
+      <div style="border-bottom:1px solid #ccc;padding:5px;">
+        <b>${n.date}</b><br>
+        ${n.text}
+      </div>
+    `;
   });
 
   document.getElementById("notesBox").innerHTML = html;
 }
 
-/* إضافة ملاحظة */
+/* ===== إضافة ملاحظة ===== */
 function addNote(){
 
   let text = document.getElementById("newNote").value;
@@ -296,7 +294,7 @@ function addNote(){
   renderNotes();
 }
 
-/* حفظ ملاحظات */
+/* ===== حفظ ===== */
 function saveNotes(){
 
   fetch(url,{
@@ -312,35 +310,26 @@ function saveNotes(){
   closeModal();
 }
 
-/* إغلاق */
+/* ===== إغلاق ===== */
 function closeModal(){
   document.getElementById("modal").style.display = "none";
 }
 
-/* بحث */
+/* ===== البحث ===== */
 function applyFilters(){
 
   let val = document.getElementById("search").value.toLowerCase();
 
-  let filtered = allData.filter(r =>
-    (r.name || "").toLowerCase().includes(val) ||
-    (r.phone || "").toLowerCase().includes(val) ||
-    (r.product || "").toLowerCase().includes(val)
+  filteredData = allData.filter(r =>
+    (r.name||"").toLowerCase().includes(val) ||
+    (r.phone||"").toLowerCase().includes(val) ||
+    (r.product||"").toLowerCase().includes(val)
   );
 
-  renderTable(filtered);
+  renderTable();
 }
 
-/* Toast */
-function showToast(msg){
-  let t = document.getElementById("toast");
-  t.innerText = msg;
-  t.style.display = "block";
-
-  setTimeout(()=> t.style.display="none",2000);
-}
-
-/* تشغيل */
+/* ===== تشغيل ===== */
 loadData();
 
 </script>
