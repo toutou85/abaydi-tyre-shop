@@ -47,6 +47,7 @@ th {
   display: none;
   position: fixed;
   top:0;
+  left:0;
   width:100%;
   height:100%;
   background: rgba(0,0,0,0.7);
@@ -78,20 +79,24 @@ th {
 <table>
 <thead>
 <tr>
+<th>#</th>
 <th>الاسم</th>
 <th>الهاتف</th>
 <th>المنتج</th>
+<th>الإجمالي</th>
+<th>المدفوع</th>
+<th>الباقي</th>
 <th>إجراءات</th>
 </tr>
 </thead>
 <tbody id="data"></tbody>
 </table>
 
-<!-- ملاحظات -->
+<!-- نافذة الملاحظات -->
 <div id="modal" class="modal">
 <div class="modal-content">
 <h3>ملاحظة</h3>
-<textarea id="noteText"></textarea>
+<textarea id="noteText" style="width:100%;height:100px"></textarea>
 <button onclick="saveNote()">حفظ</button>
 <button onclick="closeModal()">إغلاق</button>
 </div>
@@ -99,60 +104,78 @@ th {
 
 <script>
 
-let credits = [];
 let currentId = null;
+
+const dataEl = document.getElementById("data");
+const modal = document.getElementById("modal");
+const noteText = document.getElementById("noteText");
 
 function load() {
   google.script.run.withSuccessHandler(function(data) {
-    credits = data;
+
     let html = "";
 
     for (let i = 1; i < data.length; i++) {
       html += `
       <tr>
+        <td>${data[i][0]}</td>
         <td>${data[i][1]}</td>
+        <td>${data[i][2]}</td>
         <td>${data[i][3]}</td>
         <td>${data[i][4]}</td>
+        <td>${data[i][5]}</td>
+        <td>${data[i][6]}</td>
         <td>
-          <button onclick="del(${data[i][0]})">حذف</button>
-          <button onclick="openNote(${data[i][0]})">ملاحظة</button>
+          <button onclick="del(${data[i][0]})">🗑 حذف</button>
+          <button onclick="openNote(${data[i][0]})">📝 ملاحظة</button>
         </td>
       </tr>
       `;
     }
 
     dataEl.innerHTML = html;
+
   }).getData();
 }
 
 function add() {
+
   let obj = {
-    name: name.value,
-    date: date.value,
-    phone: phone.value,
-    product: product.value,
-    total: total.value,
-    paid: paid.value,
-    rest: rest.value
+    name: document.getElementById("name").value,
+    date: document.getElementById("date").value,
+    phone: document.getElementById("phone").value,
+    product: document.getElementById("product").value,
+    total: document.getElementById("total").value,
+    paid: document.getElementById("paid").value,
+    rest: document.getElementById("rest").value
   };
 
-  google.script.run.addCredit(obj);
-  setTimeout(load, 500);
+  google.script.run.withSuccessHandler(function(){
+    load();
+  }).addCredit(obj);
+
 }
 
 function del(id) {
-  google.script.run.deleteCredit(id);
-  setTimeout(load, 500);
+  google.script.run.withSuccessHandler(function(){
+    load();
+  }).deleteCredit(id);
 }
 
 function openNote(id) {
   currentId = id;
-  modal.style.display = "block";
+
+  google.script.run.withSuccessHandler(function(note){
+    noteText.value = note || "";
+    modal.style.display = "block";
+  }).getNote(id);
 }
 
 function saveNote() {
-  google.script.run.addNote(currentId, noteText.value);
-  closeModal();
+  google.script.run.withSuccessHandler(function(){
+    modal.style.display = "none";
+    load();
+  }).addNote(currentId, noteText.value);
 }
 
 function closeModal() {
