@@ -12,7 +12,6 @@ body {
   background: #f4f4f4;
 }
 
-/* ===== شريط تمرير ===== */
 .table-container {
   overflow-x: auto;
   width: 100%;
@@ -31,9 +30,11 @@ th, td {
   white-space: nowrap;
 }
 
-th { background: #eee; }
+th {
+  background: #eee;
+}
 
-input, textarea {
+input {
   width: 100%;
   border: none;
   background: transparent;
@@ -49,7 +50,9 @@ button {
   margin: 3px;
 }
 
-button:hover { background: darkred; }
+button:hover {
+  background: darkred;
+}
 
 #search {
   width: 100%;
@@ -75,13 +78,11 @@ button:hover { background: darkred; }
   width: 450px;
   margin: 8% auto;
   border-radius: 10px;
-  text-align: center;
 }
 
 .modal textarea {
   width: 100%;
   height: 80px;
-  border: 1px solid #ccc;
   margin-top: 10px;
 }
 
@@ -124,15 +125,15 @@ button:hover { background: darkred; }
 <button onclick="showLess()">عرض أقل</button>
 <button onclick="showAll()">عرض الكل</button>
 
-<!-- ===== Modal ===== -->
+<!-- Modal -->
 <div id="modal" class="modal">
   <div class="modal-content">
     <span class="close" onclick="closeModal()">✖</span>
     <h3>📌 الملاحظات</h3>
 
-    <div id="modalData" style="text-align:right; max-height:200px; overflow-y:auto;"></div>
+    <div id="modalData" style="max-height:200px; overflow-y:auto;"></div>
 
-    <textarea id="newNote" placeholder="اكتب ملاحظة جديدة..."></textarea>
+    <textarea id="newNote" placeholder="اكتب ملاحظة..."></textarea>
 
     <br><br>
     <button onclick="addNote()">➕ إضافة</button>
@@ -167,7 +168,7 @@ function renderTable(){
 
   limited.forEach((row, index) => {
 
-    let notes = row.note || [];
+    let notes = Array.isArray(row.note) ? row.note : [];
 
     let lastNote = notes.length > 0 ? notes[notes.length - 1].text : "";
 
@@ -185,13 +186,11 @@ function renderTable(){
 
       <td>
         ${lastNote}
-
         <br>
-
         <button 
           onclick="openNotes(this)"
           data-id="${row.id}"
-          data-notes='${encodeURIComponent(JSON.stringify(notes))}'
+          data-notes="${btoa(unescape(encodeURIComponent(JSON.stringify(notes))))}"
         >
           👁 عرض
         </button>
@@ -204,14 +203,14 @@ function renderTable(){
   document.getElementById("data").innerHTML = html;
 }
 
-/* ===== فتح الملاحظات ===== */
 function openNotes(btn){
   currentRowId = btn.getAttribute("data-id");
 
-  let notesData = btn.getAttribute("data-notes");
+  let data = btn.getAttribute("data-notes");
 
   try {
-    currentNotes = JSON.parse(decodeURIComponent(notesData)) || [];
+    let decoded = decodeURIComponent(escape(atob(data)));
+    currentNotes = JSON.parse(decoded) || [];
   } catch {
     currentNotes = [];
   }
@@ -220,7 +219,6 @@ function openNotes(btn){
   document.getElementById("modal").style.display = "block";
 }
 
-/* ===== عرض الملاحظات ===== */
 function renderModalNotes(){
   let html = "";
 
@@ -234,25 +232,19 @@ function renderModalNotes(){
   document.getElementById("modalData").innerHTML = html;
 }
 
-/* ===== إضافة ملاحظة ===== */
 function addNote(){
   let text = document.getElementById("newNote").value;
-
-  if(text.trim() === "") return;
-
-  let now = new Date().toLocaleString();
+  if(!text) return;
 
   currentNotes.push({
     text: text,
-    date: now
+    date: new Date().toLocaleString()
   });
 
   document.getElementById("newNote").value = "";
-
   renderModalNotes();
 }
 
-/* ===== حفظ ===== */
 function saveNotes(){
   fetch(url, {
     method: "POST",
@@ -268,7 +260,6 @@ function saveNotes(){
   });
 }
 
-/* ===== حذف ===== */
 function deleteNotes(){
   currentNotes = [];
   renderModalNotes();
@@ -291,7 +282,7 @@ function updateRow(id, field, value){
 }
 
 function deleteRow(id){
-  if(confirm("هل تريد حذف هذا السجل؟")){
+  if(confirm("هل تريد الحذف؟")){
     fetch(url, {
       method: "POST",
       body: JSON.stringify({
@@ -321,9 +312,9 @@ function showLess(){
 }
 
 function applyFilters(){
-  let filter = document.getElementById("search").value.toLowerCase();
+  let f = document.getElementById("search").value.toLowerCase();
 
-  if(filter === ""){
+  if(!f){
     isFiltering = false;
     renderTable();
     return;
@@ -331,18 +322,18 @@ function applyFilters(){
 
   isFiltering = true;
 
-  let words = filter.split(" ").filter(w => w);
+  let words = f.split(" ").filter(w => w);
 
-  let results = allData.filter(row => {
-    let product = (row.product || "").toLowerCase();
-    return words.every(word => product.includes(word));
+  let results = allData.filter(r => {
+    let p = (r.product || "").toLowerCase();
+    return words.every(w => p.includes(w));
   });
 
   let html = "";
 
   results.forEach((row, index) => {
 
-    let notes = row.note || [];
+    let notes = Array.isArray(row.note) ? row.note : [];
     let lastNote = notes.length > 0 ? notes[notes.length - 1].text : "";
 
     html += `
@@ -356,19 +347,19 @@ function applyFilters(){
       <td><input value="${row.adresse || ''}"></td>
       <td><input value="${row.product || ''}"></td>
       <td><input value="${row.date || ''}"></td>
+
       <td>
         ${lastNote}
-
         <br>
-
         <button 
           onclick="openNotes(this)"
           data-id="${row.id}"
-          data-notes='${encodeURIComponent(JSON.stringify(notes))}'
+          data-notes="${btoa(unescape(encodeURIComponent(JSON.stringify(notes))))}"
         >
           👁 عرض
         </button>
       </td>
+
       <td><button onclick="deleteRow(${row.id})">❌</button></td>
     </tr>`;
   });
