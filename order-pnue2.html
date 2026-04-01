@@ -2,24 +2,32 @@
 <html lang="ar">
 <head>
 <meta charset="UTF-8">
-<title>جدول احترافي</title>
+<title>نظام متقدم</title>
 
 <style>
 body {
   font-family: Arial;
   direction: rtl;
-  padding: 15px;
   background: #f4f4f4;
+  padding: 10px;
 }
 
-h2 {
-  text-align: center;
+/* ===== أدوات ===== */
+.controls {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+
+input, select, button {
+  padding: 8px;
 }
 
 /* ===== جدول ===== */
 .table-wrapper {
   overflow: auto;
-  max-height: 80vh;
+  max-height: 75vh;
   background: #fff;
   border: 1px solid #ccc;
 }
@@ -27,51 +35,41 @@ h2 {
 table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 1400px;
+  min-width: 1600px;
 }
 
 th, td {
   border: 1px solid #ccc;
-  padding: 8px;
+  padding: 10px;
   text-align: center;
-  white-space: nowrap; /* لا تقطع النص */
+  white-space: nowrap;
 }
 
-/* ===== شريط ثابت ===== */
+/* ===== رأس ثابت ===== */
 th {
   background: #eee;
   position: sticky;
   top: 0;
   z-index: 2;
+  cursor: pointer;
 }
 
-/* ===== إخفاء الخانات الفارغة ===== */
-.empty {
-  display: none;
+/* ===== ملاحظات ===== */
+.note-cell {
+  min-width: 260px;
+  white-space: normal;
 }
 
 /* ===== زر ===== */
 button {
-  padding: 4px 8px;
-  background: red;
-  color: white;
-  border: none;
   cursor: pointer;
-  border-radius: 4px;
+  border: none;
+  background: #d33;
+  color: #fff;
+  border-radius: 5px;
 }
 
-button:hover {
-  background: darkred;
-}
-
-/* ===== textarea ===== */
-textarea {
-  width: 100%;
-  height: 60px;
-  resize: none;
-}
-
-/* ===== modal ===== */
+/* ===== مودال ===== */
 .modal {
   display: none;
   position: fixed;
@@ -83,8 +81,8 @@ textarea {
 
 .modal-content {
   background: #fff;
-  width: 400px;
-  margin: 10% auto;
+  width: 500px;
+  margin: 5% auto;
   padding: 15px;
   border-radius: 10px;
 }
@@ -93,26 +91,49 @@ textarea {
   float: left;
   cursor: pointer;
 }
+
+/* ===== ملاحظات ===== */
+.note-item {
+  border-bottom: 1px solid #ccc;
+  padding: 6px;
+}
 </style>
 
 </head>
 
 <body>
 
-<h2>📋 جدول الطلبات</h2>
+<h2 style="text-align:center;">📊 نظام إدارة متقدم</h2>
 
+<!-- ===== أدوات التحكم ===== -->
+<div class="controls">
+
+<input type="text" id="search" placeholder="🔍 بحث..." oninput="renderTable()">
+
+<select id="filter" onchange="renderTable()">
+  <option value="all">📄 الكل</option>
+  <option value="hasNote">📝 فيه ملاحظات</option>
+  <option value="noNote">🚫 بدون ملاحظات</option>
+</select>
+
+<button onclick="showAll()">عرض كل</button>
+<button onclick="showLess()">عرض أقل</button>
+
+</div>
+
+<!-- ===== جدول ===== -->
 <div class="table-wrapper">
 <table>
 
 <thead>
 <tr>
-<th>الاسم</th>
+<th onclick="sortTable(0)">الاسم</th>
 <th>الهاتف</th>
 <th>الولاية</th>
 <th>البلدية</th>
 <th>العنوان</th>
 <th>المنتج</th>
-<th>التاريخ</th>
+<th onclick="sortTable(6)">التاريخ ⬍</th>
 <th>الملاحظات</th>
 </tr>
 </thead>
@@ -122,7 +143,7 @@ textarea {
 </table>
 </div>
 
-<!-- Modal -->
+<!-- ===== Modal ===== -->
 <div id="modal" class="modal">
   <div class="modal-content">
     <span class="close" onclick="closeModal()">✖</span>
@@ -137,18 +158,24 @@ textarea {
 
 <script>
 
-const url = "https://script.google.com/macros/s/AKfycbxk0VpVSa4ZRXX5UOPqDrTfPwK467qCMcQ0c9f-Dd4s49Do7IayFJnXpBwXzqn3AIzAIQ/exec";
+const url = "https://script.google.com/macros/s/AKfycby5JcMkevQJJhtjEcTkYY7EYrESFjc1lBjfLlEiaKQEUVx625i0Z7EbVL6UM-XvOPvW6w/exec";
 
 let allData = [];
 let currentIndex = null;
 let currentNotes = [];
+let showLimit = 50;
 
 /* ===== تحميل ===== */
 function loadData(){
   fetch(url)
   .then(r => r.json())
   .then(data => {
+
     allData = data || [];
+
+    // ترتيب من الأقدم
+    allData.sort((a,b)=> new Date(a.date) - new Date(b.date));
+
     renderTable();
   });
 }
@@ -156,19 +183,31 @@ function loadData(){
 /* ===== عرض ===== */
 function renderTable(){
 
-  let html = "";
+  let search = document.getElementById("search").value.toLowerCase();
+  let filter = document.getElementById("filter").value;
 
-  allData.forEach((row, i)=>{
+  let html = "";
+  let count = 0;
+
+  allData.forEach((row,i)=>{
 
     let notes = [];
-
-    try {
-      notes = row.note ? JSON.parse(row.note) : [];
-    } catch {
-      notes = [];
-    }
+    try { notes = row.note ? JSON.parse(row.note) : []; } catch {}
 
     let lastNote = notes.length ? notes[notes.length - 1].text : "";
+
+    // ===== فلترة =====
+    if(filter === "hasNote" && notes.length === 0) return;
+    if(filter === "noNote" && notes.length > 0) return;
+
+    // ===== بحث =====
+    let rowText = Object.values(row).join(" ").toLowerCase();
+    if(!rowText.includes(search)) return;
+
+    // ===== عرض أقل =====
+    if(count >= showLimit) return;
+
+    count++;
 
     html += `
     <tr>
@@ -181,7 +220,7 @@ function renderTable(){
       <td>${row.product || ""}</td>
       <td>${row.date || ""}</td>
 
-      <td>
+      <td class="note-cell">
         ${lastNote || ""}
         <br>
         <button onclick="openNotes(${i})">👁 عرض</button>
@@ -194,15 +233,42 @@ function renderTable(){
   document.getElementById("data").innerHTML = html;
 }
 
-/* ===== فتح الملاحظات ===== */
+/* ===== عرض أقل / كل ===== */
+function showLess(){
+  showLimit = 50;
+  renderTable();
+}
+
+function showAll(){
+  showLimit = 100000;
+  renderTable();
+}
+
+/* ===== فرز ===== */
+let sortAsc = true;
+
+function sortTable(col){
+
+  allData.sort((a,b)=>{
+    let x = Object.values(a)[col] || "";
+    let y = Object.values(b)[col] || "";
+
+    return sortAsc ? 
+      x.localeCompare(y) :
+      y.localeCompare(x);
+  });
+
+  sortAsc = !sortAsc;
+  renderTable();
+}
+
+/* ===== ملاحظات ===== */
 function openNotes(index){
 
   currentIndex = index;
 
-  let row = allData[index];
-
   try {
-    currentNotes = row.note ? JSON.parse(row.note) : [];
+    currentNotes = allData[index].note ? JSON.parse(allData[index].note) : [];
   } catch {
     currentNotes = [];
   }
@@ -211,17 +277,16 @@ function openNotes(index){
   document.getElementById("modal").style.display = "block";
 }
 
-/* ===== عرض الملاحظات ===== */
 function renderNotes(){
 
   let html = "";
 
   currentNotes.forEach(n=>{
     html += `
-      <div style="border-bottom:1px solid #ccc; padding:5px;">
-        <b>${n.date}</b><br>
-        ${n.text}
-      </div>
+    <div class="note-item">
+      <b>${n.date}</b><br>
+      ${n.text}
+    </div>
     `;
   });
 
@@ -235,8 +300,8 @@ function addNote(){
   if(!text) return;
 
   currentNotes.push({
-    text:text,
-    date:new Date().toLocaleString()
+    text,
+    date: new Date().toLocaleString()
   });
 
   document.getElementById("newNote").value = "";
@@ -264,7 +329,6 @@ function closeModal(){
   document.getElementById("modal").style.display = "none";
 }
 
-/* ===== تشغيل ===== */
 loadData();
 
 </script>
