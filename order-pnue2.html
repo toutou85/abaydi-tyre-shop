@@ -2,21 +2,24 @@
 <html lang="ar">
 <head>
 <meta charset="UTF-8">
-<title>نظام الطلبات الاحترافي</title>
+<title>جدول احترافي</title>
 
 <style>
 body {
   font-family: Arial;
   direction: rtl;
-  background: #f4f4f4;
   padding: 15px;
+  background: #f4f4f4;
 }
 
-h2 { text-align: center; }
+h2 {
+  text-align: center;
+}
 
 /* ===== جدول ===== */
 .table-wrapper {
-  overflow-x: auto;
+  overflow: auto;
+  max-height: 80vh;
   background: #fff;
   border: 1px solid #ccc;
 }
@@ -29,30 +32,30 @@ table {
 
 th, td {
   border: 1px solid #ccc;
-  padding: 6px;
+  padding: 8px;
   text-align: center;
+  white-space: nowrap; /* لا تقطع النص */
 }
 
+/* ===== شريط ثابت ===== */
 th {
   background: #eee;
   position: sticky;
   top: 0;
+  z-index: 2;
 }
 
-/* ===== Inputs ===== */
-input {
-  width: 100%;
-  border: none;
-  text-align: center;
-  background: transparent;
+/* ===== إخفاء الخانات الفارغة ===== */
+.empty {
+  display: none;
 }
 
-/* ===== أزرار ===== */
+/* ===== زر ===== */
 button {
-  padding: 5px 8px;
-  border: none;
+  padding: 4px 8px;
   background: red;
   color: white;
+  border: none;
   cursor: pointer;
   border-radius: 4px;
 }
@@ -61,21 +64,14 @@ button:hover {
   background: darkred;
 }
 
-/* ===== شريط التحكم ===== */
-.controls {
-  margin-bottom: 10px;
+/* ===== textarea ===== */
+textarea {
+  width: 100%;
+  height: 60px;
+  resize: none;
 }
 
-.controls button {
-  background: #333;
-  margin: 2px;
-}
-
-.controls button:hover {
-  background: black;
-}
-
-/* ===== Modal ===== */
+/* ===== modal ===== */
 .modal {
   display: none;
   position: fixed;
@@ -103,18 +99,11 @@ button:hover {
 
 <body>
 
-<h2>📋 نظام الطلبات الاحترافي</h2>
-
-<input id="search" placeholder="🔍 بحث..." onkeyup="applyFilters()">
-
-<div class="controls">
-  <button onclick="setView(5)">عرض أقل</button>
-  <button onclick="setView(20)">عرض متوسط</button>
-  <button onclick="setView(allData.length)">عرض الكل</button>
-</div>
+<h2>📋 جدول الطلبات</h2>
 
 <div class="table-wrapper">
 <table>
+
 <thead>
 <tr>
 <th>الاسم</th>
@@ -125,11 +114,11 @@ button:hover {
 <th>المنتج</th>
 <th>التاريخ</th>
 <th>الملاحظات</th>
-<th>حذف</th>
 </tr>
 </thead>
 
 <tbody id="data"></tbody>
+
 </table>
 </div>
 
@@ -137,12 +126,9 @@ button:hover {
 <div id="modal" class="modal">
   <div class="modal-content">
     <span class="close" onclick="closeModal()">✖</span>
-
     <h3>📌 الملاحظات</h3>
     <div id="notesBox"></div>
-
     <textarea id="newNote"></textarea>
-
     <br><br>
     <button onclick="addNote()">➕ إضافة</button>
     <button onclick="saveNotes()">💾 حفظ</button>
@@ -154,21 +140,17 @@ button:hover {
 const url = "https://script.google.com/macros/s/AKfycbxk0VpVSa4ZRXX5UOPqDrTfPwK467qCMcQ0c9f-Dd4s49Do7IayFJnXpBwXzqn3AIzAIQ/exec";
 
 let allData = [];
-let filteredData = [];
-let visibleCount = 5;
 let currentIndex = null;
 let currentNotes = [];
 
 /* ===== تحميل ===== */
 function loadData(){
   fetch(url)
-    .then(r => r.json())
-    .then(data => {
-      allData = data || [];
-      filteredData = [...allData];
-      renderTable();
-    })
-    .catch(err => console.error(err));
+  .then(r => r.json())
+  .then(data => {
+    allData = data || [];
+    renderTable();
+  });
 }
 
 /* ===== عرض ===== */
@@ -176,36 +158,35 @@ function renderTable(){
 
   let html = "";
 
-  let sorted = [...filteredData].sort((a,b)=> new Date(b.date) - new Date(a.date));
-
-  let limited = sorted.slice(0, visibleCount);
-
-  limited.forEach((row, i)=>{
+  allData.forEach((row, i)=>{
 
     let notes = [];
+
     try {
       notes = row.note ? JSON.parse(row.note) : [];
-    } catch {}
+    } catch {
+      notes = [];
+    }
 
     let lastNote = notes.length ? notes[notes.length - 1].text : "";
 
     html += `
     <tr>
-      <td><input value="${row.name||''}" onchange="updateRow(${i},'name',this.value)"></td>
-      <td><input value="${row.phone||''}" onchange="updateRow(${i},'phone',this.value)"></td>
-      <td><input value="${row.wilaya||''}" onchange="updateRow(${i},'wilaya',this.value)"></td>
-      <td><input value="${row.commune||''}" onchange="updateRow(${i},'commune',this.value)"></td>
-      <td><input value="${row.adresse||''}" onchange="updateRow(${i},'adresse',this.value)"></td>
-      <td><input value="${row.product||''}" onchange="updateRow(${i},'product',this.value)"></td>
-      <td><input value="${row.date||''}" onchange="updateRow(${i},'date',this.value)"></td>
+
+      <td>${row.name || ""}</td>
+      <td>${row.phone || ""}</td>
+      <td>${row.wilaya || ""}</td>
+      <td>${row.commune || ""}</td>
+      <td>${row.adresse || ""}</td>
+      <td>${row.product || ""}</td>
+      <td>${row.date || ""}</td>
 
       <td>
-        ${lastNote}
+        ${lastNote || ""}
         <br>
         <button onclick="openNotes(${i})">👁 عرض</button>
       </td>
 
-      <td><button onclick="deleteRow(${i})">❌</button></td>
     </tr>
     `;
   });
@@ -213,44 +194,12 @@ function renderTable(){
   document.getElementById("data").innerHTML = html;
 }
 
-/* ===== التحكم في العرض ===== */
-function setView(count){
-  visibleCount = count;
-  renderTable();
-}
-
-/* ===== تعديل ===== */
-function updateRow(index, field, value){
-  fetch(url,{
-    method:"POST",
-    body: JSON.stringify({
-      action:"updateAll",
-      index:index,
-      field:field,
-      value:value
-    })
-  });
-}
-
-/* ===== حذف ===== */
-function deleteRow(index){
-  if(confirm("حذف؟")){
-    fetch(url,{
-      method:"POST",
-      body: JSON.stringify({
-        action:"delete",
-        index:index
-      })
-    }).then(()=> loadData());
-  }
-}
-
 /* ===== فتح الملاحظات ===== */
 function openNotes(index){
 
   currentIndex = index;
 
-  let row = filteredData[index];
+  let row = allData[index];
 
   try {
     currentNotes = row.note ? JSON.parse(row.note) : [];
@@ -269,7 +218,7 @@ function renderNotes(){
 
   currentNotes.forEach(n=>{
     html += `
-      <div style="border-bottom:1px solid #ccc;padding:5px;">
+      <div style="border-bottom:1px solid #ccc; padding:5px;">
         <b>${n.date}</b><br>
         ${n.text}
       </div>
@@ -279,7 +228,7 @@ function renderNotes(){
   document.getElementById("notesBox").innerHTML = html;
 }
 
-/* ===== إضافة ملاحظة ===== */
+/* ===== إضافة ===== */
 function addNote(){
 
   let text = document.getElementById("newNote").value;
@@ -313,20 +262,6 @@ function saveNotes(){
 /* ===== إغلاق ===== */
 function closeModal(){
   document.getElementById("modal").style.display = "none";
-}
-
-/* ===== البحث ===== */
-function applyFilters(){
-
-  let val = document.getElementById("search").value.toLowerCase();
-
-  filteredData = allData.filter(r =>
-    (r.name||"").toLowerCase().includes(val) ||
-    (r.phone||"").toLowerCase().includes(val) ||
-    (r.product||"").toLowerCase().includes(val)
-  );
-
-  renderTable();
 }
 
 /* ===== تشغيل ===== */
