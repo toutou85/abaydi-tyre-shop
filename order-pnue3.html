@@ -97,6 +97,13 @@ button:hover {
   height: 100%;
   background: #111;
 }
+.sidebar {
+  right: -200px;
+  transition: 0.3s;
+}
+.sidebar.active {
+  right: 0;
+}
 </style>
 
 </head>
@@ -106,7 +113,7 @@ button:hover {
   <a href="cridi.html">برنامج الكريدي</a>
   <a href="page2.html">صفحة 2</a>
 </div>
-
+<button onclick="toggleMenu()">☰</button>
 
 <h2 style="text-align:center;">📊 نظام PNUE الاحترافي</h2>
 
