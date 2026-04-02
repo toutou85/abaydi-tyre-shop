@@ -91,12 +91,28 @@ button:hover {
 }
 .sidebar {
   position: fixed;
-  right: 0;
   top: 0;
+  right: -200px;
   width: 200px;
   height: 100%;
   background: #111;
+  transition: 0.3s;
+  z-index: 9999;
+  padding-top: 50px;
 }
+
+.sidebar a {
+  display: block;
+  color: white;
+  padding: 10px;
+  text-decoration: none;
+}
+
+.sidebar a:hover {
+  background: #333;
+}
+
+
 .sidebar {
   right: -200px;
   transition: 0.3s;
