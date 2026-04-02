@@ -120,12 +120,21 @@ button:hover {
 .sidebar.active {
   right: 0;
 }
+.close-btn {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+}
 </style>
 
 </head>
 
 <body>
 <div class="sidebar">
+<span class="close-btn" onclick="toggleMenu()">✖</span>
   <a href="cridi.html">برنامج الكريدي</a>
   <a href="page2.html">صفحة 2</a>
 </div>
