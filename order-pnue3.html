@@ -356,13 +356,25 @@ function saveNotes(){
 
   fetch(url,{
     method:"POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
     body: JSON.stringify({
       action:"updateAll",
       index: currentIndex,
       field:"note",
       value: JSON.stringify(currentNotes)
     })
-  }).then(()=> loadData());
+  })
+  .then(res => res.text())
+  .then(res => {
+    console.log("SERVER:", res);
+    loadData();
+  })
+  .catch(err => {
+    console.error("ERROR:", err);
+    alert("فشل الإرسال!");
+  });
 
   closeModal();
 }
