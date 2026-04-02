@@ -89,11 +89,24 @@ button:hover {
   border-bottom: 1px solid #ccc;
   padding: 5px;
 }
+.sidebar {
+  position: fixed;
+  right: 0;
+  top: 0;
+  width: 200px;
+  height: 100%;
+  background: #111;
+}
 </style>
 
 </head>
 
 <body>
+<div class="sidebar">
+  <a href="page1.html">صفحة 1</a>
+  <a href="page2.html">صفحة 2</a>
+</div>
+
 
 <h2 style="text-align:center;">📊 نظام PNUE الاحترافي</h2>
 
@@ -362,6 +375,9 @@ function closeModal(){
 /* ===== تشغيل ===== */
 loadData();
 
+function toggleMenu() {
+  document.querySelector(".sidebar").classList.toggle("active");
+}
 </script>
 
 </body>
