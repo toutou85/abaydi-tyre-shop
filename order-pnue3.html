@@ -249,11 +249,13 @@ function render(){
       <td>
         ${lastNote}
         <br>
-        <button onclick="openNotes(${item.id})">👁 عرض</button>
+        <button onclick="openNotes(${item.row.id})">👁 عرض</button>
+
+
       </td>
 
       <td>
-        <button onclick="deleteRow(${item.id})">حذف❌</button>
+       <button onclick="deleteRow(${item.row.id})">حذف❌</button>
       </td>
 
     </tr>
