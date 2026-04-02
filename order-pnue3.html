@@ -276,18 +276,7 @@ function showAll(){
   render();
 }
 
-/* ===== حذف ===== */
-function deleteRow(i){
-  if(confirm("حذف؟")){
-    fetch(url,{
-      method:"POST",
-      body: JSON.stringify({
-        action:"delete",
-        index:i
-      })
-    }).then(()=>loadData());
-  }
-}
+
 
 /* ===== ملاحظات ===== */
 function openNotes(id){
