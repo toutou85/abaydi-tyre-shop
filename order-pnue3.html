@@ -1,98 +1,205 @@
-// ===============================
-// ✅ جلب البيانات (GET)
-// ===============================
-function doGet() {
-  const sheet = SpreadsheetApp
-    .openById("11cPyiP8JKHzIFN5fm5dPEfZLMmRbhRNV5TbgijfgQNs")
-    .getSheetByName("pnue");
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<title>نظام PNUE الاحترافي</title>
 
-  const data = sheet.getDataRange().getValues();
+<style>
+body {font-family: Arial;direction: rtl;background: #f4f4f4;padding: 10px;}
+.controls {display: flex;gap: 10px;flex-wrap: wrap;margin-bottom: 10px;}
+input, select, button {padding: 8px;}
+.table-wrapper {overflow-x: auto;max-height: 75vh;background: #fff;border: 1px solid #ccc;}
+table {width: 100%;border-collapse: collapse;min-width: 1500px;}
+th, td {border: 1px solid #ccc;padding: 8px;text-align: center;white-space: nowrap;}
+th {background: #eee;position: sticky;top: 0;}
+button {background: red;color: white;border: none;border-radius: 5px;}
+.modal {display: none;position: fixed;z-index: 99999;top:0;left:0;width:100%;height:100%;background: rgba(0,0,0,0.7);justify-content:center;align-items:center;}
+.modal-content {background:#fff;width:90%;max-width:500px;padding:15px;border-radius:10px;}
+.note-item {border-bottom:1px solid #ccc;padding:5px;}
+</style>
+</head>
 
-  let result = [];
+<body>
 
-  for (let i = 1; i < data.length; i++) {
-    result.push({
-      id: i + 1, // 🔥 ID حقيقي = رقم الصف
-      name: data[i][1],
-      phone: data[i][2],
-      phone2: data[i][3],
-      code: data[i][4],
-      wilaya: data[i][5],
-      commune: data[i][6],
-      adresse: data[i][7],
-      product: data[i][8],
-      date: data[i][18],
-      note: data[i][19]
-    });
-  }
+<h2 style="text-align:center;">📊 نظام PNUE الاحترافي</h2>
 
-  return ContentService
-    .createTextOutput(JSON.stringify(result))
-    .setMimeType(ContentService.MimeType.JSON);
+<input type="text" id="search" placeholder="🔍 بحث..." oninput="render()">
+
+<div class="table-wrapper">
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>الاسم</th>
+<th>الهاتف</th>
+<th>الولاية</th>
+<th>البلدية</th>
+<th>الملاحظات</th>
+<th>حذف</th>
+</tr>
+</thead>
+<tbody id="data"></tbody>
+</table>
+</div>
+
+<div id="modal" class="modal">
+<div class="modal-content">
+
+<h3>📌 الملاحظات</h3>
+<div id="notesBox"></div>
+
+<textarea id="newNote" style="width:100%;height:80px;"></textarea>
+
+<br><br>
+
+<button onclick="addNote()">➕ إضافة</button>
+<button onclick="saveNotes()">💾 حفظ</button>
+<button onclick="closeModal()">✖</button>
+
+</div>
+</div>
+
+<script>
+
+const url = "PUT_YOUR_LINK_HERE";
+
+let allData = [];
+let currentId = null;
+let currentNotes = [];
+
+function loadData(){
+  fetch(url)
+  .then(r=>r.json())
+  .then(data=>{
+    allData = data;
+    render();
+  });
 }
 
-
-// ===============================
-// ✅ POST (إضافة / تعديل / حذف)
-// ===============================
-function doPost(e) {
-
-  const sheet = SpreadsheetApp
-    .openById("11cPyiP8JKHzIFN5fm5dPEfZLMmRbhRNV5TbgijfgQNs")
-    .getSheetByName("pnue");
-
-  const data = e.postData && e.postData.contents
-    ? JSON.parse(e.postData.contents)
-    : {};
-
-  // 🟢 إضافة
-  if (!data.action) {
-    sheet.appendRow([
-      "",
-      data.name || "",
-      data.phone || "",
-      data.phone2 || "",
-      data.wilaya ? data.wilaya.split(" - ")[0] : "",
-      data.wilaya || "",
-      data.commune || "",
-      data.adresse || "",
-      data.product || "",
-      "", "", "", "", "", "", "", "", "",
-      data.date || "",
-      data.note || ""
-    ]);
-
-    return ContentService.createTextOutput("added");
+function getNotes(note){
+  if(!note) return [];
+  try {
+    let parsed = JSON.parse(note);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
   }
-
-  // 🔥 الصف الحقيقي مباشرة
-  const row = data.id;
-
-  const map = {
-    name: 2,
-    phone: 3,
-    phone2: 4,
-    code: 5,
-    wilaya: 6,
-    commune: 7,
-    adresse: 8,
-    product: 9,
-    date: 19,
-    note: 20
-  };
-
-  // ✏️ تعديل
-  if (data.action === "updateAll") {
-    const col = map[data.field];
-    if (col && row) {
-      sheet.getRange(row, col).setValue(data.value);
-    }
-  }
-
-  // ❌ حذف
-  if (data.action === "delete") {
-    if (row) sheet.deleteRow(row);
-  }
-
-  return ContentService.createTextOutput("ok");
 }
+
+function render(){
+  let search = document.getElementById("search").value.toLowerCase();
+  let html = "";
+
+  allData.forEach((row,index)=>{
+
+    let text = Object.values(row).join(" ").toLowerCase();
+    if(!text.includes(search)) return;
+
+    let notes = getNotes(row.note);
+    let lastNote = notes.length ? notes[notes.length-1].text : "";
+
+    html += `
+    <tr>
+      <td>${index+1}</td>
+      <td>${row.name || ""}</td>
+      <td>${row.phone || ""}</td>
+      <td>${row.wilaya || ""}</td>
+      <td>${row.commune || ""}</td>
+      <td>
+        ${lastNote}
+        <br>
+        <button onclick="openNotes(${row.id})">👁</button>
+      </td>
+      <td>
+        <button onclick="deleteRow(${row.id})">❌</button>
+      </td>
+    </tr>`;
+  });
+
+  document.getElementById("data").innerHTML = html;
+}
+
+function openNotes(id){
+  currentId = id;
+  let row = allData.find(r=>r.id===id);
+  currentNotes = getNotes(row.note);
+  renderNotes();
+  document.getElementById("modal").style.display="flex";
+}
+
+function renderNotes(){
+  let html="";
+  currentNotes.forEach((n,i)=>{
+    html += `
+    <div class="note-item">
+      ${n.text}
+      <button onclick="deleteNote(${i})">❌</button>
+    </div>`;
+  });
+  document.getElementById("notesBox").innerHTML = html;
+}
+
+function addNote(){
+  let text = document.getElementById("newNote").value;
+  if(!text) return;
+
+  currentNotes.push({
+    text,
+    date: new Date().toLocaleString()
+  });
+
+  document.getElementById("newNote").value="";
+  renderNotes();
+}
+
+function deleteNote(i){
+  currentNotes.splice(i,1);
+  renderNotes();
+}
+
+function saveNotes(){
+
+  fetch(url,{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body: JSON.stringify({
+      action:"updateAll",
+      id: currentId,
+      field:"note",
+      value: JSON.stringify(currentNotes)
+    })
+  })
+  .then(r=>r.text())
+  .then(()=>{
+    loadData();
+  })
+  .catch(()=>{
+    alert("❌ فشل الإرسال");
+  });
+
+  closeModal();
+}
+
+function deleteRow(id){
+  if(confirm("حذف؟")){
+    fetch(url,{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({
+        action:"delete",
+        id:id
+      })
+    }).then(()=>loadData());
+  }
+}
+
+function closeModal(){
+  document.getElementById("modal").style.display="none";
+}
+
+loadData();
+
+</script>
+
+</body>
+</html>
