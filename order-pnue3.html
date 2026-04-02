@@ -5,28 +5,116 @@
 <title>نظام PNUE الاحترافي</title>
 
 <style>
-body {font-family: Arial;direction: rtl;background: #f4f4f4;padding: 10px;}
-.controls {display: flex;gap: 10px;flex-wrap: wrap;margin-bottom: 10px;}
-input, select, button {padding: 8px;}
-.table-wrapper {overflow-x: auto;max-height: 75vh;background: #fff;border: 1px solid #ccc;}
-table {width: 100%;border-collapse: collapse;min-width: 1500px;}
-th, td {border: 1px solid #ccc;padding: 8px;text-align: center;white-space: nowrap;}
-th {background: #eee;position: sticky;top: 0;}
-button {background: red;color: white;border: none;border-radius: 5px;}
-.modal {display: none;position: fixed;z-index: 99999;top:0;left:0;width:100%;height:100%;background: rgba(0,0,0,0.7);justify-content:center;align-items:center;}
-.modal-content {background:#fff;width:90%;max-width:500px;padding:15px;border-radius:10px;}
-.note-item {border-bottom:1px solid #ccc;padding:5px;}
+body {
+  font-family: Arial;
+  direction: rtl;
+  background: #f4f4f4;
+  padding: 10px;
+}
+
+.controls {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+input, select, button {
+  padding: 8px;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+  max-height: 75vh;
+  background: #fff;
+  border: 1px solid #ccc;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 1500px;
+}
+
+th, td {
+  border: 1px solid #ccc;
+  padding: 8px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+th {
+  background: #eee;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+button {
+  background: red;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+button:hover {
+  background: darkred;
+}
+
+/* ===== Modal FIXED ===== */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 99999;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.7);
+
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background: #fff;
+  width: 90%;
+  max-width: 500px;
+  padding: 15px;
+  border-radius: 10px;
+}
+
+.note-item {
+  border-bottom: 1px solid #ccc;
+  padding: 5px;
+}
 </style>
+
 </head>
 
 <body>
 
 <h2 style="text-align:center;">📊 نظام PNUE الاحترافي</h2>
 
+<div class="controls">
+
 <input type="text" id="search" placeholder="🔍 بحث..." oninput="render()">
+
+<select id="filter" onchange="render()">
+  <option value="all">📄 الكل</option>
+  <option value="has">📝 فيه ملاحظات</option>
+  <option value="no">🚫 بدون ملاحظات</option>
+</select>
+
+<button onclick="showMore()">عرض المزيد</button>
+<button onclick="showAll()">عرض الكل</button>
+
+</div>
 
 <div class="table-wrapper">
 <table>
+
 <thead>
 <tr>
 <th>#</th>
@@ -34,18 +122,25 @@ button {background: red;color: white;border: none;border-radius: 5px;}
 <th>الهاتف</th>
 <th>الولاية</th>
 <th>البلدية</th>
+<th>العنوان</th>
+<th>المنتج</th>
+<th>التاريخ</th>
 <th>الملاحظات</th>
 <th>حذف</th>
 </tr>
 </thead>
+
 <tbody id="data"></tbody>
+
 </table>
 </div>
 
+<!-- Modal -->
 <div id="modal" class="modal">
 <div class="modal-content">
 
 <h3>📌 الملاحظات</h3>
+
 <div id="notesBox"></div>
 
 <textarea id="newNote" style="width:100%;height:80px;"></textarea>
@@ -54,92 +149,177 @@ button {background: red;color: white;border: none;border-radius: 5px;}
 
 <button onclick="addNote()">➕ إضافة</button>
 <button onclick="saveNotes()">💾 حفظ</button>
-<button onclick="closeModal()">✖</button>
+<button onclick="closeModal()">✖ إغلاق</button>
 
 </div>
 </div>
 
 <script>
 
-const url = "PUT_YOUR_LINK_HERE";
+const url = "https://script.google.com/macros/s/AKfycby5JcMkevQJJhtjEcTkYY7EYrESFjc1lBjfLlEiaKQEUVx625i0Z7EbVL6UM-XvOPvW6w/exec";
 
 let allData = [];
-let currentId = null;
+let limit = 10;
+let currentIndex = null;
 let currentNotes = [];
 
+/* ===== تنظيف القيم ===== */
+function clean(val){
+  return (val && val !== "null" && val !== "undefined") ? val : "";
+}
+
+/* ===== تحميل ===== */
 function loadData(){
   fetch(url)
-  .then(r=>r.json())
-  .then(data=>{
-    allData = data;
+  .then(r => r.json())
+  .then(data => {
+
+    // حذف الصفوف الفارغة مع تجاهل id
+    allData = (data || []).filter(row => {
+
+      let values = Object.entries(row)
+        .filter(([key]) => key !== "id")
+        .map(([_, v]) => v);
+
+      return values.some(v => v && v.toString().trim() !== "");
+    });
+
+    // الأحدث أولاً
+    allData.reverse();
+
     render();
   });
 }
 
+/* ===== استخراج الملاحظات ===== */
 function getNotes(note){
   if(!note) return [];
+
   try {
     let parsed = JSON.parse(note);
-    return Array.isArray(parsed) ? parsed : [];
+    if(Array.isArray(parsed)) return parsed;
+    return [{text: note, date:""}];
   } catch {
-    return [];
+    return [{text: note, date:""}];
   }
 }
 
+/* ===== عرض ===== */
 function render(){
-  let search = document.getElementById("search").value.toLowerCase();
-  let html = "";
 
-  allData.forEach((row,index)=>{
+  let search = document.getElementById("search").value.toLowerCase();
+  let filter = document.getElementById("filter").value;
+
+  let filtered = [];
+
+  allData.forEach((row,i)=>{
+
+    let notes = getNotes(row.note);
+
+    if(filter==="has" && notes.length===0) return;
+    if(filter==="no" && notes.length>0) return;
 
     let text = Object.values(row).join(" ").toLowerCase();
     if(!text.includes(search)) return;
 
-    let notes = getNotes(row.note);
-    let lastNote = notes.length ? notes[notes.length-1].text : "";
+    filtered.push({row, i, notes});
+  });
+
+  let sliced = filtered.slice(0, limit);
+
+  let html = "";
+
+  sliced.forEach((item,index)=>{
+
+    let lastNote = item.notes.length ? item.notes[item.notes.length-1].text : "";
 
     html += `
     <tr>
+
       <td>${index+1}</td>
-      <td>${row.name || ""}</td>
-      <td>${row.phone || ""}</td>
-      <td>${row.wilaya || ""}</td>
-      <td>${row.commune || ""}</td>
+
+      <td>${clean(item.row.name)}</td>
+      <td>${clean(item.row.phone)}</td>
+      <td>${clean(item.row.wilaya)}</td>
+      <td>${clean(item.row.commune)}</td>
+      <td>${clean(item.row.adresse)}</td>
+      <td>${clean(item.row.product)}</td>
+      <td>${clean(item.row.date)}</td>
+
       <td>
         ${lastNote}
         <br>
-        <button onclick="openNotes(${row.id})">👁</button>
+        <button onclick="openNotes(${item.id})">👁 عرض</button>
       </td>
+
       <td>
-        <button onclick="deleteRow(${row.id})">❌</button>
+        <button onclick="deleteRow(${item.id})">حذف❌</button>
       </td>
-    </tr>`;
+
+    </tr>
+    `;
   });
 
   document.getElementById("data").innerHTML = html;
 }
 
+/* ===== عرض المزيد ===== */
+function showMore(){
+  limit += 10;
+  render();
+}
+
+function showAll(){
+  limit = allData.length;
+  render();
+}
+
+/* ===== حذف ===== */
+function deleteRow(i){
+  if(confirm("حذف؟")){
+    fetch(url,{
+      method:"POST",
+      body: JSON.stringify({
+        action:"delete",
+        index:i
+      })
+    }).then(()=>loadData());
+  }
+}
+
+/* ===== ملاحظات ===== */
 function openNotes(id){
-  currentId = id;
-  let row = allData.find(r=>r.id===id);
+  currentIndex = id;
+  let row = allData.find(r => r.id === id);
   currentNotes = getNotes(row.note);
+
   renderNotes();
-  document.getElementById("modal").style.display="flex";
+
+  let modal = document.getElementById("modal");
+  modal.style.display = "flex";
 }
 
 function renderNotes(){
-  let html="";
-  currentNotes.forEach((n,i)=>{
+
+  let html = "";
+
+  currentNotes.forEach((n,index)=>{
     html += `
     <div class="note-item">
+      <b>${n.date || ""}</b><br>
       ${n.text}
-      <button onclick="deleteNote(${i})">❌</button>
-    </div>`;
+      <br>
+      <button onclick="deleteNote(${index})">❌</button>
+    </div>
+    `;
   });
+
   document.getElementById("notesBox").innerHTML = html;
 }
 
+/* ===== إضافة ===== */
 function addNote(){
+
   let text = document.getElementById("newNote").value;
   if(!text) return;
 
@@ -152,51 +332,40 @@ function addNote(){
   renderNotes();
 }
 
-function deleteNote(i){
-  currentNotes.splice(i,1);
-  renderNotes();
-}
-
-function saveNotes(){
-
-  fetch(url,{
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body: JSON.stringify({
-      action:"updateAll",
-      id: currentId,
-      field:"note",
-      value: JSON.stringify(currentNotes)
-    })
-  })
-  .then(r=>r.text())
-  .then(()=>{
-    loadData();
-  })
-  .catch(()=>{
-    alert("❌ فشل الإرسال");
-  });
-
-  closeModal();
-}
-
+/* ===== حذف ملاحظة ===== */
 function deleteRow(id){
   if(confirm("حذف؟")){
     fetch(url,{
       method:"POST",
-      headers:{"Content-Type":"application/json"},
       body: JSON.stringify({
         action:"delete",
-        id:id
+        index: id
       })
     }).then(()=>loadData());
   }
 }
+/* ===== حفظ ===== */
+function saveNotes(){
 
+  fetch(url,{
+    method:"POST",
+    body: JSON.stringify({
+      action:"updateAll",
+      index: currentIndex,
+      field:"note",
+      value: JSON.stringify(currentNotes)
+    })
+  }).then(()=> loadData());
+
+  closeModal();
+}
+
+/* ===== إغلاق ===== */
 function closeModal(){
   document.getElementById("modal").style.display="none";
 }
 
+/* ===== تشغيل ===== */
 loadData();
 
 </script>
