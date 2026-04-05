@@ -193,9 +193,12 @@ function loadData(){
   .then(r => r.json())
   .then(data => {
 
-    // حذف الصفوف الفارغة مع تجاهل id
-    allData = (data || []).filter(row => {
+    if(!Array.isArray(data)){
+      console.error("DATA ERROR", data);
+      return;
+    }
 
+    allData = data.filter(row => {
       let values = Object.entries(row)
         .filter(([key]) => key !== "id")
         .map(([_, v]) => v);
@@ -203,10 +206,11 @@ function loadData(){
       return values.some(v => v && v.toString().trim() !== "");
     });
 
-    // الأحدث أولاً
     allData.reverse();
-
     render();
+  })
+  .catch(err=>{
+    console.error("LOAD ERROR:", err);
   });
 }
 
@@ -295,14 +299,23 @@ function showAll(){
 
 /* ===== حذف ===== */
 function deleteRow(i){
+
   if(confirm("حذف؟")){
+
+    let formData = new FormData();
+    formData.append("action", "delete");
+    formData.append("index", i);
+
     fetch(url,{
       method:"POST",
-      body: JSON.stringify({
-        action:"delete",
-        index:i
-      })
-    }).then(()=>loadData());
+      body: formData
+    })
+    .then(res=>res.text())
+    .then(res=>{
+      console.log("DELETE:", res);
+      loadData();
+    });
+
   }
 }
 
@@ -372,14 +385,23 @@ function saveNotes(){
     body: formData
   })
   .then(res => res.text())
-  
-.then(res => {
+  .then(res => {
 
-  showTopMessage("✅ تم حفظ الملاحظات بنجاح");
+    console.log("SERVER:", res); // 🔍 مهم للتشخيص
 
-  loadData();
-});
-  closeModal();
+    if(res.includes("updated") || res.includes("ok")){
+      showTopMessage("✅ تم حفظ الملاحظات بنجاح");
+      loadData();
+      closeModal();
+    } else {
+      showTopMessage("❌ فشل الحفظ", "red");
+    }
+
+  })
+  .catch(err=>{
+    console.error(err);
+    showTopMessage("❌ خطأ في الاتصال", "red");
+  });
 }
 
 /* ===== إغلاق ===== */
