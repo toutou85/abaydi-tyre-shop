@@ -40,14 +40,12 @@ th, td {
   border: 1px solid #ccc;
   padding: 8px;
   text-align: center;
-  white-space: nowrap;
 }
 
 th {
   background: #eee;
   position: sticky;
   top: 0;
-  z-index: 2;
 }
 
 button {
@@ -58,21 +56,14 @@ button {
   border-radius: 5px;
 }
 
-button:hover {
-  background: darkred;
-}
-
-/* ===== Modal FIXED ===== */
 .modal {
   display: none;
   position: fixed;
-  z-index: 99999;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
   background: rgba(0,0,0,0.7);
-
   justify-content: center;
   align-items: center;
 }
@@ -84,92 +75,55 @@ button:hover {
   padding: 15px;
   border-radius: 10px;
 }
-
-.note-item {
-  border-bottom: 1px solid #ccc;
-  padding: 5px;
-}
 </style>
-
 </head>
 
 <body>
 
 <h2 style="text-align:center;">📊 نظام PNUE الاحترافي</h2>
-<div id="topMsg" style="
-position:fixed;
-top:-80px;
-left:0;
-width:100%;
-text-align:center;
-background:#28a745;
-color:white;
-padding:15px;
-font-size:18px;
-font-weight:bold;
-transition:0.5s;
-z-index:999999;
-">
-✅ تم حفظ الملاحظات بنجاح
+
+<div id="topMsg" style="position:fixed;top:-80px;width:100%;text-align:center;background:#28a745;color:white;padding:15px;transition:0.5s;">
+تم الحفظ
 </div>
 
-<audio id="successSound">
-  <source src="https://www.soundjay.com/buttons/sounds/button-3.mp3" type="audio/mpeg">
-</audio>
 <div class="controls">
-
-<input type="text" id="search" placeholder="🔍 بحث..." oninput="render()">
-
+<input type="text" id="search" placeholder="بحث..." oninput="render()">
 <select id="filter" onchange="render()">
-  <option value="all">📄 الكل</option>
-  <option value="has">📝 فيه ملاحظات</option>
-  <option value="no">🚫 بدون ملاحظات</option>
+<option value="all">الكل</option>
+<option value="has">فيه ملاحظات</option>
+<option value="no">بدون ملاحظات</option>
 </select>
-
 <button onclick="showMore()">عرض المزيد</button>
-<button onclick="showAll()">عرض الكل</button>
-
 </div>
 
 <div class="table-wrapper">
 <table>
-
 <thead>
 <tr>
 <th>#</th>
 <th>الاسم</th>
 <th>الهاتف</th>
 <th>الولاية</th>
-<th>البلدية</th>
-<th>العنوان</th>
 <th>المنتج</th>
 <th>التاريخ</th>
 <th>الملاحظات</th>
 <th>حذف</th>
 </tr>
 </thead>
-
 <tbody id="data"></tbody>
-
 </table>
 </div>
 
 <!-- Modal -->
 <div id="modal" class="modal">
 <div class="modal-content">
-
-<h3>📌 الملاحظات</h3>
-
+<h3>الملاحظات</h3>
 <div id="notesBox"></div>
-
 <textarea id="newNote" style="width:100%;height:80px;"></textarea>
-
 <br><br>
-
-<button onclick="addNote()">➕ إضافة</button>
-<button onclick="saveNotes()">💾 حفظ</button>
-<button onclick="closeModal()">✖ إغلاق</button>
-
+<button onclick="addNote()">إضافة</button>
+<button onclick="saveNotes()">حفظ</button>
+<button onclick="closeModal()">إغلاق</button>
 </div>
 </div>
 
@@ -181,177 +135,79 @@ let allData = [];
 let limit = 10;
 let currentIndex = null;
 let currentNotes = [];
+let saving = false;
 
-/* ===== تنظيف القيم ===== */
-function clean(val){
-  return (val && val !== "null" && val !== "undefined") ? val : "";
-}
-
-/* ===== تحميل ===== */
 function loadData(){
   fetch(url)
   .then(r => r.json())
   .then(data => {
-
-    if(!Array.isArray(data)){
-      console.error("DATA ERROR", data);
-      return;
-    }
-
-    allData = data.filter(row => {
-      let values = Object.entries(row)
-        .filter(([key]) => key !== "id")
-        .map(([_, v]) => v);
-
-      return values.some(v => v && v.toString().trim() !== "");
-    });
-
-    allData.reverse();
+    allData = data.reverse();
     render();
-  })
-  .catch(err=>{
-    console.error("LOAD ERROR:", err);
   });
 }
 
-/* ===== استخراج الملاحظات ===== */
 function getNotes(note){
-  if(!note) return [];
-
   try {
-    let parsed = JSON.parse(note);
-    if(Array.isArray(parsed)) return parsed;
-    return [{text: note, date:""}];
+    return JSON.parse(note) || [];
   } catch {
-    return [{text: note, date:""}];
+    return [];
   }
 }
 
-/* ===== عرض ===== */
 function render(){
-
-  let search = document.getElementById("search").value.toLowerCase();
-  let filter = document.getElementById("filter").value;
-
+  let html = "";
   let filtered = [];
 
   allData.forEach((row,i)=>{
-
-    let notes = getNotes(row.note);
-
-    if(filter==="has" && notes.length===0) return;
-    if(filter==="no" && notes.length>0) return;
-
-    let text = Object.values(row).join(" ").toLowerCase();
-    if(!text.includes(search)) return;
-
-    filtered.push({row, i, notes});
+    filtered.push({...row, realIndex:i});
   });
 
-  let sliced = filtered.slice(0, limit);
-
-  let html = "";
-
-  sliced.forEach((item,index)=>{
-
-    let lastNote = item.notes.length ? item.notes[item.notes.length-1].text : "";
+  filtered.slice(0,limit).forEach((row,index)=>{
+    let notes = getNotes(row.note);
+    let last = notes.length ? notes[notes.length-1].text : "";
 
     html += `
     <tr>
-
       <td>${index+1}</td>
-
-      <td>${clean(item.row.name)}</td>
-      <td>${clean(item.row.phone)}</td>
-      <td>${clean(item.row.wilaya)}</td>
-      <td>${clean(item.row.commune)}</td>
-      <td>${clean(item.row.adresse)}</td>
-      <td>${clean(item.row.product)}</td>
-      <td>${clean(item.row.date)}</td>
-
+      <td>${row.name || ""}</td>
+      <td>${row.phone || ""}</td>
+      <td>${row.wilaya || ""}</td>
+      <td>${row.product || ""}</td>
+      <td>${row.date || ""}</td>
       <td>
-        ${lastNote}
-        <br>
-        <button onclick="openNotes(${item.i})">👁 عرض</button>
+        ${last}<br>
+        <button onclick="openNotes(${row.realIndex})">عرض</button>
       </td>
-
       <td>
-        <button onclick="deleteRow(${item.i})">❌</button>
+        <button onclick="deleteRow(${row.realIndex})">X</button>
       </td>
-
-    </tr>
-    `;
+    </tr>`;
   });
 
   document.getElementById("data").innerHTML = html;
 }
 
-/* ===== عرض المزيد ===== */
 function showMore(){
   limit += 10;
   render();
 }
 
-function showAll(){
-  limit = allData.length;
-  render();
-}
-
-/* ===== حذف ===== */
-function deleteRow(i){
-
-  if(confirm("حذف؟")){
-
-    let formData = new FormData();
-    formData.append("action", "delete");
-    formData.append("index", i);
-
-    fetch(url,{
-      method:"POST",
-      body: formData
-    })
-    .then(res=>res.text())
-    .then(res=>{
-      console.log("DELETE:", res);
-      loadData();
-    });
-
-  }
-}
-
-/* ===== ملاحظات ===== */
 function openNotes(i){
-
   currentIndex = i;
   currentNotes = getNotes(allData[i].note);
-
   renderNotes();
-
-  let modal = document.getElementById("modal");
-  modal.style.display = "flex";
+  document.getElementById("modal").style.display = "flex";
 }
 
 function renderNotes(){
-
   let html = "";
-
-  currentNotes.forEach((n,index)=>{
-    html += `
-    <div class="note-item">
-      <b>${n.date || ""}</b><br>
-      ${n.text}
-      <br>
-      <button onclick="deleteNote(${index})">❌</button>
-    </div>
-    `;
+  currentNotes.forEach((n,i)=>{
+    html += `<div>${n.text} <button onclick="deleteNote(${i})">X</button></div>`;
   });
-
   document.getElementById("notesBox").innerHTML = html;
 }
 
-/* ===== إضافة ===== */
 function addNote(){
-
   let text = document.getElementById("newNote").value;
   if(!text) return;
 
@@ -364,72 +220,10 @@ function addNote(){
   renderNotes();
 }
 
-/* ===== حذف ملاحظة ===== */
-function deleteNote(index){
-  currentNotes.splice(index,1);
+function deleteNote(i){
+  currentNotes.splice(i,1);
   renderNotes();
 }
-
-/* ===== حفظ ===== */
-function saveNotes(){
-
-  let formData = new FormData();
-
-  formData.append("action", "updateAll");
-  formData.append("index", currentIndex);
-  formData.append("field", "note");
-  formData.append("value", JSON.stringify(currentNotes));
-
-  fetch(url,{
-    method:"POST",
-    body: formData
-  })
-  .then(res => res.text())
-  .then(res => {
-
-    console.log("SERVER:", res); // 🔍 مهم للتشخيص
-
-    if(res.includes("updated") || res.includes("ok")){
-      showTopMessage("✅ تم حفظ الملاحظات بنجاح");
-      loadData();
-      closeModal();
-    } else {
-      showTopMessage("❌ فشل الحفظ", "red");
-    }
-
-  })
-  .catch(err=>{
-    console.error(err);
-    showTopMessage("❌ خطأ في الاتصال", "red");
-  });
-}
-
-/* ===== إغلاق ===== */
-function closeModal(){
-  document.getElementById("modal").style.display="none";
-}
-
-/* ===== تشغيل ===== */
-loadData();
-function showTopMessage(text, color="#28a745"){
-
-  let msg = document.getElementById("topMsg");
-
-  msg.innerText = text;
-  msg.style.background = color;
-
-  // نزول الرسالة
-  msg.style.top = "0";
-
-  // صوت
-  document.getElementById("successSound").play();
-
-  // اختفاء
-  setTimeout(()=>{
-    msg.style.top = "-80px";
-  }, 2500);
-}
-let saving = false;
 
 function saveNotes(){
 
@@ -437,35 +231,53 @@ function saveNotes(){
   saving = true;
 
   let formData = new FormData();
-
-  formData.append("action", "updateAll");
-  formData.append("index", currentIndex);
-  formData.append("field", "note");
-  formData.append("value", JSON.stringify(currentNotes));
+  formData.append("action","updateAll");
+  formData.append("index",currentIndex);
+  formData.append("field","note");
+  formData.append("value",JSON.stringify(currentNotes));
 
   fetch(url,{
     method:"POST",
     body: formData
   })
-  .then(res => res.text())
-  .then(res => {
+  .then(res=>res.text())
+  .then(res=>{
+    saving=false;
+    console.log(res);
 
-    saving = false;
-
-    if(res.includes("updated") || res.includes("ok")){
-      showTopMessage("✅ تم الحفظ");
-      loadData();
-      closeModal();
-    } else {
-      showTopMessage("❌ فشل", "red");
-    }
-
+    showMsg("تم الحفظ");
+    loadData();
+    closeModal();
   })
   .catch(()=>{
-    saving = false;
-    showTopMessage("❌ خطأ", "red");
+    saving=false;
+    showMsg("خطأ","red");
   });
 }
+
+function deleteRow(i){
+  let formData = new FormData();
+  formData.append("action","delete");
+  formData.append("index",i);
+
+  fetch(url,{method:"POST",body:formData})
+  .then(()=>loadData());
+}
+
+function closeModal(){
+  document.getElementById("modal").style.display="none";
+}
+
+function showMsg(text,color="#28a745"){
+  let m = document.getElementById("topMsg");
+  m.innerText=text;
+  m.style.background=color;
+  m.style.top="0";
+  setTimeout(()=>m.style.top="-80px",2000);
+}
+
+loadData();
+
 </script>
 
 </body>
