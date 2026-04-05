@@ -16,7 +16,6 @@ body {
 
 h2 {
   text-align: center;
-  margin-bottom: 15px;
 }
 
 .controls {
@@ -36,7 +35,6 @@ button {
   color: white;
   border: none;
   border-radius: 5px;
-  cursor: pointer;
 }
 
 .table-wrapper {
@@ -155,7 +153,7 @@ th {
 </div>
 
 <script>
-const url = "const url = "https://script.google.com/macros/s/AKfycby5JcMkevQJJhtjEcTkYY7EYrESFjc1lBjfLlEiaKQEUVx625i0Z7EbVL6UM-XvOPvW6w/exec";"; // ضع رابط السكربت
+const url = "https://script.google.com/macros/s/AKfycby5JcMkevQJJhtjEcTkYY7EYrESFjc1lBjfLlEiaKQEUVx625i0Z7EbVL6UM-XvOPvW6w/exec";
 
 let allData = [];
 let limit = 10;
@@ -163,26 +161,24 @@ let currentIndex = null;
 let currentNotes = [];
 let saving = false;
 
-/* تحميل البيانات */
+/* تحميل */
 function loadData(){
   fetch(url)
-  .then(res => res.json())
+  .then(res=>res.json())
   .then(data=>{
     allData = data.reverse();
     render();
-  })
-  .catch(err=>console.error(err));
+  });
 }
 
-/* قراءة JSON */
+/* قراءة */
 function getNotes(note){
   try { return JSON.parse(note) || []; }
   catch { return []; }
 }
 
-/* عرض الجدول */
+/* عرض */
 function render(){
-
   const search = document.getElementById("search").value.toLowerCase();
   const filter = document.getElementById("filter").value;
 
@@ -190,19 +186,17 @@ function render(){
 
   let filtered = allData.map((row,i)=>({...row, realIndex:i}))
   .filter(row=>{
-    const matchSearch =
-      row.name?.toLowerCase().includes(search) ||
-      row.phone?.includes(search) ||
-      row.product?.toLowerCase().includes(search);
-
     const notes = getNotes(row.note);
 
-    const matchFilter =
-      filter === "all" ||
-      (filter === "has" && notes.length) ||
-      (filter === "no" && !notes.length);
-
-    return matchSearch && matchFilter;
+    return (
+      (row.name?.toLowerCase().includes(search) ||
+       row.phone?.includes(search) ||
+       row.product?.toLowerCase().includes(search))
+      &&
+      (filter === "all" ||
+       (filter==="has" && notes.length) ||
+       (filter==="no" && !notes.length))
+    );
   });
 
   filtered.slice(0, limit).forEach((row,index)=>{
@@ -217,9 +211,7 @@ function render(){
       <td>${row.wilaya || ""}</td>
       <td>${row.product || ""}</td>
       <td>${row.date || ""}</td>
-      <td>
-        ${lastNote}
-        <br>
+      <td>${lastNote}<br>
         <button onclick="openNotes(${row.realIndex})">عرض</button>
       </td>
       <td>
@@ -231,13 +223,13 @@ function render(){
   document.getElementById("data").innerHTML = html;
 }
 
-/* عرض المزيد */
+/* المزيد */
 function showMore(){
   limit += 10;
   render();
 }
 
-/* فتح الملاحظات */
+/* فتح */
 function openNotes(i){
   currentIndex = i;
   currentNotes = getNotes(allData[i].note);
@@ -250,11 +242,7 @@ function renderNotes(){
   let html = "";
 
   currentNotes.forEach((n,i)=>{
-    html += `
-    <div>
-      ${n.text}
-      <button onclick="deleteNote(${i})">X</button>
-    </div>`;
+    html += `<div>${n.text} <button onclick="deleteNote(${i})">X</button></div>`;
   });
 
   document.getElementById("notesBox").innerHTML = html;
@@ -274,13 +262,13 @@ function addNote(){
   renderNotes();
 }
 
-/* حذف */
+/* حذف ملاحظة */
 function deleteNote(i){
   currentNotes.splice(i,1);
   renderNotes();
 }
 
-/* 🔥 الحفظ (تم إصلاحه) */
+/* ✅ حفظ (مصلح نهائياً) */
 function saveNotes(){
 
   if(saving) return;
@@ -313,7 +301,6 @@ function saveNotes(){
 
 /* حذف صف */
 function deleteRow(i){
-
   fetch(url,{
     method:"POST",
     headers:{ "Content-Type":"application/json" },
@@ -343,7 +330,6 @@ function showMsg(text,color="#28a745"){
   },2000);
 }
 
-/* تشغيل */
 loadData();
 </script>
 
