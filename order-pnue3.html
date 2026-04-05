@@ -96,7 +96,10 @@ button:hover {
 <body>
 
 <h2 style="text-align:center;">📊 نظام PNUE الاحترافي</h2>
-
+https://www.soundjay.com/buttons/sounds/button-3.mp3
+<audio id="successSound">
+  <source src="https://www.soundjay.com/buttons/sounds/button-3.mp3" type="audio/mpeg">
+</audio>
 <div class="controls">
 
 <input type="text" id="search" placeholder="🔍 بحث..." oninput="render()">
@@ -368,7 +371,24 @@ function closeModal(){
 
 /* ===== تشغيل ===== */
 loadData();
+function showTopMessage(text, color="#28a745"){
 
+  let msg = document.getElementById("topMsg");
+
+  msg.innerText = text;
+  msg.style.background = color;
+
+  // نزول الرسالة
+  msg.style.top = "0";
+
+  // صوت
+  document.getElementById("successSound").play();
+
+  // اختفاء
+  setTimeout(()=>{
+    msg.style.top = "-80px";
+  }, 2500);
+}
 </script>
 
 </body>
