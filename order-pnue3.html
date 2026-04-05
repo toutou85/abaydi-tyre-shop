@@ -356,11 +356,13 @@ function saveNotes(){
     body: formData
   })
   .then(res => res.text())
-  .then(res => {
-    console.log(res);
-    loadData();
-  });
+  
+.then(res => {
 
+  showTopMessage("✅ تم حفظ الملاحظات بنجاح");
+
+  loadData();
+});
   closeModal();
 }
 
