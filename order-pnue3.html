@@ -429,6 +429,43 @@ function showTopMessage(text, color="#28a745"){
     msg.style.top = "-80px";
   }, 2500);
 }
+let saving = false;
+
+function saveNotes(){
+
+  if(saving) return;
+  saving = true;
+
+  let formData = new FormData();
+
+  formData.append("action", "updateAll");
+  formData.append("index", currentIndex);
+  formData.append("field", "note");
+  formData.append("value", JSON.stringify(currentNotes));
+
+  fetch(url,{
+    method:"POST",
+    body: formData
+  })
+  .then(res => res.text())
+  .then(res => {
+
+    saving = false;
+
+    if(res.includes("updated") || res.includes("ok")){
+      showTopMessage("✅ تم الحفظ");
+      loadData();
+      closeModal();
+    } else {
+      showTopMessage("❌ فشل", "red");
+    }
+
+  })
+  .catch(()=>{
+    saving = false;
+    showTopMessage("❌ خطأ", "red");
+  });
+}
 </script>
 
 </body>
