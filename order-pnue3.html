@@ -341,15 +341,22 @@ function deleteNote(index){
 /* ===== حفظ ===== */
 function saveNotes(){
 
+  let formData = new FormData();
+
+  formData.append("action", "updateAll");
+  formData.append("index", currentIndex);
+  formData.append("field", "note");
+  formData.append("value", JSON.stringify(currentNotes));
+
   fetch(url,{
     method:"POST",
-    body: JSON.stringify({
-      action:"updateAll",
-      index: currentIndex,
-      field:"note",
-      value: JSON.stringify(currentNotes)
-    })
-  }).then(()=> loadData());
+    body: formData
+  })
+  .then(res => res.text())
+  .then(res => {
+    console.log(res);
+    loadData();
+  });
 
   closeModal();
 }
