@@ -2,332 +2,43 @@
 <html lang="ar">
 <head>
 <meta charset="UTF-8">
-<title>نظام PNUE الاحترافي</title>
-
-<style>
-body {
-  font-family: Arial;
-  direction: rtl;
-  background: #f4f4f4;
-  padding: 10px;
-}
-
-.controls {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  margin-bottom: 10px;
-}
-
-input, select, button {
-  padding: 8px;
-}
-
-.table-wrapper {
-  overflow-x: auto;
-  max-height: 75vh;
-  background: #fff;
-  border: 1px solid #ccc;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-  min-width: 1500px;
-}
-
-th, td {
-  border: 1px solid #ccc;
-  padding: 8px;
-  text-align: center;
-  white-space: nowrap;
-}
-
-th {
-  background: #eee;
-  position: sticky;
-  top: 0;
-  z-index: 2;
-}
-
-button {
-  background: red;
-  color: white;
-  border: none;
-  cursor: pointer;
-  border-radius: 5px;
-}
-
-button:hover {
-  background: darkred;
-}
-
-.modal {
-  display: none;
-  position: fixed;
-  z-index: 99999;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.7);
-  justify-content: center;
-  align-items: center;
-}
-
-.modal-content {
-  background: #fff;
-  width: 90%;
-  max-width: 500px;
-  padding: 15px;
-  border-radius: 10px;
-}
-
-.note-item {
-  border-bottom: 1px solid #ccc;
-  padding: 5px;
-}
-</style>
-
+<title>تجربة حفظ الملاحظات</title>
 </head>
-
 <body>
 
-<h2 style="text-align:center;">📊 نظام PNUE الاحترافي</h2>
+<h2>💾 تجربة حفظ الملاحظات</h2>
 
-<div class="controls">
-<input type="text" id="search" placeholder="🔍 بحث..." oninput="render()">
-
-<select id="filter" onchange="render()">
-  <option value="all">📄 الكل</option>
-  <option value="has">📝 فيه ملاحظات</option>
-  <option value="no">🚫 بدون ملاحظات</option>
-</select>
-
-<button onclick="showMore()">عرض المزيد</button>
-<button onclick="showAll()">عرض الكل</button>
-</div>
-
-<div class="table-wrapper">
-<table>
-<thead>
-<tr>
-<th>#</th>
-<th>الاسم</th>
-<th>الهاتف</th>
-<th>الولاية</th>
-<th>البلدية</th>
-<th>العنوان</th>
-<th>المنتج</th>
-<th>التاريخ</th>
-<th>الملاحظات</th>
-<th>حذف</th>
-</tr>
-</thead>
-
-<tbody id="data"></tbody>
-</table>
-</div>
-
-<!-- Modal -->
-<div id="modal" class="modal">
-<div class="modal-content">
-
-<h3>📌 الملاحظات</h3>
-
-<div id="notesBox"></div>
-
-<textarea id="newNote" style="width:100%;height:80px;"></textarea>
-
+<textarea id="note" style="width:300px; height:100px;"></textarea>
 <br><br>
-
-<button onclick="addNote()">➕ إضافة</button>
-<button onclick="saveNotes()">💾 حفظ</button>
-<button onclick="closeModal()">✖ إغلاق</button>
-
-</div>
-</div>
+<button onclick="saveNote()">💾 حفظ</button>
 
 <script>
+const url = "https://script.google.com/macros/s/AKfycby5JcMkevQJJhtjEcTkYY7EYrESFjc1lBjfLlEiaKQEUVx625i0Z7EbVL6UM-XvOPvW6w/exec";
 
-const url = "https://script.google.com/macros/s/AKfycbz4RvGdfAy74iUDMTCZvv5Ockul6lyHBeUMQojo3rlEThwNDIgAqUeXstbsQPpkXELkcw/exec";
+function saveNote(){
+    let noteText = document.getElementById("note").value.trim();
+    if(!noteText){
+        alert("✏️ أدخل ملاحظة أولاً");
+        return;
+    }
 
-let allData = [];
-let limit = 10;
-let currentRow = null;
-let currentNotes = [];
+    let f = new FormData();
+    f.append("action", "updateAll");  // حسب سكربتك
+    f.append("index", 0);             // رقم تجريبي للصف
+    f.append("field", "note");
+    f.append("value", JSON.stringify([{text: noteText, date: new Date().toLocaleString()}]));
 
-function clean(val){
-  return (val && val !== "null" && val !== "undefined") ? val : "";
+    fetch(url, { method: "POST", body: f })
+    .then(r => r.text())
+    .then(res => {
+        console.log("Response:", res);
+        alert("✅ تم الحفظ بنجاح");
+    })
+    .catch(err => {
+        console.error(err);
+        alert("❌ حدث خطأ عند الحفظ");
+    });
 }
-
-/* تحميل */
-function loadData(){
-  fetch(url)
-  .then(r => r.json())
-  .then(data => {
-    allData = data.reverse();
-    render();
-  });
-}
-
-/* ملاحظات */
-function getNotes(note){
-  if(!note) return [];
-  try {
-    return JSON.parse(note);
-  } catch {
-    return [];
-  }
-}
-
-/* عرض */
-function render(){
-
-  let search = document.getElementById("search").value.toLowerCase();
-  let filter = document.getElementById("filter").value;
-
-  let html = "";
-
-  let filtered = allData.filter(row=>{
-    let notes = getNotes(row.note);
-
-    if(filter==="has" && notes.length===0) return false;
-    if(filter==="no" && notes.length>0) return false;
-
-    let text = Object.values(row).join(" ").toLowerCase();
-    return text.includes(search);
-  });
-
-  filtered.slice(0,limit).forEach((row,index)=>{
-
-    let notes = getNotes(row.note);
-    let lastNote = notes.length ? notes[notes.length-1].text : "";
-
-    html += `
-    <tr>
-      <td>${index+1}</td>
-      <td>${clean(row.name)}</td>
-      <td>${clean(row.phone)}</td>
-      <td>${clean(row.wilaya)}</td>
-      <td>${clean(row.commune)}</td>
-      <td>${clean(row.adresse)}</td>
-      <td>${clean(row.product)}</td>
-      <td>${clean(row.date)}</td>
-
-      <td>
-        ${lastNote}<br>
-        <button onclick="openNotes(${index})">👁 عرض</button>
-      </td>
-
-      <td>
-        <button onclick="deleteRow(${index})">❌</button>
-      </td>
-    </tr>`;
-  });
-
-  document.getElementById("data").innerHTML = html;
-}
-
-/* المزيد */
-function showMore(){
-  limit += 10;
-  render();
-}
-
-function showAll(){
-  limit = allData.length;
-  render();
-}
-
-/* فتح ملاحظات */
-function openNotes(index){
-  let row = allData[index];
-  currentRow = row.row; // الصف الحقيقي
-  currentNotes = getNotes(row.note);
-  renderNotes();
-  document.getElementById("modal").style.display="flex";
-}
-
-/* عرض ملاحظات */
-function renderNotes(){
-  let html = "";
-  currentNotes.forEach((n,i)=>{
-    html += `
-    <div class="note-item">
-      <b>${n.date || ""}</b><br>
-      ${n.text}
-      <br>
-      <button onclick="deleteNote(${i})">❌</button>
-    </div>`;
-  });
-  document.getElementById("notesBox").innerHTML = html;
-}
-
-/* إضافة */
-function addNote(){
-  let text = document.getElementById("newNote").value.trim();
-  if(!text) return;
-
-  currentNotes.push({
-    text,
-    date: new Date().toLocaleString()
-  });
-
-  document.getElementById("newNote").value="";
-  renderNotes();
-}
-
-/* حذف ملاحظة */
-function deleteNote(i){
-  currentNotes.splice(i,1);
-  renderNotes();
-}
-
-/* حفظ (FormData حل نهائي) */
-function saveNotes(){
-
-  let f = new FormData();
-  f.append("action","updateAll");
-  f.append("index", currentRow);
-  f.append("field","note");
-  f.append("value", JSON.stringify(currentNotes));
-
-  fetch(url,{
-    method:"POST",
-    body:f
-  })
-  .then(()=>{
-    alert("✅ تم الحفظ");
-    loadData();
-    closeModal();
-  });
-}
-
-/* حذف */
-function deleteRow(index){
-
-  let rowNumber = allData[index].row;
-
-  let f = new FormData();
-  f.append("action","delete");
-  f.append("index", rowNumber);
-
-  fetch(url,{
-    method:"POST",
-    body:f
-  })
-  .then(()=>loadData());
-}
-
-/* إغلاق */
-function closeModal(){
-  document.getElementById("modal").style.display="none";
-}
-
-/* تشغيل */
-loadData();
-
 </script>
 
 </body>
