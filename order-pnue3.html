@@ -2,11 +2,11 @@
 <html lang="ar">
 <head>
 <meta charset="UTF-8">
-<title>تجربة حفظ الملاحظات</title>
+<title>تجربة حفظ الملاحظات JSON</title>
 </head>
 <body>
 
-<h2>💾 تجربة حفظ الملاحظات</h2>
+<h2>💾 تجربة حفظ الملاحظات (JSON)</h2>
 
 <textarea id="note" style="width:300px; height:100px;"></textarea>
 <br><br>
@@ -22,13 +22,16 @@ function saveNote(){
         return;
     }
 
-    let f = new FormData();
-    f.append("action", "updateAll");  // حسب سكربتك
-    f.append("index", 0);             // رقم تجريبي للصف
-    f.append("field", "note");
-    f.append("value", JSON.stringify([{text: noteText, date: new Date().toLocaleString()}]));
-
-    fetch(url, { method: "POST", body: f })
+    fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            action: "updateAll",
+            index: 0,  // رقم الصف التجريبي
+            field: "note",
+            value: JSON.stringify([{text: noteText, date: new Date().toLocaleString()}])
+        })
+    })
     .then(r => r.text())
     .then(res => {
         console.log("Response:", res);
