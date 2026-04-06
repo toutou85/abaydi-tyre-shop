@@ -6,8 +6,7 @@
 
 <style>
 body {font-family: Arial; direction: rtl; background:#f4f4f4; padding:10px;}
-.controls {display:flex; gap:10px; flex-wrap:wrap; margin-bottom:10px;}
-input,select,button {padding:8px;}
+input,button {padding:8px; margin:5px;}
 table {width:100%; border-collapse:collapse;}
 th,td {border:1px solid #ccc; padding:6px; text-align:center;}
 .modal {display:none; position:fixed; width:100%; height:100%; background:rgba(0,0,0,0.6); justify-content:center; align-items:center;}
@@ -28,23 +27,24 @@ th,td {border:1px solid #ccc; padding:6px; text-align:center;}
 <th>الاسم</th>
 <th>الهاتف</th>
 <th>المنتج</th>
-<th>ملاحظات</th>
+<th>الملاحظات</th>
 <th>حذف</th>
 </tr>
 </thead>
 <tbody id="data"></tbody>
 </table>
 
+<!-- مودال -->
 <div id="modal" class="modal">
 <div class="modal-content">
 
 <div id="notesBox"></div>
 
-<textarea id="newNote"></textarea><br>
+<textarea id="newNote" style="width:100%;height:80px;"></textarea><br>
 
-<button onclick="addNote()">إضافة</button>
-<button onclick="saveNotes()">حفظ</button>
-<button onclick="closeModal()">إغلاق</button>
+<button onclick="addNote()">➕ إضافة</button>
+<button onclick="saveNotes()">💾 حفظ</button>
+<button onclick="closeModal()">✖ إغلاق</button>
 
 </div>
 </div>
@@ -57,6 +57,7 @@ let allData = [];
 let currentRow = null;
 let currentNotes = [];
 
+/* تحميل البيانات */
 function loadData(){
   fetch(url)
   .then(res=>res.json())
@@ -66,12 +67,16 @@ function loadData(){
   });
 }
 
+/* استخراج الملاحظات */
 function getNotes(n){
   try { return JSON.parse(n) || []; }
   catch { return []; }
 }
 
+/* عرض الجدول */
 function render(){
+
+  let search = document.getElementById("search").value.toLowerCase();
   let html = "";
 
   allData.forEach((row,i)=>{
@@ -79,20 +84,23 @@ function render(){
     let notes = getNotes(row.note);
     let last = notes.length ? notes[notes.length-1].text : "";
 
+    let text = Object.values(row).join(" ").toLowerCase();
+    if(!text.includes(search)) return;
+
     html += `
     <tr>
       <td>${i+1}</td>
-      <td>${row.name}</td>
-      <td>${row.phone}</td>
-      <td>${row.product}</td>
+      <td>${row.name || ""}</td>
+      <td>${row.phone || ""}</td>
+      <td>${row.product || ""}</td>
 
       <td>
         ${last}<br>
-        <button onclick="openNotes(${row.row})">عرض</button>
+        <button onclick="openNotes(${i})">👁 عرض</button>
       </td>
 
       <td>
-        <button onclick="deleteRow(${row.row})">X</button>
+        <button onclick="deleteRow(${i})">❌</button>
       </td>
     </tr>`;
   });
@@ -100,23 +108,41 @@ function render(){
   document.getElementById("data").innerHTML = html;
 }
 
-function openNotes(rowNumber){
-  currentRow = rowNumber;
-  let row = allData.find(r => r.row === rowNumber);
+/* فتح الملاحظات */
+function openNotes(index){
+
+  let row = allData[index];
+
+  currentRow = row.row; // 🔥 الصف الحقيقي
+
   currentNotes = getNotes(row.note);
+
   renderNotes();
+
   document.getElementById("modal").style.display="flex";
 }
 
+/* عرض الملاحظات */
 function renderNotes(){
-  let html="";
+
+  let html = "";
+
   currentNotes.forEach((n,i)=>{
-    html += `<div>${n.text} <button onclick="deleteNote(${i})">X</button></div>`;
+    html += `
+    <div>
+      <b>${n.date || ""}</b><br>
+      ${n.text}
+      <br>
+      <button onclick="deleteNote(${i})">❌</button>
+    </div>`;
   });
+
   document.getElementById("notesBox").innerHTML = html;
 }
 
+/* إضافة */
 function addNote(){
+
   let text = document.getElementById("newNote").value.trim();
   if(!text) return;
 
@@ -129,45 +155,58 @@ function addNote(){
   renderNotes();
 }
 
+/* حذف ملاحظة */
 function deleteNote(i){
   currentNotes.splice(i,1);
   renderNotes();
 }
 
+/* حفظ */
 function saveNotes(){
 
-  let formData = new FormData();
+  let f = new FormData();
 
-  formData.append("action","updateAll");
-  formData.append("index", currentRow);
-  formData.append("field","note");
-  formData.append("value", JSON.stringify(currentNotes));
+  f.append("action","updateAll");
+  f.append("index", currentRow);
+  f.append("field","note");
+  f.append("value", JSON.stringify(currentNotes));
 
   fetch(url,{
     method:"POST",
-    body: formData
+    body:f
   })
   .then(()=>{
-    alert("تم الحفظ");
+    alert("✅ تم الحفظ");
     loadData();
     closeModal();
   })
-  .catch(()=>alert("خطأ"));
+  .catch(()=>{
+    alert("❌ خطأ في الاتصال");
+  });
 }
 
-function deleteRow(row){
+/* حذف صف */
+function deleteRow(index){
+
+  let rowNumber = allData[index].row;
+
   let f = new FormData();
   f.append("action","delete");
-  f.append("index", row);
+  f.append("index", rowNumber);
 
-  fetch(url,{method:"POST", body:f})
+  fetch(url,{
+    method:"POST",
+    body:f
+  })
   .then(()=>loadData());
 }
 
+/* إغلاق */
 function closeModal(){
   document.getElementById("modal").style.display="none";
 }
 
+/* تشغيل */
 loadData();
 
 </script>
