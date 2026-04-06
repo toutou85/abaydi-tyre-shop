@@ -327,19 +327,38 @@ function deleteNote(i){
 /* حفظ */
 function saveNotes(){
 
+  if(!currentRow){
+    alert("خطأ: لم يتم تحديد الصف");
+    return;
+  }
+
   fetch(url,{
     method:"POST",
     headers:{ "Content-Type":"application/json" },
     body: JSON.stringify({
       action:"updateAll",
-      index: currentRow,
+      index: Number(currentRow),
       field:"note",
       value: JSON.stringify(currentNotes)
     })
   })
-  .then(()=>{
-    loadData();
-    closeModal();
+  .then(res => res.text())
+  .then(res => {
+
+    console.log("Response:", res); // 🔥 تشوف النتيجة
+
+    if(res.includes("updated") || res.includes("ok")){
+      alert("✅ تم الحفظ بنجاح");
+      loadData();
+      closeModal();
+    } else {
+      alert("❌ فشل الحفظ: " + res);
+    }
+
+  })
+  .catch(err => {
+    console.error(err);
+    alert("❌ خطأ في الاتصال");
   });
 }
 
