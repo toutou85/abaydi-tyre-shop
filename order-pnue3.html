@@ -153,7 +153,8 @@ button:hover {
 
 </div>
 </div>
-
+<audio id="soundSuccess" src="https://www.soundjay.com/buttons/sounds/button-3.mp3"></audio>
+<audio id="soundDelete" src="https://www.soundjay.com/buttons/sounds/button-10.mp3"></audio>
 <script>
 
 const url = "https://script.google.com/macros/s/AKfycbzUONDWc43MtRWkyMpoLgAeEXKwLumFTO4A09K-XRcivHyIOO6r10bOH9swU73MNxUIcQ/exec";
@@ -284,10 +285,12 @@ function deleteRow(i){
         action:"delete",
         index:i
       })
-    }).then(()=>loadData());
+    }).then(()=>{
+      playDelete(); // 🔊 صوت حذف
+      loadData();
+    });
   }
 }
-
 /* ===== ملاحظات ===== */
 
 
@@ -334,6 +337,8 @@ function addNote(){
 /* ===== حذف ملاحظة ===== */
 function deleteNote(index){
   currentNotes.splice(index,1);
+  playDelete(); // 🔊 صوت حذف
+  navigator.vibrate(100);
   renderNotes();
 }
 
@@ -348,10 +353,16 @@ function saveNotes(){
       field:"note",
       value: JSON.stringify(currentNotes)
     })
-  }).then(()=> loadData());
+  }).then(()=>{
+    playSuccess(); // 🔊 صوت نجاح
+    navigator.vibrate(100);
+    loadData();
+  });
 
   closeModal();
 }
+  
+
 
 /* ===== إغلاق ===== */
 function closeModal(){
@@ -360,7 +371,13 @@ function closeModal(){
 
 /* ===== تشغيل ===== */
 loadData();
+function playSuccess(){
+  document.getElementById("soundSuccess").play();
+}
 
+function playDelete(){
+  document.getElementById("soundDelete").play();
+}
 </script>
 
 </body>
