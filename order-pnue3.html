@@ -89,6 +89,57 @@ button:hover {
   border-bottom: 1px solid #ccc;
   padding: 5px;
 }
+  /* ===== تحسين الهاتف ===== */
+@media (max-width: 768px) {
+
+  body {
+    padding: 5px;
+  }
+
+  h2 {
+    font-size: 18px;
+  }
+
+  .controls {
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  input, select, button {
+    width: 100%;
+    font-size: 14px;
+    padding: 10px;
+  }
+
+  .table-wrapper {
+    max-height: 65vh;
+  }
+
+  table {
+    min-width: 900px; /* نخلي scroll أفقي */
+  }
+
+  th, td {
+    font-size: 12px;
+    padding: 6px;
+  }
+
+  button {
+    padding: 5px 8px;
+    font-size: 12px;
+  }
+
+  /* modal */
+  .modal-content {
+    width: 95%;
+    padding: 10px;
+  }
+
+  textarea {
+    font-size: 14px;
+  }
+
+}
 </style>
 
 </head>
