@@ -249,11 +249,12 @@ function render(){
       <td>
         ${lastNote}
         <br>
-        <button onclick="openNotes(${item.i})">👁 عرض</button>
+        <button onclick="openNotes(${item.row.id})">👁 عرض</button>
       </td>
 
       <td>
-        <button onclick="deleteRow(${item.i})">❌</button>
+        <button onclick="deleteRow(${item.row.id})">❌</button>
+     
       </td>
 
     </tr>
@@ -288,17 +289,15 @@ function deleteRow(i){
 }
 
 /* ===== ملاحظات ===== */
-function openNotes(i){
 
-  currentIndex = i;
-  currentNotes = getNotes(allData[i].note);
+
+function openNotes(rowId){
+  currentIndex = rowId;
+  currentNotes = getNotes(allData.find(r => r.id === rowId).note);
 
   renderNotes();
-
-  let modal = document.getElementById("modal");
-  modal.style.display = "flex";
+  document.getElementById("modal").style.display = "flex";
 }
-
 function renderNotes(){
 
   let html = "";
