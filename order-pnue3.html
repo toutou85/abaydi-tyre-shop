@@ -109,7 +109,7 @@ button:hover {
 
 <button onclick="showMore()">عرض المزيد</button>
 <button onclick="showAll()">عرض الكل</button>
-
+<button onclick="playSuccess()">🔊 اختبار الصوت</button>
 </div>
 
 <div class="table-wrapper">
@@ -245,8 +245,7 @@ function render(){
       <td>${clean(item.row.commune)}</td>
       <td>${clean(item.row.adresse)}</td>
       <td>${clean(item.row.product)}</td>
-      <td>${clean(item.row.date)}</td>
-
+      <td>${formatDate(item.row.date)}</td>
       <td>
         ${lastNote}
         <br>
@@ -291,6 +290,20 @@ function deleteRow(i){
     });
   }
 }
+  function formatDate(d){
+
+  if(!d) return "";
+
+  let date = new Date(d);
+
+  return date.toLocaleString('ar-DZ', {
+    day: '2-digit',
+    month: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+
+}
 /* ===== ملاحظات ===== */
 
 
@@ -327,8 +340,12 @@ function addNote(){
 
   currentNotes.push({
     text,
-    date: new Date().toLocaleString()
-  });
+  date: new Date().toLocaleString('ar-DZ', {
+  hour: '2-digit',
+  minute: '2-digit',
+  day: '2-digit',
+  month: '2-digit'
+})
 
   document.getElementById("newNote").value="";
   renderNotes();
@@ -372,12 +389,29 @@ function closeModal(){
 /* ===== تشغيل ===== */
 loadData();
 function playSuccess(){
-  document.getElementById("soundSuccess").play();
+  let s = document.getElementById("soundSuccess");
+  s.currentTime = 0;
+  s.play().catch(()=>{});
 }
 
 function playDelete(){
-  document.getElementById("soundDelete").play();
+  let s = document.getElementById("soundDelete");
+  s.currentTime = 0;
+  s.play().catch(()=>{});
 }
+  document.body.addEventListener("click", function initAudio(){
+  document.getElementById("soundSuccess").play().then(()=>{
+    document.getElementById("soundSuccess").pause();
+    document.getElementById("soundSuccess").currentTime = 0;
+  });
+
+  document.getElementById("soundDelete").play().then(()=>{
+    document.getElementById("soundDelete").pause();
+    document.getElementById("soundDelete").currentTime = 0;
+  });
+
+  document.body.removeEventListener("click", initAudio);
+});
 </script>
 
 </body>
