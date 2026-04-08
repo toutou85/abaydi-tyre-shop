@@ -89,7 +89,8 @@ button:hover {
   border-bottom: 1px solid #ccc;
   padding: 5px;
 }
-  /* ===== تحسين الهاتف ===== */
+/* 📱 تصميم الهاتف فقط */
+/* ===================== */
 @media (max-width: 768px) {
 
   body {
@@ -113,23 +114,24 @@ button:hover {
 
   .table-wrapper {
     max-height: 65vh;
+    overflow-x: auto;
   }
 
   table {
-    min-width: 900px; /* نخلي scroll أفقي */
+    min-width: 800px; /* مهم */
   }
 
   th, td {
-    font-size: 12px;
-    padding: 6px;
+    font-size: 11px;
+    padding: 4px;
+    word-break: break-word; /* يمنع التمدد */
   }
 
-  button {
-    padding: 5px 8px;
-    font-size: 12px;
+  td button {
+    font-size: 10px;
+    padding: 3px 5px;
   }
 
-  /* modal */
   .modal-content {
     width: 95%;
     padding: 10px;
@@ -138,6 +140,8 @@ button:hover {
   textarea {
     font-size: 14px;
   }
+
+
 
 }
 </style>
