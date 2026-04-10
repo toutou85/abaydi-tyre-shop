@@ -89,6 +89,88 @@ button:hover {
   border-bottom: 1px solid #ccc;
   padding: 5px;
 }
+  .toast {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  background: #333;
+  color: #fff;
+  padding: 12px 20px;
+  border-radius: 8px;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: 0.4s;
+  z-index: 999999;
+  font-size: 14px;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.toast.success {
+  background: #28a745;
+}
+
+.toast.error {
+  background: #dc3545;
+}
+/* 📱 تصميم الهاتف فقط */
+/* ===================== */
+@media (max-width: 768px) {
+
+  body {
+    padding: 5px;
+  }
+
+  h2 {
+    font-size: 18px;
+  }
+
+  .controls {
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  input, select, button {
+    width: 100%;
+    font-size: 14px;
+    padding: 10px;
+  }
+
+  .table-wrapper {
+    max-height: 65vh;
+    overflow-x: auto;
+  }
+
+  table {
+    min-width: 800px; /* مهم */
+  }
+
+  th, td {
+    font-size: 11px;
+    padding: 4px;
+    word-break: break-word; /* يمنع التمدد */
+  }
+
+  td button {
+    font-size: 10px;
+    padding: 3px 5px;
+  }
+
+  .modal-content {
+    width: 95%;
+    padding: 10px;
+  }
+
+  textarea {
+    font-size: 14px;
+  }
+
+
+
+}
 </style>
 
 </head>
@@ -109,7 +191,7 @@ button:hover {
 
 <button onclick="showMore()">عرض المزيد</button>
 <button onclick="showAll()">عرض الكل</button>
-
+<button onclick="playSuccess()">🔊 اختبار الصوت</button>
 </div>
 
 <div class="table-wrapper">
@@ -153,7 +235,9 @@ button:hover {
 
 </div>
 </div>
-
+<audio id="soundSuccess" src="sound-success.mp3"></audio>
+<audio id="soundDelete" src="sound-delete.mp3"></audio>
+  <div id="toast" class="toast"></div>
 <script>
 
 const url = "https://script.google.com/macros/s/AKfycbzUONDWc43MtRWkyMpoLgAeEXKwLumFTO4A09K-XRcivHyIOO6r10bOH9swU73MNxUIcQ/exec";
@@ -244,8 +328,7 @@ function render(){
       <td>${clean(item.row.commune)}</td>
       <td>${clean(item.row.adresse)}</td>
       <td>${clean(item.row.product)}</td>
-      <td>${clean(item.row.date)}</td>
-
+      <td>${formatDate(item.row.date)}</td>
       <td>
         ${lastNote}
         <br>
@@ -284,10 +367,26 @@ function deleteRow(i){
         action:"delete",
         index:i
       })
-    }).then(()=>loadData());
+    }).then(()=>{
+      playDelete(); // 🔊 صوت حذف
+      loadData();
+    });
   }
 }
+  function formatDate(d){
 
+  if(!d) return "";
+
+  let date = new Date(d);
+
+  return date.toLocaleString('ar-DZ', {
+    day: '2-digit',
+    month: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+
+}
 /* ===== ملاحظات ===== */
 
 
@@ -324,9 +423,13 @@ function addNote(){
 
   currentNotes.push({
     text,
-    date: new Date().toLocaleString()
-  });
-
+  date: new Date().toLocaleString('ar-DZ', {
+  hour: '2-digit',
+  minute: '2-digit',
+  day: '2-digit',
+  month: '2-digit'
+})
+});
   document.getElementById("newNote").value="";
   renderNotes();
 }
@@ -334,6 +437,9 @@ function addNote(){
 /* ===== حذف ملاحظة ===== */
 function deleteNote(index){
   currentNotes.splice(index,1);
+  playDelete(); // 🔊 صوت حذف
+ showToast("تم الحذف بنجاح ❌", "error");
+  navigator.vibrate(100);
   renderNotes();
 }
 
@@ -348,10 +454,17 @@ function saveNotes(){
       field:"note",
       value: JSON.stringify(currentNotes)
     })
-  }).then(()=> loadData());
+  }).then(()=>{
+    playSuccess(); // 🔊 صوت نجاح
+   showToast("تم الحفظ بنجاح ✅", "success"); 
+    navigator.vibrate(100);
+    loadData();
+  });
 
   closeModal();
 }
+  
+
 
 /* ===== إغلاق ===== */
 function closeModal(){
@@ -360,7 +473,41 @@ function closeModal(){
 
 /* ===== تشغيل ===== */
 loadData();
+function playSuccess(){
+  let s = document.getElementById("soundSuccess");
+  s.currentTime = 0;
+  s.play().catch(()=>{});
+}
 
+function playDelete(){
+  let s = document.getElementById("soundDelete");
+  s.currentTime = 0;
+  s.play().catch(()=>{});
+}
+  document.body.addEventListener("click", function initAudio(){
+  document.getElementById("soundSuccess").play().then(()=>{
+    document.getElementById("soundSuccess").pause();
+    document.getElementById("soundSuccess").currentTime = 0;
+  });
+
+  document.getElementById("soundDelete").play().then(()=>{
+    document.getElementById("soundDelete").pause();
+    document.getElementById("soundDelete").currentTime = 0;
+  });
+
+  document.body.removeEventListener("click", initAudio);
+});
+  function showToast(message, type="success"){
+
+  let toast = document.getElementById("toast");
+
+  toast.innerText = message;
+  toast.className = "toast show " + type;
+
+  setTimeout(()=>{
+    toast.className = "toast";
+  }, 3000);
+}
 </script>
 
 </body>
