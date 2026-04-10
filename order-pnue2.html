@@ -319,18 +319,7 @@ function render(){
 <td data-label="حذف">
   <button onclick="deleteRow(${item.row.id})">❌</button>
 </td>
-      <td>${clean(item.row.phone)}</td>
-      <td>${clean(item.row.wilaya)}</td>
-      <td>${clean(item.row.commune)}</td>
-      <td>${clean(item.row.adresse)}</td>
-      <td>${clean(item.row.product)}</td>
-      <td>${formatDate(item.row.date)}</td>
-      <td>
-        ${lastNote}
-        <br>
-        <button onclick="openNotes(${item.row.id})">👁 عرض</button>
-      </td>
-
+    
       <td>
         <button onclick="deleteRow(${item.row.id})">❌</button>
      
