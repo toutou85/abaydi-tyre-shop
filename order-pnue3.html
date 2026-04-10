@@ -89,6 +89,33 @@ button:hover {
   border-bottom: 1px solid #ccc;
   padding: 5px;
 }
+  .toast {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  background: #333;
+  color: #fff;
+  padding: 12px 20px;
+  border-radius: 8px;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: 0.4s;
+  z-index: 999999;
+  font-size: 14px;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.toast.success {
+  background: #28a745;
+}
+
+.toast.error {
+  background: #dc3545;
+}
 /* 📱 تصميم الهاتف فقط */
 /* ===================== */
 @media (max-width: 768px) {
@@ -210,6 +237,7 @@ button:hover {
 </div>
 <audio id="soundSuccess" src="sound-success.mp3"></audio>
 <audio id="soundDelete" src="sound-delete.mp3"></audio>
+  <div id="toast" class="toast"></div>
 <script>
 
 const url = "https://script.google.com/macros/s/AKfycbzUONDWc43MtRWkyMpoLgAeEXKwLumFTO4A09K-XRcivHyIOO6r10bOH9swU73MNxUIcQ/exec";
@@ -410,6 +438,7 @@ function addNote(){
 function deleteNote(index){
   currentNotes.splice(index,1);
   playDelete(); // 🔊 صوت حذف
+ showToast("تم الحذف بنجاح ❌", "error");
   navigator.vibrate(100);
   renderNotes();
 }
@@ -427,6 +456,7 @@ function saveNotes(){
     })
   }).then(()=>{
     playSuccess(); // 🔊 صوت نجاح
+   showToast("تم الحفظ بنجاح ✅", "success"); 
     navigator.vibrate(100);
     loadData();
   });
@@ -467,6 +497,17 @@ function playDelete(){
 
   document.body.removeEventListener("click", initAudio);
 });
+  function showToast(message, type="success"){
+
+  let toast = document.getElementById("toast");
+
+  toast.innerText = message;
+  toast.className = "toast show " + type;
+
+  setTimeout(()=>{
+    toast.className = "toast";
+  }, 3000);
+}
 </script>
 
 </body>
