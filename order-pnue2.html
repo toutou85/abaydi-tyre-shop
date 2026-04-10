@@ -2,6 +2,7 @@
 <html lang="ar">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>نظام PNUE الاحترافي</title>
 
 <style>
@@ -62,7 +63,7 @@ button:hover {
   background: darkred;
 }
 
-/* ===== Modal FIXED ===== */
+/* ===== Modal ===== */
 .modal {
   display: none;
   position: fixed;
@@ -72,7 +73,6 @@ button:hover {
   width: 100%;
   height: 100%;
   background: rgba(0,0,0,0.7);
-
   justify-content: center;
   align-items: center;
 }
@@ -89,7 +89,9 @@ button:hover {
   border-bottom: 1px solid #ccc;
   padding: 5px;
 }
-  .toast {
+
+/* Toast */
+.toast {
   position: fixed;
   bottom: 20px;
   left: 20px;
@@ -109,29 +111,14 @@ button:hover {
   transform: translateY(0);
 }
 
-.toast.success {
-  background: #28a745;
-}
+.toast.success { background: #28a745; }
+.toast.error { background: #dc3545; }
 
-.toast.error {
-  background: #dc3545;
-}
-/* 📱 تصميم الهاتف فقط */
-/* ===================== */
-
+/* 📱 تصميم الهاتف */
 @media (max-width: 768px) {
-
-  body {
-    padding: 5px;
-  }
-
-  h2 {
-    font-size: 18px;
-  }
 
   .controls {
     flex-direction: column;
-    gap: 6px;
   }
 
   input, select, button {
@@ -140,13 +127,11 @@ button:hover {
     padding: 10px;
   }
 
-  /* ❌ إخفاء الجدول */
- /* ❌ إخفاء الجدول كامل */
-.table-wrapper {
-  display: none;
-}
+  /* تحويل الجدول إلى كروت */
+  table, thead {
+    display: none;
+  }
 
-  /* ✅ تحويل البيانات إلى كروت */
   #data {
     display: flex;
     flex-direction: column;
@@ -156,20 +141,24 @@ button:hover {
   #data tr {
     display: block;
     background: #fff;
-    border-radius: 10px;
-    padding: 10px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    border-radius: 12px;
+    padding: 12px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
   }
 
   #data td {
     display: block;
     text-align: right;
     border: none;
-    padding: 4px 0;
-    font-size: 13px;
+    padding: 5px 0;
+    font-size: 14px;
   }
 
-  /* 📌 إضافة عناوين لكل عنصر */
+  #data td::before {
+    font-weight: bold;
+    color: #555;
+  }
+
   #data td:nth-child(1)::before { content: "# : "; }
   #data td:nth-child(2)::before { content: "الاسم : "; }
   #data td:nth-child(3)::before { content: "الهاتف : "; }
@@ -180,18 +169,9 @@ button:hover {
   #data td:nth-child(8)::before { content: "التاريخ : "; }
   #data td:nth-child(9)::before { content: "الملاحظات : "; }
 
-  #data td:nth-child(10) {
-    margin-top: 8px;
-  }
-
   td button {
     width: 100%;
-    margin-top: 5px;
-  }
-
-  .modal-content {
-    width: 95%;
-    padding: 10px;
+    margin-top: 6px;
   }
 }
 </style>
@@ -203,7 +183,6 @@ button:hover {
 <h2 style="text-align:center;">📊 نظام PNUE الاحترافي</h2>
 
 <div class="controls">
-
 <input type="text" id="search" placeholder="🔍 بحث..." oninput="render()">
 
 <select id="filter" onchange="render()">
@@ -214,13 +193,12 @@ button:hover {
 
 <button onclick="showMore()">عرض المزيد</button>
 <button onclick="showAll()">عرض الكل</button>
-<button onclick="playSuccess()">🔊 اختبار الصوت</button>
-   <div id="toast" class="toast"></div>
+
+<div id="toast" class="toast"></div>
 </div>
 
 <div class="table-wrapper">
 <table>
-
 <thead>
 <tr>
 <th>#</th>
@@ -235,9 +213,7 @@ button:hover {
 <th>حذف</th>
 </tr>
 </thead>
-
 <tbody id="data"></tbody>
-
 </table>
 </div>
 
@@ -259,11 +235,8 @@ button:hover {
 
 </div>
 </div>
-<audio id="soundSuccess" src="sound-success.mp3"></audio>
-<audio id="soundDelete" src="sound-delete.mp3"></audio>
- 
-<script>
 
+<script>
 const url = "https://script.google.com/macros/s/AKfycbzUONDWc43MtRWkyMpoLgAeEXKwLumFTO4A09K-XRcivHyIOO6r10bOH9swU73MNxUIcQ/exec";
 
 let allData = [];
@@ -271,57 +244,42 @@ let limit = 10;
 let currentIndex = null;
 let currentNotes = [];
 
-/* ===== تنظيف القيم ===== */
 function clean(val){
   return (val && val !== "null" && val !== "undefined") ? val : "";
 }
 
-/* ===== تحميل ===== */
 function loadData(){
   fetch(url)
   .then(r => r.json())
   .then(data => {
-
-    // حذف الصفوف الفارغة مع تجاهل id
     allData = (data || []).filter(row => {
-
       let values = Object.entries(row)
         .filter(([key]) => key !== "id")
         .map(([_, v]) => v);
-
       return values.some(v => v && v.toString().trim() !== "");
     });
-
-    // الأحدث أولاً
     allData.reverse();
-
     render();
   });
 }
 
-/* ===== استخراج الملاحظات ===== */
 function getNotes(note){
   if(!note) return [];
-
   try {
     let parsed = JSON.parse(note);
-    if(Array.isArray(parsed)) return parsed;
-    return [{text: note, date:""}];
+    return Array.isArray(parsed) ? parsed : [{text: note, date:""}];
   } catch {
     return [{text: note, date:""}];
   }
 }
 
-/* ===== عرض ===== */
 function render(){
-
   let search = document.getElementById("search").value.toLowerCase();
   let filter = document.getElementById("filter").value;
 
   let filtered = [];
 
-  allData.forEach((row,i)=>{
-
+  allData.forEach((row)=>{
     let notes = getNotes(row.note);
 
     if(filter==="has" && notes.length===0) return;
@@ -330,7 +288,7 @@ function render(){
     let text = Object.values(row).join(" ").toLowerCase();
     if(!text.includes(search)) return;
 
-    filtered.push({row, i, notes});
+    filtered.push({row, notes});
   });
 
   let sliced = filtered.slice(0, limit);
@@ -338,93 +296,52 @@ function render(){
   let html = "";
 
   sliced.forEach((item,index)=>{
-
     let lastNote = item.notes.length ? item.notes[item.notes.length-1].text : "";
 
     html += `
     <tr>
-
       <td>${index+1}</td>
-
       <td>${clean(item.row.name)}</td>
       <td>${clean(item.row.phone)}</td>
       <td>${clean(item.row.wilaya)}</td>
       <td>${clean(item.row.commune)}</td>
       <td>${clean(item.row.adresse)}</td>
       <td>${clean(item.row.product)}</td>
-      <td>${formatDate(item.row.date)}</td>
+      <td>${new Date(item.row.date).toLocaleString('ar-DZ')}</td>
       <td>
-        ${lastNote}
-        <br>
+        ${lastNote}<br>
         <button onclick="openNotes(${item.row.id})">👁 عرض</button>
       </td>
-
       <td>
         <button onclick="deleteRow(${item.row.id})">❌</button>
-     
       </td>
-
-    </tr>
-    `;
+    </tr>`;
   });
 
   document.getElementById("data").innerHTML = html;
 }
 
-/* ===== عرض المزيد ===== */
-function showMore(){
-  limit += 10;
-  render();
-}
+function showMore(){ limit += 10; render(); }
+function showAll(){ limit = allData.length; render(); }
 
-function showAll(){
-  limit = allData.length;
-  render();
-}
-
-/* ===== حذف ===== */
 function deleteRow(i){
   if(confirm("حذف؟")){
     fetch(url,{
       method:"POST",
-      body: JSON.stringify({
-        action:"delete",
-        index:i
-      })
-    }).then(()=>{
-      playDelete(); // 🔊 صوت حذف
-      loadData();
-    });
+      body: JSON.stringify({action:"delete", index:i})
+    }).then(()=> loadData());
   }
 }
-  function formatDate(d){
-
-  if(!d) return "";
-
-  let date = new Date(d);
-
-  return date.toLocaleString('ar-DZ', {
-    day: '2-digit',
-    month: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit'
-  });
-
-}
-/* ===== ملاحظات ===== */
-
 
 function openNotes(rowId){
   currentIndex = rowId;
   currentNotes = getNotes(allData.find(r => r.id === rowId).note);
-
   renderNotes();
   document.getElementById("modal").style.display = "flex";
 }
+
 function renderNotes(){
-
   let html = "";
-
   currentNotes.forEach((n,index)=>{
     html += `
     <div class="note-item">
@@ -432,44 +349,30 @@ function renderNotes(){
       ${n.text}
       <br>
       <button onclick="deleteNote(${index})">❌</button>
-    </div>
-    `;
+    </div>`;
   });
-
   document.getElementById("notesBox").innerHTML = html;
 }
 
-/* ===== إضافة ===== */
 function addNote(){
-
   let text = document.getElementById("newNote").value;
   if(!text) return;
 
   currentNotes.push({
     text,
-  date: new Date().toLocaleString('ar-DZ', {
-  hour: '2-digit',
-  minute: '2-digit',
-  day: '2-digit',
-  month: '2-digit'
-})
-});
+    date: new Date().toLocaleString('ar-DZ')
+  });
+
   document.getElementById("newNote").value="";
   renderNotes();
 }
 
-/* ===== حذف ملاحظة ===== */
 function deleteNote(index){
   currentNotes.splice(index,1);
-  playDelete(); // 🔊 صوت حذف
- showToast("تم الحذف بنجاح ❌", "error");
-  navigator.vibrate(100);
   renderNotes();
 }
 
-/* ===== حفظ ===== */
 function saveNotes(){
-
   fetch(url,{
     method:"POST",
     body: JSON.stringify({
@@ -478,60 +381,16 @@ function saveNotes(){
       field:"note",
       value: JSON.stringify(currentNotes)
     })
-  }).then(()=>{
-    playSuccess(); // 🔊 صوت نجاح
-   showToast("تم الحفظ بنجاح ✅", "success"); 
-    navigator.vibrate(100);
-    loadData();
-  });
+  }).then(()=> loadData());
 
   closeModal();
 }
-  
 
-
-/* ===== إغلاق ===== */
 function closeModal(){
   document.getElementById("modal").style.display="none";
 }
 
-/* ===== تشغيل ===== */
 loadData();
-function playSuccess(){
-  let s = document.getElementById("soundSuccess");
-  s.currentTime = 0;
-  s.play().catch(()=>{});
-}
-
-function playDelete(){
-  let s = document.getElementById("soundDelete");
-  s.currentTime = 0;
-  s.play().catch(()=>{});
-}
-  document.body.addEventListener("click", function initAudio(){
-  document.getElementById("soundSuccess").play().then(()=>{
-    document.getElementById("soundSuccess").pause();
-    document.getElementById("soundSuccess").currentTime = 0;
-  });
-
-  document.getElementById("soundDelete").play().then(()=>{
-    document.getElementById("soundDelete").pause();
-    document.getElementById("soundDelete").currentTime = 0;
-  });
-
-  document.body.removeEventListener("click", initAudio);
-});
-  function showToast(message, type="success"){
-
-  let toast = document.getElementById("toast");
-
-  toast.innerText = message;
-  toast.className = "toast show " + type;
-
-  setTimeout(()=>{
-    toast.className = "toast";
-  }, 3000);
-}
 </script>
 
 </body>
