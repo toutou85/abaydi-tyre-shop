@@ -117,65 +117,82 @@ button:hover {
   background: #dc3545;
 }
 /* 📱 تصميم الهاتف فقط */
-@media (max-width: 768px){
+/* ===================== */
+/* 📱 تصميم احترافي للهاتف */
+@media (max-width: 768px) {
 
-  table, thead, tbody, th, td, tr {
-    display: block;
-    width: 100%;
+  body {
+    padding: 5px;
   }
 
-  thead {
+  h2 {
+    font-size: 18px;
+  }
+
+  .controls {
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  input, select, button {
+    width: 100%;
+    font-size: 14px;
+    padding: 10px;
+  }
+
+  /* ❌ إخفاء الجدول */
+  table, thead {
     display: none;
   }
 
-  tr {
-    background: #fff;
-    margin-bottom: 10px;
-    border-radius: 10px;
-    padding: 10px;
-    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+  /* ✅ تحويل البيانات إلى كروت */
+  #data {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
   }
 
-  td {
-    border: none;
+  #data tr {
+    display: block;
+    background: #fff;
+    border-radius: 10px;
+    padding: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
+
+  #data td {
+    display: block;
     text-align: right;
-    padding: 5px 10px;
-    position: relative;
+    border: none;
+    padding: 4px 0;
     font-size: 13px;
   }
 
-  td::before {
-    content: attr(data-label);
-    font-weight: bold;
-    display: block;
-    color: #555;
-    margin-bottom: 3px;
+  /* 📌 إضافة عناوين لكل عنصر */
+  #data td:nth-child(1)::before { content: "# : "; }
+  #data td:nth-child(2)::before { content: "الاسم : "; }
+  #data td:nth-child(3)::before { content: "الهاتف : "; }
+  #data td:nth-child(4)::before { content: "الولاية : "; }
+  #data td:nth-child(5)::before { content: "البلدية : "; }
+  #data td:nth-child(6)::before { content: "العنوان : "; }
+  #data td:nth-child(7)::before { content: "المنتج : "; }
+  #data td:nth-child(8)::before { content: "التاريخ : "; }
+  #data td:nth-child(9)::before { content: "الملاحظات : "; }
+
+  #data td:nth-child(10) {
+    margin-top: 8px;
   }
 
+  td button {
+    width: 100%;
+    margin-top: 5px;
+  }
+
+  .modal-content {
+    width: 95%;
+    padding: 10px;
+  }
 }
-  @media (max-width: 768px){
-
-  .table-wrapper {
-    border: none;
-    background: transparent;
-  }
-
-  tr {
-    margin-bottom: 12px;
-  }
-
-  td {
-    background: #fff;
-    margin-bottom: 5px;
-    border-radius: 6px;
-  }
-
-  td::before {
-    font-size: 12px;
-  }
-
-}
-  
 </style>
 
 </head>
@@ -197,6 +214,7 @@ button:hover {
 <button onclick="showMore()">عرض المزيد</button>
 <button onclick="showAll()">عرض الكل</button>
 <button onclick="playSuccess()">🔊 اختبار الصوت</button>
+   <div id="toast" class="toast"></div>
 </div>
 
 <div class="table-wrapper">
@@ -242,7 +260,7 @@ button:hover {
 </div>
 <audio id="soundSuccess" src="sound-success.mp3"></audio>
 <audio id="soundDelete" src="sound-delete.mp3"></audio>
-  <div id="toast" class="toast"></div>
+ 
 <script>
 
 const url = "https://script.google.com/macros/s/AKfycbzUONDWc43MtRWkyMpoLgAeEXKwLumFTO4A09K-XRcivHyIOO6r10bOH9swU73MNxUIcQ/exec";
@@ -327,17 +345,21 @@ function render(){
 
       <td>${index+1}</td>
 
-    <td data-label="الاسم">${clean(item.row.name)}</td>
-<td data-label="الهاتف">${clean(item.row.phone)}</td>
-<td data-label="الولاية">${clean(item.row.wilaya)}</td>
-<td data-label="البلدية">${clean(item.row.commune)}</td>
-<td data-label="العنوان">${clean(item.row.adresse)}</td>
-<td data-label="المنتج">${clean(item.row.product)}</td>
-<td data-label="التاريخ">${formatDate(item.row.date)}</td>
-<td data-label="الملاحظات">
-  ${lastNote}
-  <br>
-  <button onclick="openNotes(${item.row.id})">👁 عرض</button>
+      <td>${clean(item.row.name)}</td>
+      <td>${clean(item.row.phone)}</td>
+      <td>${clean(item.row.wilaya)}</td>
+      <td>${clean(item.row.commune)}</td>
+      <td>${clean(item.row.adresse)}</td>
+      <td>${clean(item.row.product)}</td>
+      <td>${formatDate(item.row.date)}</td>
+      <td>
+        ${lastNote}
+        <br>
+        <button onclick="openNotes(${item.row.id})">👁 عرض</button>
+      </td>
+
+      <td>
+        <button onclick="deleteRow(${item.row.id})">❌</button>
      
       </td>
 
@@ -368,14 +390,9 @@ function deleteRow(i){
         action:"delete",
         index:i
       })
-    })
-    .then(()=>{
-      playDelete();
-      showToast("تم حذف الطلب بنجاح ❌", "error");
+    }).then(()=>{
+      playDelete(); // 🔊 صوت حذف
       loadData();
-    })
-    .catch(()=>{
-      showToast("فشل الحذف ⚠️", "error");
     });
   }
 }
