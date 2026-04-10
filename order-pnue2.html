@@ -153,6 +153,29 @@ button:hover {
   }
 
 }
+  @media (max-width: 768px){
+
+  .table-wrapper {
+    border: none;
+    background: transparent;
+  }
+
+  tr {
+    margin-bottom: 12px;
+  }
+
+  td {
+    background: #fff;
+    margin-bottom: 5px;
+    border-radius: 6px;
+  }
+
+  td::before {
+    font-size: 12px;
+  }
+
+}
+  
 </style>
 
 </head>
@@ -315,13 +338,6 @@ function render(){
   ${lastNote}
   <br>
   <button onclick="openNotes(${item.row.id})">👁 عرض</button>
-</td>
-<td data-label="حذف">
-  <button onclick="deleteRow(${item.row.id})">❌</button>
-</td>
-    
-      <td>
-        <button onclick="deleteRow(${item.row.id})">❌</button>
      
       </td>
 
@@ -352,9 +368,14 @@ function deleteRow(i){
         action:"delete",
         index:i
       })
-    }).then(()=>{
-      playDelete(); // 🔊 صوت حذف
+    })
+    .then(()=>{
+      playDelete();
+      showToast("تم حذف الطلب بنجاح ❌", "error");
       loadData();
+    })
+    .catch(()=>{
+      showToast("فشل الحذف ⚠️", "error");
     });
   }
 }
