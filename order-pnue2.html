@@ -117,58 +117,40 @@ button:hover {
   background: #dc3545;
 }
 /* 📱 تصميم الهاتف فقط */
-/* ===================== */
-@media (max-width: 768px) {
+@media (max-width: 768px){
 
-  body {
-    padding: 5px;
-  }
-
-  h2 {
-    font-size: 18px;
-  }
-
-  .controls {
-    flex-direction: column;
-    gap: 5px;
-  }
-
-  input, select, button {
+  table, thead, tbody, th, td, tr {
+    display: block;
     width: 100%;
-    font-size: 14px;
+  }
+
+  thead {
+    display: none;
+  }
+
+  tr {
+    background: #fff;
+    margin-bottom: 10px;
+    border-radius: 10px;
     padding: 10px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
   }
 
-  .table-wrapper {
-    max-height: 65vh;
-    overflow-x: auto;
+  td {
+    border: none;
+    text-align: right;
+    padding: 5px 10px;
+    position: relative;
+    font-size: 13px;
   }
 
-  table {
-    min-width: 800px; /* مهم */
+  td::before {
+    content: attr(data-label);
+    font-weight: bold;
+    display: block;
+    color: #555;
+    margin-bottom: 3px;
   }
-
-  th, td {
-    font-size: 11px;
-    padding: 4px;
-    word-break: break-word; /* يمنع التمدد */
-  }
-
-  td button {
-    font-size: 10px;
-    padding: 3px 5px;
-  }
-
-  .modal-content {
-    width: 95%;
-    padding: 10px;
-  }
-
-  textarea {
-    font-size: 14px;
-  }
-
-
 
 }
 </style>
@@ -322,7 +304,21 @@ function render(){
 
       <td>${index+1}</td>
 
-      <td>${clean(item.row.name)}</td>
+    <td data-label="الاسم">${clean(item.row.name)}</td>
+<td data-label="الهاتف">${clean(item.row.phone)}</td>
+<td data-label="الولاية">${clean(item.row.wilaya)}</td>
+<td data-label="البلدية">${clean(item.row.commune)}</td>
+<td data-label="العنوان">${clean(item.row.adresse)}</td>
+<td data-label="المنتج">${clean(item.row.product)}</td>
+<td data-label="التاريخ">${formatDate(item.row.date)}</td>
+<td data-label="الملاحظات">
+  ${lastNote}
+  <br>
+  <button onclick="openNotes(${item.row.id})">👁 عرض</button>
+</td>
+<td data-label="حذف">
+  <button onclick="deleteRow(${item.row.id})">❌</button>
+</td>
       <td>${clean(item.row.phone)}</td>
       <td>${clean(item.row.wilaya)}</td>
       <td>${clean(item.row.commune)}</td>
