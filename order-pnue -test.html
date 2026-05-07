@@ -1,0 +1,176 @@
+<!-- حقل البحث -->
+<div class="size-search-box">
+  <input 
+    type="text" 
+    id="size" 
+    placeholder="مقاس الإطار (مثال: 175/70R13)"
+    autocomplete="off"
+  >
+
+  <div id="sizeSuggestions" class="suggestions-box"></div>
+</div>
+
+<style>
+.size-search-box{
+  position:relative;
+  width:100%;
+}
+
+#size{
+  width:100%;
+  padding:14px;
+  border:2px solid #ddd;
+  border-radius:12px;
+  font-size:16px;
+  outline:none;
+  box-sizing:border-box;
+}
+
+#size:focus{
+  border-color:#2563eb;
+}
+
+.suggestions-box{
+  position:absolute;
+  top:100%;
+  right:0;
+  left:0;
+  background:#fff;
+  border:1px solid #ddd;
+  border-top:none;
+  max-height:300px;
+  overflow-y:auto;
+  border-radius:0 0 12px 12px;
+  z-index:9999;
+  box-shadow:0 5px 20px rgba(0,0,0,0.15);
+  display:none;
+}
+
+.suggestion-item{
+  padding:12px;
+  cursor:pointer;
+  font-size:15px;
+  border-bottom:1px solid #f1f1f1;
+  transition:0.2s;
+}
+
+.suggestion-item:hover{
+  background:#2563eb;
+  color:#fff;
+}
+
+.no-result{
+  padding:12px;
+  color:#888;
+  text-align:center;
+}
+</style>
+
+<script>
+// قائمة المقاسات
+const tireSizes = [
+"135/25R10",
+"135/25R11",
+"135/25R12",
+"135/25R13",
+"135/25R14",
+"135/25R15",
+"135/30R10",
+"135/30R11",
+"135/30R12",
+"145/70R13",
+"145/80R13",
+"155/65R13",
+"165/65R13",
+"165/70R13",
+"175/70R13",
+"175/70R14",
+"185/60R14",
+"185/65R14",
+"195/65R15",
+"205/55R16",
+"215/55R17",
+"225/45R17",
+"235/45R18",
+"245/40R18",
+"255/35R19",
+"265/35R20"
+];
+
+// عناصر الصفحة
+const input = document.getElementById("size");
+const suggestionsBox = document.getElementById("sizeSuggestions");
+
+// عند الكتابة
+input.addEventListener("input", function () {
+
+  let value = this.value.trim().toUpperCase();
+
+  // إخفاء القائمة إذا فارغ
+  if(value === ""){
+    suggestionsBox.style.display = "none";
+    return;
+  }
+
+  // البحث الذكي
+  let results = tireSizes.filter(size =>
+    size.toUpperCase().includes(value)
+  );
+
+  // عرض النتائج
+  showSuggestions(results);
+});
+
+// عرض الاقتراحات
+function showSuggestions(results){
+
+  suggestionsBox.innerHTML = "";
+
+  if(results.length === 0){
+    suggestionsBox.innerHTML = `
+      <div class="no-result">
+        لا توجد نتائج
+      </div>
+    `;
+    suggestionsBox.style.display = "block";
+    return;
+  }
+
+  // أقصى عدد نتائج
+  results.slice(0, 20).forEach(size => {
+
+    let div = document.createElement("div");
+
+    div.className = "suggestion-item";
+
+    // تمييز الجزء المكتوب
+    let search = input.value.toUpperCase();
+
+    let regex = new RegExp(search, "gi");
+
+    div.innerHTML = size.replace(
+      regex,
+      match => `<b>${match}</b>`
+    );
+
+    // عند الضغط
+    div.onclick = () => {
+      input.value = size;
+      suggestionsBox.style.display = "none";
+    };
+
+    suggestionsBox.appendChild(div);
+  });
+
+  suggestionsBox.style.display = "block";
+}
+
+// إغلاق القائمة عند الضغط خارجها
+document.addEventListener("click", function(e){
+
+  if(!document.querySelector(".size-search-box").contains(e.target)){
+    suggestionsBox.style.display = "none";
+  }
+
+});
+</script>
