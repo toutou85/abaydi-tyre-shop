@@ -298,54 +298,63 @@ autocomplete="off"
 
 <script>
 
-// المكاتب
-
+// قائمة المكاتب حسب الولاية
 const offices = {
-
-"16 - الجزائر":[
-"Kouba",
-"Cheraga",
-"Bab Ezzouar"
-],
-
-"31 - وهران":[
-"Gambetta",
-"Hai Sabah",
-"Ain Turk"
-],
-
-"25 - قسنطينة":[
-"Ali Mendjeli",
-"Sidi Mabrouk"
-],
-
-"15 - تيزي وزو":[
-"Tizi Ouzou",
-"Azazga"
-],
-
-"19 - سطيف":[
-"El Eulma",
-"Ain Oulmene"
-],
-
-"13 - تلمسان":[
-"Tlemcen",
-"Maghnia"
-],
-
-"27 - مستغانم":[
-"Mostaganem"
-],
-
-"29 - معسكر":[
-"Mascara"
-],
-
-"46 - عين تموشنت":[
-"Ain Temouchent"
-]
-
+    "01 - أدرار": ["Station Adrar"],
+    "02 - الشلف": ["Station Chlef", "Station Tenes"],
+    "03 - الأغواط": ["Station Laghouat", "Station Laghouat New"],
+    "04 - أم البواقي": ["Oum El Bouaghi", "Ain Fekroune", "Ain M’lila"],
+    "05 - باتنة": ["Batna", "Cité El Amrani"],
+    "06 - بجاية": ["Béjaïa", "Akbou", "El Kseur"],
+    "07 - بسكرة": ["Biskra"],
+    "08 - بشار": ["Béchar"],
+    "09 - البليدة": ["Blida", "Boufarik"],
+    "10 - البويرة": ["Bouira"],
+    "11 - تمنراست": ["Tamanrasset"],
+    "12 - تبسة": ["Tebessa"],
+    "13 - تلمسان": ["Tlemcen", "Maghnia"],
+    "14 - تيارت": ["Tiaret"],
+    "15 - تيزي وزو": ["Tizi Ouzou", "Azazga", "Nouvelle Ville", "Boghni"],
+    "16 - الجزائر": ["Kouba", "Cheraga", "Oued Smar", "Reghaia", "Bab El Oued"],
+    "17 - الجلفة": ["Djelfa", "Ain Oussera"],
+    "18 - جيجل": ["Jijel"],
+    "19 - سطيف": ["El Eulma", "El Hidab", "Ain Oulmene"],
+    "20 - سعيدة": ["Saida"],
+    "21 - سكيكدة": ["Skikda"],
+    "22 - سيدي بلعباس": ["Sidi Bel Abbès", "Telagh"],
+    "23 - عنابة": ["Annaba", "El Bouni"],
+    "24 - قالمة": ["Guelma"],
+    "25 - قسنطينة": ["Ali Mendjeli", "Sidi Mabrouk"],
+    "26 - المدية": ["Médéa"],
+    "27 - مستغانم": ["Mostaganem", "Mostaganem 2"],
+    "28 - المسيلة": ["M’sila", "Boussaâda"],
+    "29 - معسكر": ["Mascara", "Sig"],
+    "30 - ورقلة": ["Ouargla", "Hassi Messaoud"],
+    "31 - وهران": ["Gambetta", "Hai Sabah", "Ain Turk"],
+    "32 - البيض": ["El Bayadh"],
+    "33 - إليزي": ["Illizi", "In Amenas"],
+    "34 - برج بوعريريج": ["Bordj"],
+    "35 - بومرداس": ["Boumerdès", "Dellys"],
+    "36 - الطارف": ["El Tarf"],
+    "38 - تيسمسيلت": ["Tissemsilt"],
+    "39 - الوادي": ["El Oued"],
+    "40 - خنشلة": ["Khenchela"],
+    "41 - سوق أهراس": ["Souk Ahras"],
+    "42 - تيبازة": ["Tipaza", "Hadjout", "Kolea"],
+    "43 - ميلة": ["Mila", "Chelghoum Laid"],
+    "44 - عين الدفلى": ["Ain Defla", "Khemis Miliana"],
+    "45 - النعامة": ["Mecheria"],
+    "46 - عين تموشنت": ["Ain Temouchent", "Beni Saf"],
+    "47 - غرداية": ["Ghardaïa"],
+    "48 - غليزان": ["Relizane", "Oued Rhiou"],
+    "51 - أولاد جلال": ["Ouled Djellal"],
+    "52 - بني عباس": ["Béni Abbès"],
+  "53 - تيميمون": ["Timimoun"],
+  "54 - المنيعة": ["El Menia"],
+  "55 - تقرت": ["Touggourt", "Temacine"],
+  "56 - جانت": ["Djanet"],
+  "57 - عين صالح": ["In Salah"],
+  "58 - عين قزام": ["In Guezzam"]
 };
 
 // تغيير الولاية
