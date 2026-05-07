@@ -1,16 +1,115 @@
-<!-- حقل البحث -->
-<div class="size-search-box">
-  <input 
-    type="text" 
-    id="size" 
-    placeholder="مقاس الإطار (مثال: 175/70R13)"
-    autocomplete="off"
-  >
 
-  <div id="sizeSuggestions" class="suggestions-box"></div>
-</div>
+
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>طلب شراء - عبايدي للعجلات</title>
 
 <style>
+body {
+    font-family: Arial;
+    background: #f4f4f4;
+    direction: rtl;
+}
+
+.container {
+    max-width: 500px;
+    margin: auto;
+    background: white;
+    padding: 15px;
+    border-radius: 10px;
+    margin-top: 20px;
+}
+
+img {
+    width: 90%;
+    border-radius: 10px;
+}
+
+input, select {
+    width: 90%;
+    padding: 10px;
+    margin: 6px 0;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+button {
+    width: 90%;
+    padding: 12px;
+    background: green;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+/* المؤقت */
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #ddd;
+    border-top: 4px solid green;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: auto;
+}
+
+@keyframes spin {
+    90% { transform: rotate(360deg); }
+}
+
+#statusText {
+    margin-top: 10px;
+    font-weight: bold;
+}
+#noticePopup {
+    position: relative; /* بدل fixed */
+    width: 90%;
+    margin-top: 20px;
+    background: rgba(255, 255, 224, 0.6); /* خلفية شفافة */
+    border: 1.5px solid #ffc107;
+    padding: 15px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    font-size: 13px;
+    line-height: 1.4;
+    color: #333;
+    text-align: right;
+}
+
+.error {
+    border: 2px solid red !important;
+    background: #ffe6e6;
+    animation: shake 0.3s;
+}
+
+@keyframes shake {
+    0% { transform: translateX(0); }
+    25% { transform: translateX(4px); }
+    50% { transform: translateX(-4px); }
+    75% { transform: translateX(4px); }
+    100% { transform: translateX(0); }
+}
+
+/* إشعار جميل */
+.toast {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #e74c3c;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 6px;
+    opacity: 0;
+    transition: 0.4s;
+}
+
+.toast.show {
+    opacity: 1;
+}
 .size-search-box{
   position:relative;
   width:100%;
@@ -66,7 +165,381 @@
 }
 </style>
 
+</head>
+
+<body>
+
+<div class="container">
+
+<img src="https://i.ibb.co/QjbNvZdc/20260329-060940-0000.png">
+
+    <!-- نافذة الملاحظة أسفل الصورة -->
+    <div id="noticePopup" style="display:none; position: relative; top: 0; right: 0; width: 100%; margin-top: 10px; background: rgba(255, 255, 224, 0.6); border: 1.5px solid #ffc107; padding: 15px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); font-size: 13px; line-height: 1.4; color: #333; text-align: right;">
+    
+<!-- الملاحظة -->
+<div id="noticePopup">
+📌 <strong>ملاحظة هامة:</strong><br>
+نظرًا لندرة العجلات 🛞🚗، نرجو من زبائننا الكرام تعبئة الطلبية مسبقًا 📝، وسيتم التواصل معكم فور توفرها 📞<br><br>
+🚚 التوصيل متوفر إلى 58 ولاية<br>
+💵 الدفع عند الاستلام
+</div>
+
+
+<h3>🛞 طلب شراء إطارات</h3>
+
+<input type="text" id="name" placeholder="الاسم و اللقب">
+<input type="tel" id="phone" placeholder="رقم الهاتف">
+<input type="tel" id="phone2" placeholder="رقم هاتف إضافي (اختياري)">
+
+<select id="wilaya">
+
+ <option value="">اختر الولاية</option>
+        <option value="01 - أدرار">01 - أدرار</option>
+        <option value="02 - الشلف">02 - الشلف</option>
+        <option value="03 - الأغواط">03 - الأغواط</option>
+        <option value="04 - أم البواقي">04 - أم البواقي</option>
+        <option value="05 - باتنة">05 - باتنة</option>
+        <option value="06 - بجاية">06 - بجاية</option>
+        <option value="07 - بسكرة">07 - بسكرة</option>
+        <option value="08 - بشار">08 - بشار</option>
+        <option value="09 - البليدة">09 - البليدة</option>
+        <option value="10 - البويرة">10 - البويرة</option>
+        <option value="11 - تمنراست">11 - تمنراست</option>
+        <option value="12 - تبسة">12 - تبسة</option>
+        <option value="13 - تلمسان">13 - تلمسان</option>
+        <option value="14 - تيارت">14 - تيارت</option>
+        <option value="15 - تيزي وزو">15 - تيزي وزو</option>
+        <option value="16 - الجزائر">16 - الجزائر</option>
+        <option value="17 - الجلفة">17 - الجلفة</option>
+        <option value="18 - جيجل">18 - جيجل</option>
+        <option value="19 - سطيف">19 - سطيف</option>
+        <option value="20 - سعيدة">20 - سعيدة</option>
+        <option value="21 - سكيكدة">21 - سكيكدة</option>
+        <option value="22 - سيدي بلعباس">22 - سيدي بلعباس</option>
+        <option value="23 - عنابة">23 - عنابة</option>
+        <option value="24 - قالمة">24 - قالمة</option>
+        <option value="25 - قسنطينة">25 - قسنطينة</option>
+        <option value="26 - المدية">26 - المدية</option>
+        <option value="27 - مستغانم">27 - مستغانم</option>
+        <option value="28 - المسيلة">28 - المسيلة</option>
+        <option value="29 - معسكر">29 - معسكر</option>
+        <option value="30 - ورقلة">30 - ورقلة</option>
+        <option value="31 - وهران">31 - وهران</option>
+        <option value="32 - البيض">32 - البيض</option>
+        <option value="33 - إليزي">33 - إليزي</option>
+        <option value="34 - برج بوعريريج">34 - برج بوعريريج</option>
+        <option value="35 - بومرداس">35 - بومرداس</option>
+        <option value="36 - الطارف">36 - الطارف</option>
+        <option value="37 - تندوف">37 - تندوف</option>
+        <option value="38 - تيسمسيلت">38 - تيسمسيلت</option>
+        <option value="39 - الوادي">39 - الوادي</option>
+        <option value="40 - خنشلة">40 - خنشلة</option>
+        <option value="41 - سوق أهراس">41 - سوق أهراس</option>
+        <option value="42 - تيبازة">42 - تيبازة</option>
+        <option value="43 - ميلة">43 - ميلة</option>
+        <option value="44 - عين الدفلى">44 - عين الدفلى</option>
+        <option value="45 - النعامة">45 - النعامة</option>
+        <option value="46 - عين تموشنت">46 - عين تموشنت</option>
+        <option value="47 - غرداية">47 - غرداية</option>
+        <option value="48 - غليزان">48 - غليزان</option>
+    <option value="49 - تيميمون">49 - تيميمون</option>
+<option value="50 - برج باجي مختار">50 - برج باجي مختار</option>
+<option value="51 - أولاد جلال">51 - أولاد جلال</option>
+<option value="52 - بني عباس">52 - بني عباس</option>
+<option value="53 - عين صالح">53 - عين صالح</option>
+<option value="54 - عين قزام">54 - عين قزام</option>
+<option value="55 - تقرت">55 - تقرت</option>
+<option value="56 - جانت">56 - جانت</option>
+<option value="57 - المغير">57 - المغير</option>
+<option value="58 - المنيعة">58 - المنيعة</option>
+</select>
+
+
+<select id="commune">
+    <option value="">اختر البلدية / المكتب</option>
+</select>
+
+<input type="text" id="adresse" placeholder="العنوان">
+
+
+<!-- حقل البحث -->
+<div class="size-search-box">
+  <input 
+    type="text" 
+    id="size" 
+    placeholder="مقاس الإطار (مثال: 175/70R13)"
+    autocomplete="off"
+  >
+
+  <div id="sizeSuggestions" class="suggestions-box"></div>
+</div>
+
+
+<input type="number" id="qty"
+ placeholder="الكمية">
+
+<button onclick="sendAll()">إرسال الطلب</button>
+
+<div id="statusBox" style="display:none; text-align:center; margin-top:10px;">
+    <div class="spinner"></div>
+    <p id="statusText">جاري إرسال الطلب...</p>
+</div>
+<div id="toast" class="toast"></div>
+
 <script>
+
+// قائمة المكاتب حسب الولاية
+const offices = {
+    "01 - أدرار": ["Station Adrar"],
+    "02 - الشلف": ["Station Chlef", "Station Tenes"],
+    "03 - الأغواط": ["Station Laghouat", "Station Laghouat New"],
+    "04 - أم البواقي": ["Oum El Bouaghi", "Ain Fekroune", "Ain M’lila"],
+    "05 - باتنة": ["Batna", "Cité El Amrani"],
+    "06 - بجاية": ["Béjaïa", "Akbou", "El Kseur"],
+    "07 - بسكرة": ["Biskra"],
+    "08 - بشار": ["Béchar"],
+    "09 - البليدة": ["Blida", "Boufarik"],
+    "10 - البويرة": ["Bouira"],
+    "11 - تمنراست": ["Tamanrasset"],
+    "12 - تبسة": ["Tebessa"],
+    "13 - تلمسان": ["Tlemcen", "Maghnia"],
+    "14 - تيارت": ["Tiaret"],
+    "15 - تيزي وزو": ["Tizi Ouzou", "Azazga", "Nouvelle Ville", "Boghni"],
+    "16 - الجزائر": ["Kouba", "Cheraga", "Oued Smar", "Reghaia", "Bab El Oued"],
+    "17 - الجلفة": ["Djelfa", "Ain Oussera"],
+    "18 - جيجل": ["Jijel"],
+    "19 - سطيف": ["El Eulma", "El Hidab", "Ain Oulmene"],
+    "20 - سعيدة": ["Saida"],
+    "21 - سكيكدة": ["Skikda"],
+    "22 - سيدي بلعباس": ["Sidi Bel Abbès", "Telagh"],
+    "23 - عنابة": ["Annaba", "El Bouni"],
+    "24 - قالمة": ["Guelma"],
+    "25 - قسنطينة": ["Ali Mendjeli", "Sidi Mabrouk"],
+    "26 - المدية": ["Médéa"],
+    "27 - مستغانم": ["Mostaganem", "Mostaganem 2"],
+    "28 - المسيلة": ["M’sila", "Boussaâda"],
+    "29 - معسكر": ["Mascara", "Sig"],
+    "30 - ورقلة": ["Ouargla", "Hassi Messaoud"],
+    "31 - وهران": ["Gambetta", "Hai Sabah", "Ain Turk"],
+    "32 - البيض": ["El Bayadh"],
+    "33 - إليزي": ["Illizi", "In Amenas"],
+    "34 - برج بوعريريج": ["Bordj"],
+    "35 - بومرداس": ["Boumerdès", "Dellys"],
+    "36 - الطارف": ["El Tarf"],
+    "38 - تيسمسيلت": ["Tissemsilt"],
+    "39 - الوادي": ["El Oued"],
+    "40 - خنشلة": ["Khenchela"],
+    "41 - سوق أهراس": ["Souk Ahras"],
+    "42 - تيبازة": ["Tipaza", "Hadjout", "Kolea"],
+    "43 - ميلة": ["Mila", "Chelghoum Laid"],
+    "44 - عين الدفلى": ["Ain Defla", "Khemis Miliana"],
+    "45 - النعامة": ["Mecheria"],
+    "46 - عين تموشنت": ["Ain Temouchent", "Beni Saf"],
+    "47 - غرداية": ["Ghardaïa"],
+    "48 - غليزان": ["Relizane", "Oued Rhiou"],
+    "51 - أولاد جلال": ["Ouled Djellal"],
+    "52 - بني عباس": ["Béni Abbès"],
+  "53 - تيميمون": ["Timimoun"],
+  "54 - المنيعة": ["El Menia"],
+  "55 - تقرت": ["Touggourt", "Temacine"],
+  "56 - جانت": ["Djanet"],
+  "57 - عين صالح": ["In Salah"],
+  "58 - عين قزام": ["In Guezzam"]
+};
+
+// عند تغيير الولاية
+document.getElementById("wilaya").addEventListener("change", function () {
+
+    let wilaya = this.value;
+    let communeSelect = document.getElementById("commune");
+
+    let wilayaCode = wilaya.split(" - ")[0];
+
+    communeSelect.innerHTML = '<option value="">اختر المكتب</option>';
+
+    if (offices[wilaya]) {
+        offices[wilaya].forEach(function (office) {
+
+            let fullName = wilayaCode + " - " + office;
+
+            let option = document.createElement("option");
+            option.value = fullName;
+            option.textContent = fullName;
+
+            communeSelect.appendChild(option);
+        });
+    }
+});
+
+
+// دالة إرسال الطلب
+function sendAll() {
+
+    let btn = document.querySelector("button");
+    let box = document.getElementById("statusBox");
+    let text = document.getElementById("statusText");
+
+    // تنسيق الهاتف
+    function formatPhone(phone) {
+        phone = phone.trim();
+        if (!phone) return "";
+        if (phone.startsWith("+213")) return phone;
+        if (phone.startsWith("0")) return "+213" + phone.slice(1);
+        return "+213" + phone;
+    }
+
+    // جلب البيانات
+    let name = document.getElementById("name").value.trim();
+    let phone = formatPhone(document.getElementById("phone").value);
+    let phone2 = formatPhone(document.getElementById("phone2").value);
+    let wilaya = document.getElementById("wilaya").value;
+    let commune = document.getElementById("commune").value;
+    let adresse = document.getElementById("adresse").value.trim();
+    let type = document.getElementById("type").value.trim();
+    let size = document.getElementById("size").value.trim();
+    let qty = document.getElementById("qty").value;
+
+    // تحقق
+    let fields = [
+document.getElementById("name"),
+document.getElementById("phone"),
+document.getElementById("wilaya"),
+document.getElementById("commune"),
+document.getElementById("adresse"),
+document.getElementById("type"),
+document.getElementById("size"),
+document.getElementById("qty")
+];
+
+let firstError=null;
+
+fields.forEach(f=>{
+if(!validateField(f) && !firstError) firstError=f;
+});
+
+if(firstError){
+showToast("⚠️ يرجى ملء جميع الخانات");
+firstError.scrollIntoView({behavior:"smooth"});
+firstError.focus();
+return;
+}
+
+    // التاريخ
+    let now = new Date();
+    let dateString = now.toLocaleString("fr-FR");
+
+    // دمج الإطار
+    let tireInfo = type + " - " + size;
+
+    let data = {
+        date: dateString,
+        name,
+        phone,
+        phone2,
+        wilaya,
+        commune,
+        adresse,
+        tireInfo,
+        qty
+    };
+
+    // تحميل
+    box.style.display = "block";
+    text.innerText = "⏳ جاري إرسال الطلب...";
+    text.style.color = "black";
+    btn.disabled = true;
+    btn.innerText = "جاري الإرسال...";
+
+    // رسالة واتساب
+    let message = 
+`🛞 طلب جديد - عبايدي للعجلات
+
+📅 ${dateString}
+👤 ${name}
+📞 ${phone}
+📞 إضافي: ${phone2 || "لا يوجد"}
+
+📍 ${wilaya}
+🏠 ${commune}
+📌 ${adresse}
+
+🚗 ${tireInfo}
+🔢 ${qty}`;
+
+    let whatsappNumber = "213698749015";
+
+    // إرسال
+    fetch("https://script.google.com/macros/s/AKfycbxYHBPM5Fr-LCnNUhwdEEmuXkdWLVQdF6lxLLaAiB1jzVQYnLGCOEK_evocNhbJXf9iKg/exec", {
+        method: "POST",
+        body: JSON.stringify(data)
+    })
+    .then(() => {
+
+        let url = "https://wa.me/" + whatsappNumber + "?text=" + encodeURIComponent(message);
+        window.open(url, "_blank");
+
+        text.innerText = "✅ تم إرسال الطلب بنجاح";
+        text.style.color = "green";
+
+        btn.disabled = false;
+        btn.innerText = "إرسال الطلب";
+    })
+    .catch(() => {
+
+        text.innerText = "❌ حدث خطأ";
+        text.style.color = "red";
+
+        btn.disabled = false;
+        btn.innerText = "إرسال الطلب";
+    });
+}
+
+const noticePopup = document.getElementById("noticePopup");
+const showNoticeBtn = document.getElementById("showNoticeBtn");
+const closeNotice = document.getElementById("closeNotice");
+
+// عند تحميل الصفحة: تظهر الملاحظة 5 ثواني
+window.addEventListener("load", () => {
+    noticePopup.style.display = "block";
+    showNoticeBtn.style.display = "none"; // إخفاء الزر أثناء ظهور النافذة
+
+    setTimeout(() => {
+        noticePopup.style.display = "none";
+        showNoticeBtn.style.display = "block"; // إظهار الزر الجانبي
+    }, 5000); // 3 ثواني
+});
+
+
+
+// زر إعادة الإظهار
+showNoticeBtn.addEventListener("click", () => {
+    noticePopup.style.display = "block";
+    showNoticeBtn.style.display = "none";
+
+    setTimeout(() => {
+        noticePopup.style.display = "none";
+        showNoticeBtn.style.display = "block";
+    }, 5000); // 3 ثواني
+});
+function showToast(msg){
+let t=document.getElementById("toast");
+t.innerText=msg;
+t.classList.add("show");
+setTimeout(()=>t.classList.remove("show"),3000);
+}
+
+function validateField(f){
+if(!f.value.trim()){
+f.classList.add("error");
+return false;
+}
+f.classList.remove("error");
+return true;
+}
+
+document.querySelectorAll("input,select").forEach(f=>{
+f.addEventListener("input",()=>f.classList.remove("error"));
+});
 // قائمة المقاسات
 const tireSizes = [
 "135/25R10",
@@ -174,3 +647,9 @@ document.addEventListener("click", function(e){
 
 });
 </script>
+
+</body>
+</html>
+
+
+
