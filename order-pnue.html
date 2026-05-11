@@ -1,116 +1,171 @@
-
 <!DOCTYPE html>
 <html lang="ar">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>طلب شراء - عبايدي للعجلات</title>
 
 <style>
-body {
-    font-family: Arial;
-    background: #f4f4f4;
-    direction: rtl;
+
+body{
+    font-family:Arial;
+    background:#f4f4f4;
+    direction:rtl;
+    margin:0;
+    padding:15px;
 }
 
-.container {
-    max-width: 500px;
-    margin: auto;
-    background: white;
-    padding: 15px;
-    border-radius: 10px;
-    margin-top: 20px;
+.container{
+    max-width:500px;
+    margin:auto;
+    background:white;
+    padding:15px;
+    border-radius:14px;
+    box-shadow:0 4px 15px rgba(0,0,0,0.1);
 }
 
-img {
-    width: 90%;
-    border-radius: 10px;
+img{
+    width:100%;
+    border-radius:12px;
+    margin-bottom:10px;
 }
 
-input, select {
-    width: 90%;
-    padding: 10px;
-    margin: 6px 0;
-    border-radius: 5px;
-    border: 1px solid #ccc;
+h3{
+    text-align:center;
+    margin:15px 0;
 }
 
-button {
-    width: 90%;
-    padding: 12px;
-    background: green;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    font-size: 16px;
+input,
+select,
+button{
+    width:100%;
+    padding:12px;
+    margin:7px 0;
+    border-radius:10px;
+    border:1px solid #ccc;
+    font-size:15px;
+    box-sizing:border-box;
 }
 
-/* المؤقت */
-.spinner {
-    width: 40px;
-    height: 40px;
-    border: 4px solid #ddd;
-    border-top: 4px solid green;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-    margin: auto;
+button{
+    background:green;
+    color:white;
+    border:none;
+    font-size:17px;
+    cursor:pointer;
 }
 
-@keyframes spin {
-    90% { transform: rotate(360deg); }
+button:disabled{
+    opacity:0.7;
 }
 
-#statusText {
-    margin-top: 10px;
-    font-weight: bold;
-}
-#noticePopup {
-    position: relative; /* بدل fixed */
-    width: 90%;
-    margin-top: 20px;
-    background: rgba(255, 255, 224, 0.6); /* خلفية شفافة */
-    border: 1.5px solid #ffc107;
-    padding: 15px;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-    font-size: 13px;
-    line-height: 1.4;
-    color: #333;
-    text-align: right;
+#noticePopup{
+    background:rgba(255,255,224,0.8);
+    border:1px solid #ffc107;
+    padding:15px;
+    border-radius:12px;
+    margin-bottom:15px;
+    font-size:14px;
+    line-height:1.7;
 }
 
-.error {
-    border: 2px solid red !important;
-    background: #ffe6e6;
-    animation: shake 0.3s;
+.spinner{
+    width:40px;
+    height:40px;
+    border:4px solid #ddd;
+    border-top:4px solid green;
+    border-radius:50%;
+    animation:spin 1s linear infinite;
+    margin:auto;
 }
 
-@keyframes shake {
-    0% { transform: translateX(0); }
-    25% { transform: translateX(4px); }
-    50% { transform: translateX(-4px); }
-    75% { transform: translateX(4px); }
-    100% { transform: translateX(0); }
+@keyframes spin{
+    100%{
+        transform:rotate(360deg);
+    }
 }
 
-/* إشعار جميل */
-.toast {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    background: #e74c3c;
-    color: white;
-    padding: 10px 15px;
-    border-radius: 6px;
-    opacity: 0;
-    transition: 0.4s;
+#statusText{
+    margin-top:10px;
+    font-weight:bold;
 }
 
-.toast.show {
-    opacity: 1;
+.error{
+    border:2px solid red !important;
+    background:#ffe6e6;
 }
+
+.toast{
+    position:fixed;
+    bottom:20px;
+    right:20px;
+    background:#e74c3c;
+    color:white;
+    padding:12px 16px;
+    border-radius:8px;
+    opacity:0;
+    transition:0.4s;
+    z-index:9999;
+}
+
+.toast.show{
+    opacity:1;
+}
+
+/* البحث */
+
+.size-search-box{
+    position:relative;
+    width:100%;
+}
+
+#size{
+    width:100%;
+    padding:14px;
+    border:2px solid #ddd;
+    border-radius:12px;
+    font-size:16px;
+    outline:none;
+}
+
+#size:focus{
+    border-color:#2563eb;
+}
+
+.suggestions-box{
+    position:absolute;
+    top:100%;
+    right:0;
+    left:0;
+    background:#fff;
+    border:1px solid #ddd;
+    max-height:300px;
+    overflow-y:auto;
+    border-radius:0 0 12px 12px;
+    z-index:9999;
+    box-shadow:0 5px 20px rgba(0,0,0,0.15);
+    display:none;
+}
+
+.suggestion-item{
+    padding:12px;
+    cursor:pointer;
+    border-bottom:1px solid #f1f1f1;
+}
+
+.suggestion-item:hover{
+    background:#2563eb;
+    color:white;
+}
+
+.no-result{
+    padding:12px;
+    text-align:center;
+    color:#777;
+}
+
 </style>
-
 </head>
 
 <body>
@@ -119,23 +174,29 @@ button {
 
 <img src="https://i.ibb.co/QjbNvZdc/20260329-060940-0000.png">
 
-    <!-- نافذة الملاحظة أسفل الصورة -->
-    <div id="noticePopup" style="display:none; position: relative; top: 0; right: 0; width: 100%; margin-top: 10px; background: rgba(255, 255, 224, 0.6); border: 1.5px solid #ffc107; padding: 15px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); font-size: 13px; line-height: 1.4; color: #333; text-align: right;">
-    
-<!-- الملاحظة -->
 <div id="noticePopup">
-📌 <strong>ملاحظة هامة:</strong><br>
-نظرًا لندرة العجلات 🛞🚗، نرجو من زبائننا الكرام تعبئة الطلبية مسبقًا 📝، وسيتم التواصل معكم فور توفرها 📞<br><br>
+
+📌 <strong>ملاحظة هامة:</strong><br><br>
+
+نظرًا لندرة العجلات 🛞🚗،
+نرجو من زبائننا الكرام تعبئة الطلبية مسبقًا 📝،
+وسيتم التواصل معكم فور توفرها 📞
+
+<br><br>
+
 🚚 التوصيل متوفر إلى 58 ولاية<br>
 💵 الدفع عند الاستلام
-</div>
 
+</div>
 
 <h3>🛞 طلب شراء إطارات</h3>
 
 <input type="text" id="name" placeholder="الاسم و اللقب">
+
 <input type="tel" id="phone" placeholder="رقم الهاتف">
+
 <input type="tel" id="phone2" placeholder="رقم هاتف إضافي (اختياري)">
+
 
 <select id="wilaya">
 
@@ -200,25 +261,39 @@ button {
 <option value="58 - المنيعة">58 - المنيعة</option>
 </select>
 
-
 <select id="commune">
-    <option value="">اختر البلدية / المكتب</option>
+<option value="">اختر المكتب</option>
 </select>
 
 <input type="text" id="adresse" placeholder="العنوان">
 
+<div class="size-search-box">
 
-<input type="text" id="size" placeholder="مقاس الإطار (مثال: 175/70R13)">
+<input
+type="text"
+id="size"
+placeholder="مقاس الإطار مثال 175/70R13"
+autocomplete="off"
+>
 
-<input type="number" id="qty"
- placeholder="الكمية">
+<div id="sizeSuggestions" class="suggestions-box"></div>
+
+</div>
+
+<input type="number" id="qty" placeholder="الكمية">
 
 <button onclick="sendAll()">إرسال الطلب</button>
 
-<div id="statusBox" style="display:none; text-align:center; margin-top:10px;">
-    <div class="spinner"></div>
-    <p id="statusText">جاري إرسال الطلب...</p>
+<div id="statusBox" style="display:none;text-align:center;margin-top:15px;">
+
+<div class="spinner"></div>
+
+<p id="statusText">جاري إرسال الطلب...</p>
+
 </div>
+
+</div>
+
 <div id="toast" class="toast"></div>
 
 <script>
@@ -276,210 +351,420 @@ const offices = {
     "52 - بني عباس": ["Béni Abbès"],
   "53 - تيميمون": ["Timimoun"],
   "54 - المنيعة": ["El Menia"],
-  "55 - تقرت": ["Touggourt", "Temacine"],
+  "55 - تقرت": ["Touggourt"],
   "56 - جانت": ["Djanet"],
   "57 - عين صالح": ["In Salah"],
   "58 - عين قزام": ["In Guezzam"]
 };
 
-// عند تغيير الولاية
-document.getElementById("wilaya").addEventListener("change", function () {
+// تغيير الولاية
 
-    let wilaya = this.value;
-    let communeSelect = document.getElementById("commune");
+document.getElementById("wilaya")
+.addEventListener("change",function(){
 
-    let wilayaCode = wilaya.split(" - ")[0];
+let wilaya = this.value;
 
-    communeSelect.innerHTML = '<option value="">اختر المكتب</option>';
+let commune = document.getElementById("commune");
 
-    if (offices[wilaya]) {
-        offices[wilaya].forEach(function (office) {
+commune.innerHTML =
+'<option value="">اختر المكتب</option>';
 
-            let fullName = wilayaCode + " - " + office;
+if(offices[wilaya]){
 
-            let option = document.createElement("option");
-            option.value = fullName;
-            option.textContent = fullName;
+offices[wilaya].forEach(function(office){
 
-            communeSelect.appendChild(option);
-        });
-    }
+let option = document.createElement("option");
+
+option.value = office;
+
+option.textContent = office;
+
+commune.appendChild(option);
+
 });
 
+}
 
-// دالة إرسال الطلب
-function sendAll() {
+});
 
-    let btn = document.querySelector("button");
-    let box = document.getElementById("statusBox");
-    let text = document.getElementById("statusText");
+// إنشاء المقاسات تلقائياً
 
-    // تنسيق الهاتف
-    function formatPhone(phone) {
-        phone = phone.trim();
-        if (!phone) return "";
-        if (phone.startsWith("+213")) return phone;
-        if (phone.startsWith("0")) return "+213" + phone.slice(1);
-        return "+213" + phone;
-    }
+const tireSizes = [];
 
-    // جلب البيانات
-    let name = document.getElementById("name").value.trim();
-    let phone = formatPhone(document.getElementById("phone").value);
-    let phone2 = formatPhone(document.getElementById("phone2").value);
-    let wilaya = document.getElementById("wilaya").value;
-    let commune = document.getElementById("commune").value;
-    let adresse = document.getElementById("adresse").value.trim();
-    let type = document.getElementById("type").value.trim();
-    let size = document.getElementById("size").value.trim();
-    let qty = document.getElementById("qty").value;
+const widths = [
+135,145,155,165,175,
+185,195,205,215,225,
+235,245,255,265
+];
 
-    // تحقق
-    let fields = [
+const heights = [
+25,30,35,40,45,
+50,55,60,65,70,
+75,80
+];
+
+const rims = [
+10,11,12,13,14,
+15,16,17,18,19,
+20,21,22,23,24
+];
+
+widths.forEach(width=>{
+
+heights.forEach(height=>{
+
+rims.forEach(rim=>{
+
+tireSizes.push(
+`${width}/${height}R${rim}`
+);
+
+});
+
+});
+
+});
+
+// البحث
+
+const input =
+document.getElementById("size");
+
+const suggestionsBox =
+document.getElementById("sizeSuggestions");
+
+input.addEventListener("input",function(){
+
+let value =
+this.value.trim().toUpperCase();
+
+if(value===""){
+
+suggestionsBox.style.display="none";
+return;
+
+}
+
+let results = tireSizes.filter(size=>
+size.includes(value)
+);
+
+showSuggestions(results);
+
+});
+
+function showSuggestions(results){
+
+suggestionsBox.innerHTML="";
+
+if(results.length===0){
+
+suggestionsBox.innerHTML=
+'<div class="no-result">لا توجد نتائج</div>';
+
+suggestionsBox.style.display="block";
+
+return;
+
+}
+
+results.slice(0,100).forEach(size=>{
+
+let div = document.createElement("div");
+
+div.className="suggestion-item";
+
+div.innerHTML=size;
+
+div.onclick=()=>{
+
+input.value=size;
+
+suggestionsBox.style.display="none";
+
+};
+
+suggestionsBox.appendChild(div);
+
+});
+
+suggestionsBox.style.display="block";
+
+}
+
+// إغلاق القائمة
+
+document.addEventListener("click",function(e){
+
+if(
+!document
+.querySelector(".size-search-box")
+.contains(e.target)
+){
+
+suggestionsBox.style.display="none";
+
+}
+
+});
+
+// التحقق
+
+function validateField(f){
+
+if(!f.value.trim()){
+
+f.classList.add("error");
+
+return false;
+
+}
+
+f.classList.remove("error");
+
+return true;
+
+}
+
+document.querySelectorAll("input,select")
+.forEach(f=>{
+
+f.addEventListener("input",()=>{
+
+f.classList.remove("error");
+
+});
+
+});
+
+// إشعار
+
+function showToast(msg){
+
+let t=document.getElementById("toast");
+
+t.innerText=msg;
+
+t.classList.add("show");
+
+setTimeout(()=>{
+
+t.classList.remove("show");
+
+},3000);
+
+}
+
+// إرسال
+
+function sendAll(){
+
+let btn=document.querySelector("button");
+
+let box=document.getElementById("statusBox");
+
+let text=document.getElementById("statusText");
+
+// تنسيق الهاتف
+
+function formatPhone(phone){
+
+phone=phone.trim();
+
+if(!phone) return "";
+
+if(phone.startsWith("+213"))
+return phone;
+
+if(phone.startsWith("0"))
+return "+213"+phone.slice(1);
+
+return "+213"+phone;
+
+}
+
+// البيانات
+
+let name=
+document.getElementById("name")
+.value.trim();
+
+let phone=
+formatPhone(
+document.getElementById("phone").value
+);
+
+let phone2=
+formatPhone(
+document.getElementById("phone2").value
+);
+
+let wilaya=
+document.getElementById("wilaya").value;
+
+let commune=
+document.getElementById("commune").value;
+
+let adresse=
+document.getElementById("adresse")
+.value.trim();
+
+let size=
+document.getElementById("size")
+.value.trim();
+
+let qty=
+document.getElementById("qty")
+.value;
+
+// تحقق
+
+let fields=[
+
 document.getElementById("name"),
 document.getElementById("phone"),
 document.getElementById("wilaya"),
 document.getElementById("commune"),
 document.getElementById("adresse"),
-document.getElementById("type"),
 document.getElementById("size"),
 document.getElementById("qty")
+
 ];
 
 let firstError=null;
 
 fields.forEach(f=>{
-if(!validateField(f) && !firstError) firstError=f;
+
+if(!validateField(f) && !firstError){
+
+firstError=f;
+
+}
+
 });
 
 if(firstError){
+
 showToast("⚠️ يرجى ملء جميع الخانات");
-firstError.scrollIntoView({behavior:"smooth"});
+
 firstError.focus();
+
 return;
+
 }
 
-    // التاريخ
-    let now = new Date();
-    let dateString = now.toLocaleString("fr-FR");
+// التاريخ
 
-    // دمج الإطار
-    let tireInfo = type + " - " + size;
+let now = new Date();
 
-    let data = {
-        date: dateString,
-        name,
-        phone,
-        phone2,
-        wilaya,
-        commune,
-        adresse,
-        tireInfo,
-        qty
-    };
+let dateString =
+now.toLocaleString("fr-FR");
 
-    // تحميل
-    box.style.display = "block";
-    text.innerText = "⏳ جاري إرسال الطلب...";
-    text.style.color = "black";
-    btn.disabled = true;
-    btn.innerText = "جاري الإرسال...";
+// البيانات
 
-    // رسالة واتساب
-    let message = 
-`🛞 طلب جديد - عبايدي للعجلات
+let data = {
+
+date:dateString,
+name,
+phone,
+phone2,
+wilaya,
+commune,
+adresse,
+size,
+qty
+
+};
+
+// واتساب
+
+let message =
+
+`🛞 طلب جديد
 
 📅 ${dateString}
+
 👤 ${name}
+
 📞 ${phone}
+
 📞 إضافي: ${phone2 || "لا يوجد"}
 
 📍 ${wilaya}
+
 🏠 ${commune}
+
 📌 ${adresse}
 
-🚗 ${tireInfo}
+🚗 ${size}
+
 🔢 ${qty}`;
 
-    let whatsappNumber = "213698749015";
+// تحميل
 
-    // إرسال
-    fetch("https://script.google.com/macros/s/AKfycbxYHBPM5Fr-LCnNUhwdEEmuXkdWLVQdF6lxLLaAiB1jzVQYnLGCOEK_evocNhbJXf9iKg/exec", {
-        method: "POST",
-        body: JSON.stringify(data)
-    })
-    .then(() => {
+box.style.display="block";
 
-        let url = "https://wa.me/" + whatsappNumber + "?text=" + encodeURIComponent(message);
-        window.open(url, "_blank");
+text.innerText="⏳ جاري إرسال الطلب...";
 
-        text.innerText = "✅ تم إرسال الطلب بنجاح";
-        text.style.color = "green";
+btn.disabled=true;
 
-        btn.disabled = false;
-        btn.innerText = "إرسال الطلب";
-    })
-    .catch(() => {
+btn.innerText="جاري الإرسال...";
 
-        text.innerText = "❌ حدث خطأ";
-        text.style.color = "red";
+// إرسال
 
-        btn.disabled = false;
-        btn.innerText = "إرسال الطلب";
-    });
+fetch(
+"https://script.google.com/macros/s/AKfycbxYHBPM5Fr-LCnNUhwdEEmuXkdWLVQdF6lxLLaAiB1jzVQYnLGCOEK_evocNhbJXf9iKg/exec",
+{
+method:"POST",
+body:JSON.stringify(data)
 }
+)
 
-const noticePopup = document.getElementById("noticePopup");
-const showNoticeBtn = document.getElementById("showNoticeBtn");
-const closeNotice = document.getElementById("closeNotice");
+.then(()=>{
 
-// عند تحميل الصفحة: تظهر الملاحظة 5 ثواني
-window.addEventListener("load", () => {
-    noticePopup.style.display = "block";
-    showNoticeBtn.style.display = "none"; // إخفاء الزر أثناء ظهور النافذة
+window.open(
 
-    setTimeout(() => {
-        noticePopup.style.display = "none";
-        showNoticeBtn.style.display = "block"; // إظهار الزر الجانبي
-    }, 5000); // 3 ثواني
+"https://wa.me/213698749015?text="+
+encodeURIComponent(message),
+
+"_blank"
+
+);
+
+text.innerText=
+"✅ تم إرسال الطلب بنجاح";
+
+text.style.color="green";
+
+btn.disabled=false;
+
+btn.innerText="إرسال الطلب";
+
+// تفريغ الحقول
+
+document.querySelectorAll("input")
+.forEach(i=>i.value="");
+
+document.querySelectorAll("select")
+.forEach(s=>s.selectedIndex=0);
+
+})
+
+.catch(()=>{
+
+text.innerText="❌ حدث خطأ";
+
+text.style.color="red";
+
+btn.disabled=false;
+
+btn.innerText="إرسال الطلب";
+
 });
 
-
-
-// زر إعادة الإظهار
-showNoticeBtn.addEventListener("click", () => {
-    noticePopup.style.display = "block";
-    showNoticeBtn.style.display = "none";
-
-    setTimeout(() => {
-        noticePopup.style.display = "none";
-        showNoticeBtn.style.display = "block";
-    }, 5000); // 3 ثواني
-});
-function showToast(msg){
-let t=document.getElementById("toast");
-t.innerText=msg;
-t.classList.add("show");
-setTimeout(()=>t.classList.remove("show"),3000);
 }
 
-function validateField(f){
-if(!f.value.trim()){
-f.classList.add("error");
-return false;
-}
-f.classList.remove("error");
-return true;
-}
-
-document.querySelectorAll("input,select").forEach(f=>{
-f.addEventListener("input",()=>f.classList.remove("error"));
-});
 </script>
 
 </body>
 </html>
-
-
-
-
