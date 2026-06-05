@@ -712,16 +712,14 @@ btn.innerText="جاري الإرسال...";
 
 // إرسال
 
-
 fetch(
-  "https://script.google.com/macros/s/...",
-  {
-    method:"POST",
-    headers:{"Content-Type":"text/plain"},
-    body:JSON.stringify(data)
-  }
+"https://script.google.com/macros/s/AKfycbxYHBPM5Fr-LCnNUhwdEEmuXkdWLVQdF6lxLLaAiB1jzVQYnLGCOEK_evocNhbJXf9iKg/exec",
+{
+method:"POST",
+headers:{"Content-Type":"text/plain"},
+body:JSON.stringify(data)
+}
 )
-
 
 .then(()=>{
 
