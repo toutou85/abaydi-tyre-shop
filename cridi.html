@@ -1,305 +1,463 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<title>VIP CREDIT SYSTEM</title>
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>نظام الكريدي VIP</title>
 <style>
-body {
-  font-family: Arial;
-  direction: rtl;
-  background: #0f172a;
-  color: white;
-  padding: 10px;
-}
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-.top-bar {
-  display: flex;
-  gap: 5px;
-}
+  body {
+    font-family: Arial, sans-serif;
+    direction: rtl;
+    background: #0f172a;
+    color: #e2e8f0;
+    padding: 16px;
+    min-height: 100vh;
+  }
 
-button {
-  padding: 8px;
-  border: none;
-  cursor: pointer;
-  color: white;
-}
+  h2 {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 14px;
+    color: #f8fafc;
+    letter-spacing: 0.5px;
+  }
 
-.add { background: #22c55e; }
-.edit { background: #3b82f6; }
-.delete { background: #ef4444; }
-.pay { background: #f59e0b; }
+  .top-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
 
-input {
-  width: 100%;
-  padding: 8px;
-  margin: 5px 0;
-}
+  button {
+    padding: 8px 14px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    color: white;
+    transition: opacity 0.15s, transform 0.1s;
+  }
+  button:hover { opacity: 0.88; }
+  button:active { transform: scale(0.97); }
 
-table {
-  width: 100%;
-  border-collapse: collapse;
-}
+  .btn-add    { background: #16a34a; }
+  .btn-edit   { background: #2563eb; }
+  .btn-delete { background: #dc2626; }
+  .btn-pay    { background: #d97706; }
+  .btn-save   { background: #16a34a; }
+  .btn-close  { background: #475569; }
 
-th, td {
-  border: 1px solid #334155;
-  padding: 6px;
-  text-align: center;
-}
+  .search-wrap { position: relative; margin-bottom: 12px; }
+  .search-wrap input {
+    width: 100%;
+    padding: 9px 14px;
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 8px;
+    color: #e2e8f0;
+    font-size: 14px;
+    outline: none;
+  }
+  .search-wrap input:focus { border-color: #3b82f6; }
+  .search-wrap input::placeholder { color: #64748b; }
 
-th { background: #1e293b; }
+  .table-wrap {
+    overflow-x: auto;
+    border-radius: 10px;
+    border: 1px solid #1e293b;
+  }
 
-tr.selected { background: #334155; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 640px;
+    font-size: 14px;
+  }
 
-.red { color: red; }
+  thead th {
+    background: #1e293b;
+    color: #94a3b8;
+    font-weight: 600;
+    padding: 10px 8px;
+    text-align: center;
+    border-bottom: 1px solid #334155;
+    white-space: nowrap;
+  }
 
-.modal {
-  display: none;
-  position: fixed;
-  top:0; left:0;
-  width:100%; height:100%;
-  background: rgba(0,0,0,0.7);
-}
+  tbody tr {
+    cursor: pointer;
+    transition: background 0.12s;
+    border-bottom: 1px solid #1e293b;
+  }
+  tbody tr:hover    { background: #1e293b; }
+  tbody tr.selected { background: #1d3a5e; }
 
-.modal-content {
-  background:#1e293b;
-  margin:5% auto;
-  padding:20px;
-  width:90%;
-  max-width:400px;
-}
+  td {
+    padding: 9px 8px;
+    text-align: center;
+    color: #cbd5e1;
+  }
+
+  td.remain-zero { color: #22c55e; font-weight: 700; }
+  td.remain-pos  { color: #f87171; font-weight: 700; }
+
+  tfoot td {
+    background: #1e293b;
+    color: #94a3b8;
+    font-weight: 700;
+    padding: 9px 8px;
+    text-align: center;
+    border-top: 2px solid #334155;
+  }
+  tfoot td.total-val { color: #f8fafc; }
+
+  .empty-row td {
+    color: #475569;
+    padding: 24px;
+    font-size: 14px;
+  }
+
+  #loading {
+    text-align: center;
+    color: #64748b;
+    padding: 20px;
+    font-size: 14px;
+  }
+
+  /* Modal overlay */
+  .overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.65);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+  }
+  .overlay.open { display: flex; }
+
+  .modal-box {
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 12px;
+    padding: 24px;
+    width: 92%;
+    max-width: 420px;
+  }
+
+  .modal-title {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    color: #f8fafc;
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-bottom: 12px;
+  }
+  .field label {
+    font-size: 12px;
+    color: #94a3b8;
+    font-weight: 600;
+  }
+  .field input {
+    padding: 9px 12px;
+    background: #0f172a;
+    border: 1px solid #334155;
+    border-radius: 6px;
+    color: #e2e8f0;
+    font-size: 14px;
+    outline: none;
+    width: 100%;
+  }
+  .field input:focus { border-color: #3b82f6; }
+
+  .modal-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 16px;
+  }
+  .modal-actions button { flex: 1; }
 </style>
 </head>
-
 <body>
 
 <h2>🔥 نظام الكريدي VIP</h2>
 
 <div class="top-bar">
-  <button class="add" onclick="openAdd()">➕إضافة كريدي</button>
-  <button class="edit" onclick="openEdit()">✏️تعديل كريدي</button>
-  <button class="delete" onclick="remove()">🗑حذف كريدي</button>
-  <button class="pay" onclick="pay()">تسديد دين💰</button>
+  <button class="btn-add"    onclick="openAdd()">➕ إضافة</button>
+  <button class="btn-edit"   onclick="openEdit()">✏️ تعديل</button>
+  <button class="btn-delete" onclick="remove()">🗑 حذف</button>
+  <button class="btn-pay"    onclick="pay()">💰 تسديد دين</button>
 </div>
 
-<input id="search" placeholder="🔍 بحث..." onkeyup="filter()">
-
-<table>
-<thead>
-<tr>
-<th>ID</th>
-<th>الاسم</th>
-<th>التاريخ</th>
-<th>الهاتف</th>
-<th>المنتج</th>
-<th>الإجمالي</th>
-<th>المدفوع</th>
-<th>الباقي</th>
-</tr>
-</thead>
-<tbody id="data"></tbody>
-</table>
-
-<!-- مودال -->
-<div class="modal" id="modal">
-<div class="modal-content">
-
-<input id="name" placeholder="الاسم">
-<input id="date" type="date">
-<input id="phone" placeholder="الهاتف">
-<input id="product" placeholder="المنتج">
-<input id="total" type="number" placeholder="الإجمالي">
-<input id="paid" type="number" placeholder="المدفوع">
-
-<button onclick="save()">💾 حفظ</button>
-<button onclick="closeModal()">❌</button>
-
+<div class="search-wrap">
+  <input id="search" placeholder="🔍 بحث بالاسم أو الهاتف أو المنتج..." oninput="filterData()">
 </div>
+
+<div id="loading">جارٍ التحميل...</div>
+
+<div class="table-wrap" id="tableWrap" style="display:none">
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>الاسم</th>
+        <th>التاريخ</th>
+        <th>الهاتف</th>
+        <th>المنتج</th>
+        <th>الإجمالي</th>
+        <th>المدفوع</th>
+        <th>الباقي</th>
+      </tr>
+    </thead>
+    <tbody id="data"></tbody>
+    <tfoot id="foot"></tfoot>
+  </table>
+</div>
+
+<!-- Modal -->
+<div class="overlay" id="overlay">
+  <div class="modal-box">
+    <div class="modal-title" id="modalTitle">إضافة كريدي جديد</div>
+
+    <div class="field">
+      <label>الاسم</label>
+      <input id="f-name" placeholder="اسم العميل">
+    </div>
+    <div class="field">
+      <label>التاريخ</label>
+      <input id="f-date" type="date">
+    </div>
+    <div class="field">
+      <label>الهاتف</label>
+      <input id="f-phone" placeholder="رقم الهاتف">
+    </div>
+    <div class="field">
+      <label>المنتج</label>
+      <input id="f-product" placeholder="اسم المنتج">
+    </div>
+    <div class="field">
+      <label>الإجمالي</label>
+      <input id="f-total" type="number" min="0" placeholder="0">
+    </div>
+    <div class="field">
+      <label>المدفوع</label>
+      <input id="f-paid" type="number" min="0" placeholder="0">
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-save"  onclick="save()">💾 حفظ</button>
+      <button class="btn-close" onclick="closeModal()">❌ إلغاء</button>
+    </div>
+  </div>
 </div>
 
 <script>
 const API = "https://script.google.com/macros/s/AKfycbwoAv0hrN4f8Q2-aM9yOzqaGj_TCGUA9ws6Ebb368dY7giYUWesJpktf_nhAVlNwM6Ehg/exec";
 
-
 let selectedId = null;
-let allData = [];
+let allData    = [];
+let isAdding   = false;
 
-/* عناصر */
-const dataEl = document.getElementById("data");
-const modal = document.getElementById("modal");
-const search = document.getElementById("search");
+const dataEl    = document.getElementById("data");
+const footEl    = document.getElementById("foot");
+const loadingEl = document.getElementById("loading");
+const tableWrap = document.getElementById("tableWrap");
+const overlay   = document.getElementById("overlay");
+const searchEl  = document.getElementById("search");
 
-const nameEl = document.getElementById("name");
-const dateEl = document.getElementById("date");
-const phoneEl = document.getElementById("phone");
-const productEl = document.getElementById("product");
-const totalEl = document.getElementById("total");
-const paidEl = document.getElementById("paid");
-
-/* تحميل البيانات */
-function load() {
-  fetch(API)
-  .then(res => res.text())
-  .then(text => {
-    let json = JSON.parse(text);
-    let data = json.data;
-
-    allData = data.slice(1);
-    render(allData);
-  });
+function today() {
+  return new Date().toISOString().split("T")[0];
 }
 
-/* عرض */
+/* ---------- تحميل ---------- */
+function load() {
+  loadingEl.style.display = "block";
+  tableWrap.style.display = "none";
+
+  fetch(API)
+    .then(r => r.text())
+    .then(text => {
+      const json = JSON.parse(text);
+      allData = (json.data || []).slice(1);
+      loadingEl.style.display = "none";
+      tableWrap.style.display = "block";
+      render(allData);
+    })
+    .catch(() => {
+      loadingEl.textContent = "⚠️ فشل الاتصال بالخادم. تحقق من الإنترنت.";
+    });
+}
+
+/* ---------- عرض ---------- */
 function render(data) {
+  if (!data.length) {
+    dataEl.innerHTML = '<tr class="empty-row"><td colspan="8">لا توجد بيانات</td></tr>';
+    footEl.innerHTML = "";
+    return;
+  }
+
   let html = "";
+  let sumTotal = 0, sumPaid = 0, sumRemain = 0;
 
   data.forEach(row => {
+    const total  = Number(row[5]) || 0;
+    const paid   = Number(row[6]) || 0;
+    const remain = total - paid;
 
-    let remain = (row[5] || 0) - (row[6] || 0);
+    sumTotal  += total;
+    sumPaid   += paid;
+    sumRemain += remain;
 
-    html += `
-    <tr onclick="selectRow(this, ${row[0]})">
+    const remainClass = remain === 0 ? "remain-zero" : remain > 0 ? "remain-pos" : "";
+    const sel = row[0] == selectedId ? " selected" : "";
+
+    html += `<tr class="${sel}" onclick="selectRow(this, ${row[0]})">
       <td>${row[0]}</td>
-      <td>${row[1]}</td>
-      <td>${row[2]}</td>
-      <td>${row[3]}</td>
-      <td>${row[4]}</td>
-      <td>${row[5]}</td>
-      <td>${row[6]}</td>
-      <td>${remain}</td>
+      <td>${row[1] || ""}</td>
+      <td>${row[2] || ""}</td>
+      <td>${row[3] || ""}</td>
+      <td>${row[4] || ""}</td>
+      <td>${total.toLocaleString()}</td>
+      <td>${paid.toLocaleString()}</td>
+      <td class="${remainClass}">${remain.toLocaleString()}</td>
     </tr>`;
   });
 
   dataEl.innerHTML = html;
+
+  footEl.innerHTML = `<tr>
+    <td colspan="5">الإجمالي (${data.length} سجل)</td>
+    <td class="total-val">${sumTotal.toLocaleString()}</td>
+    <td class="total-val">${sumPaid.toLocaleString()}</td>
+    <td class="total-val remain-pos">${sumRemain.toLocaleString()}</td>
+  </tr>`;
 }
 
-/* اختيار */
+/* ---------- تحديد صف ---------- */
 function selectRow(row, id) {
-  document.querySelectorAll("tr").forEach(r => r.classList.remove("selected"));
+  document.querySelectorAll("#data tr").forEach(r => r.classList.remove("selected"));
   row.classList.add("selected");
   selectedId = id;
 }
 
-/* بحث */
-function filter() {
-  let q = search.value.toLowerCase();
-
-  let filtered = allData.filter(r =>
-    r.join(" ").toLowerCase().includes(q)
+/* ---------- بحث ---------- */
+function filterData() {
+  const q = searchEl.value.toLowerCase().trim();
+  if (!q) { render(allData); return; }
+  const filtered = allData.filter(r =>
+    r.slice(0, 7).join(" ").toLowerCase().includes(q)
   );
-
   render(filtered);
 }
 
-/* فتح إضافة */
+/* ---------- فتح إضافة ---------- */
 function openAdd() {
-  clearInputs();
-  modal.style.display = "block";
+  isAdding = true;
+  selectedId = null;
+  clearFields();
+  document.getElementById("f-date").value = today();
+  document.getElementById("modalTitle").textContent = "إضافة كريدي جديد";
+  overlay.classList.add("open");
 }
 
-/* فتح تعديل */
+/* ---------- فتح تعديل ---------- */
 function openEdit() {
+  if (!selectedId) { alert("اختر صفاً أولاً"); return; }
+  const row = allData.find(r => r[0] == selectedId);
+  if (!row) return;
 
-  if (!selectedId) {
-    alert("اختر صف");
-    return;
-  }
+  isAdding = false;
+  document.getElementById("f-name").value    = row[1] || "";
+  document.getElementById("f-date").value    = row[2] || "";
+  document.getElementById("f-phone").value   = row[3] || "";
+  document.getElementById("f-product").value = row[4] || "";
+  document.getElementById("f-total").value   = row[5] || "";
+  document.getElementById("f-paid").value    = row[6] || "";
 
-  let row = allData.find(r => r[0] == selectedId);
-
-  nameEl.value = row[1];
-  dateEl.value = row[2];
-  phoneEl.value = row[3];
-  productEl.value = row[4];
-  totalEl.value = row[5];
-  paidEl.value = row[6];
-
-  modal.style.display = "block";
+  document.getElementById("modalTitle").textContent = "تعديل بيانات الكريدي";
+  overlay.classList.add("open");
 }
 
-/* حفظ */
+/* ---------- حفظ ---------- */
 function save() {
+  const name    = document.getElementById("f-name").value.trim();
+  const date    = document.getElementById("f-date").value;
+  const phone   = document.getElementById("f-phone").value.trim();
+  const product = document.getElementById("f-product").value.trim();
+  const total   = document.getElementById("f-total").value;
+  const paid    = document.getElementById("f-paid").value;
 
-  let action = selectedId ? "update" : "add";
+  if (!name) { alert("الاسم مطلوب"); return; }
 
-  let body = {
-    action: action,
-    id: selectedId,
-    name: nameEl.value,
-    date: dateEl.value,
-    phone: phoneEl.value,
-    product: productEl.value,
-    total: totalEl.value,
-    paid: paidEl.value
+  const body = {
+    action:  isAdding ? "add" : "update",
+    id:      selectedId,
+    name, date, phone, product, total, paid
   };
 
-  fetch(API, {
-    method: "POST",
-    body: JSON.stringify(body)
-  }).then(() => {
-    modal.style.display = "none";
-    load();
-  });
-}
-
-/* حذف */
-function remove() {
-
-  if (!selectedId) {
-    alert("اختر صف");
-    return;
-  }
-
-  if (confirm("هل تريد الحذف؟")) {
-    fetch(API, {
-      method: "POST",
-      body: JSON.stringify({
-        action: "delete",
-        id: selectedId
-      })
-    }).then(() => load());
-  }
-}
-
-/* تسديد */
-function pay() {
-
-  if (!selectedId) {
-    alert("اختر صف");
-    return;
-  }
-
-  let amount = prompt("كم تريد تسديد؟");
-
-  if (!amount) return;
-
-  fetch(API, {
-    method: "POST",
-    body: JSON.stringify({
-      action: "pay",
-      id: selectedId,
-      amount: amount
+  fetch(API, { method: "POST", body: JSON.stringify(body) })
+    .then(() => {
+      closeModal();
+      selectedId = null;
+      load();
     })
-  }).then(() => load());
+    .catch(() => alert("حدث خطأ أثناء الحفظ"));
 }
 
-/* تنظيف */
-function clearInputs() {
-  nameEl.value = "";
-  dateEl.value = "";
-  phoneEl.value = "";
-  productEl.value = "";
-  totalEl.value = "";
-  paidEl.value = "";
+/* ---------- حذف ---------- */
+function remove() {
+  if (!selectedId) { alert("اختر صفاً أولاً"); return; }
+  if (!confirm("هل أنت متأكد من حذف هذا السجل؟")) return;
+
+  fetch(API, {
+    method: "POST",
+    body: JSON.stringify({ action: "delete", id: selectedId })
+  })
+    .then(() => { selectedId = null; load(); })
+    .catch(() => alert("حدث خطأ أثناء الحذف"));
 }
 
-/* إغلاق */
+/* ---------- تسديد ---------- */
+function pay() {
+  if (!selectedId) { alert("اختر صفاً أولاً"); return; }
+
+  const amount = prompt("كم تريد تسديد؟");
+  if (amount === null || amount.trim() === "") return;
+  if (isNaN(amount) || Number(amount) <= 0) { alert("أدخل مبلغاً صحيحاً"); return; }
+
+  fetch(API, {
+    method: "POST",
+    body: JSON.stringify({ action: "pay", id: selectedId, amount })
+  })
+    .then(() => load())
+    .catch(() => alert("حدث خطأ أثناء التسديد"));
+}
+
+/* ---------- مساعدات ---------- */
+function clearFields() {
+  ["f-name","f-date","f-phone","f-product","f-total","f-paid"]
+    .forEach(id => document.getElementById(id).value = "");
+}
+
 function closeModal() {
-  modal.style.display = "none";
+  overlay.classList.remove("open");
+  isAdding = false;
 }
+
+overlay.addEventListener("click", e => {
+  if (e.target === overlay) closeModal();
+});
 
 load();
 </script>
-
 </body>
 </html>
