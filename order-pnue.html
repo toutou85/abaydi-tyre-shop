@@ -576,52 +576,7 @@ suggestionsBox.style.display="none";
 
 });
 
-// التحقق
 
-function validateField(f){
-
-if(!f.value.trim()){
-
-f.classList.add("error");
-
-return false;
-
-}
-
-f.classList.remove("error");
-
-return true;
-
-}
-
-document.querySelectorAll("input,select")
-.forEach(f=>{
-
-f.addEventListener("input",()=>{
-
-f.classList.remove("error");
-
-});
-
-});
-
-// إشعار
-
-function showToast(msg){
-
-let t=document.getElementById("toast");
-
-t.innerText=msg;
-
-t.classList.add("show");
-
-setTimeout(()=>{
-
-t.classList.remove("show");
-
-},3000);
-
-}
 
 // تحقق من رقم الهاتف الجزائري (يقبل 05/06/07 و 9 أرقام بعد الصفر)
 
