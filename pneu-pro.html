@@ -695,6 +695,7 @@ td {
           <th>البلدية</th>
           <th>العنوان</th>
           <th>المنتج</th>
+          <th>المقاس</th>
           <th>التاريخ</th>
           <th>الملاحظات</th>
           <th>إجراء</th>
@@ -857,7 +858,7 @@ function render() {
 function renderTable(rows) {
   if (rows.length === 0) {
     document.getElementById("tableBody").innerHTML =
-      `<tr><td colspan="10"><div class="empty-state"><div class="icon">🗂️</div><p>لا توجد نتائج</p></div></td></tr>`;
+      `<tr><td colspan="11"><div class="empty-state"><div class="icon">🗂️</div><p>لا توجد نتائج</p></div></td></tr>`;
     return;
   }
 
@@ -873,6 +874,7 @@ function renderTable(rows) {
       <td>${clean(row.commune)}</td>
       <td style="color:var(--text-muted);">${clean(row.adresse)}</td>
       <td><span class="badge badge-note">${clean(row.product)}</span></td>
+      <td>${clean(row.size)}</td>
       <td style="font-size:12px;color:var(--text-muted);">${formatDate(row.date)}</td>
       <td>
         ${notes.length > 0
@@ -927,6 +929,10 @@ function renderCards(rows) {
         </div>
         <div class="card-field">
           <div class="card-field-label">📦 المنتج</div>
+          <div class="card-field-value">${clean(row.product)}</div>
+        </div>
+        <div class="card-field">
+          <div class="card-field-label">📏 المقاس</div>
           <div class="card-field-value">${clean(row.size)}</div>
         </div>
       </div>
