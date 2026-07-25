@@ -192,13 +192,6 @@ button:disabled{
 
 <h3>🛞 طلب شراء إطارات</h3>
 
-<input type="text" id="name" placeholder="الاسم و اللقب">
-
-<input type="tel" id="phone" placeholder="رقم الهاتف">
-
-<input type="tel" id="phone2" placeholder="رقم هاتف إضافي (اختياري)">
-
-
 <select id="wilaya">
 
  <option value="">اختر الولاية</option>
@@ -262,7 +255,13 @@ button:disabled{
 <option value="58 - المنيعة">58 - المنيعة</option>
 </select>
 
+<input type="text" id="name" placeholder="الاسم و اللقب">
 
+<input type="tel" id="phone" placeholder="رقم الهاتف">
+
+<input type="tel" id="phone2" placeholder="رقم هاتف إضافي (اختياري)">
+
+<div class="size-search-box">
 
 <input
 type="text"
@@ -292,98 +291,6 @@ autocomplete="off"
 <div id="toast" class="toast"></div>
 
 <script>
-
-// قائمة المكاتب حسب الولاية
-const offices = {
-    "01 - أدرار": ["Station Adrar"],
-    "02 - الشلف": ["Station Chlef", "Station Tenes"],
-    "03 - الأغواط": ["Station Laghouat", "Station Laghouat New"],
-    "04 - أم البواقي": ["Oum El Bouaghi", "Ain Fekroune", "Ain M’lila"],
-    "05 - باتنة": ["Batna", "Cité El Amrani"],
-    "06 - بجاية": ["Béjaïa", "Akbou", "El Kseur"],
-    "07 - بسكرة": ["Biskra"],
-    "08 - بشار": ["Béchar"],
-    "09 - البليدة": ["Blida", "Boufarik"],
-    "10 - البويرة": ["Bouira"],
-    "11 - تمنراست": ["Tamanrasset"],
-    "12 - تبسة": ["Tebessa"],
-    "13 - تلمسان": ["Tlemcen", "Maghnia"],
-    "14 - تيارت": ["Tiaret"],
-    "15 - تيزي وزو": ["Tizi Ouzou", "Azazga", "Nouvelle Ville", "Boghni"],
-    "16 - الجزائر": ["Kouba", "Cheraga", "Oued Smar", "Reghaia", "Bab El Oued"],
-    "17 - الجلفة": ["Djelfa", "Ain Oussera"],
-    "18 - جيجل": ["Jijel"],
-    "19 - سطيف": ["El Eulma", "El Hidab", "Ain Oulmene"],
-    "20 - سعيدة": ["Saida"],
-    "21 - سكيكدة": ["Skikda"],
-    "22 - سيدي بلعباس": ["Sidi Bel Abbès", "Telagh"],
-    "23 - عنابة": ["Annaba", "El Bouni"],
-    "24 - قالمة": ["Guelma"],
-    "25 - قسنطينة": ["Ali Mendjeli", "Sidi Mabrouk"],
-    "26 - المدية": ["Médéa"],
-    "27 - مستغانم": ["Mostaganem", "Mostaganem 2"],
-    "28 - المسيلة": ["M’sila", "Boussaâda"],
-    "29 - معسكر": ["Mascara", "Sig"],
-    "30 - ورقلة": ["Ouargla", "Hassi Messaoud"],
-    "31 - وهران": ["Gambetta", "Hai Sabah", "Ain Turk"],
-    "32 - البيض": ["El Bayadh"],
-    "33 - إليزي": ["Illizi", "In Amenas"],
-    "34 - برج بوعريريج": ["Bordj"],
-    "35 - بومرداس": ["Boumerdès", "Dellys"],
-    "36 - الطارف": ["El Tarf"],
-    "37 - تندوف": ["Tindouf"],
-    "38 - تيسمسيلت": ["Tissemsilt"],
-    "39 - الوادي": ["El Oued"],
-    "40 - خنشلة": ["Khenchela"],
-    "41 - سوق أهراس": ["Souk Ahras"],
-    "42 - تيبازة": ["Tipaza", "Hadjout", "Kolea"],
-    "43 - ميلة": ["Mila", "Chelghoum Laid"],
-    "44 - عين الدفلى": ["Ain Defla", "Khemis Miliana"],
-    "45 - النعامة": ["Mecheria"],
-    "46 - عين تموشنت": ["Ain Temouchent", "Beni Saf"],
-    "47 - غرداية": ["Ghardaïa"],
-    "48 - غليزان": ["Relizane", "Oued Rhiou"],
-    "49 - تيميمون": ["Timimoun"],
-    "50 - برج باجي مختار": ["Bordj Badji Mokhtar"],
-    "51 - أولاد جلال": ["Ouled Djellal"],
-    "52 - بني عباس": ["Béni Abbès"],
-    "53 - عين صالح": ["In Salah"],
-    "54 - عين قزام": ["In Guezzam"],
-    "55 - تقرت": ["Touggourt"],
-    "56 - جانت": ["Djanet"],
-    "57 - المغير": ["El Meghaier"],
-    "58 - المنيعة": ["El Menia"]
-};
-
-// تغيير الولاية
-
-document.getElementById("wilaya")
-.addEventListener("change",function(){
-
-let wilaya = this.value;
-
-let commune = document.getElementById("commune");
-
-commune.innerHTML =
-'<option value="">اختر المكتب</option>';
-
-if(offices[wilaya]){
-
-offices[wilaya].forEach(function(office){
-
-let option = document.createElement("option");
-
-option.value = office;
-
-option.textContent = office;
-
-commune.appendChild(option);
-
-});
-
-}
-
-});
 
 // =========================================================
 // مقاسات الإطارات - قائمة موسعة تغطي السوق الجزائري
@@ -616,6 +523,44 @@ suggestionsBox.style.display="none";
 
 
 
+// تحقق من أن الحقل غير فارغ
+
+function validateField(field){
+
+let value = field.value.trim();
+
+if(value===""){
+
+field.classList.add("error");
+
+return false;
+
+}
+
+field.classList.remove("error");
+
+return true;
+
+}
+
+// إظهار رسالة تنبيه
+
+function showToast(msg){
+
+let toast = document.getElementById("toast");
+
+toast.innerText = msg;
+
+toast.classList.add("show");
+
+setTimeout(()=>{
+
+toast.classList.remove("show");
+
+},3000);
+
+}
+
 // تحقق من رقم الهاتف الجزائري (يقبل 05/06/07 و 9 أرقام بعد الصفر)
 
 function isValidAlgerianPhone(phone){
@@ -662,8 +607,6 @@ let nameField = document.getElementById("name");
 let phoneField = document.getElementById("phone");
 let phone2Field = document.getElementById("phone2");
 let wilayaField = document.getElementById("wilaya");
-let communeField = document.getElementById("commune");
-let adresseField = document.getElementById("adresse");
 let sizeField = document.getElementById("size");
 let qtyField = document.getElementById("qty");
 
@@ -671,8 +614,6 @@ let name = nameField.value.trim();
 let rawPhone = phoneField.value.trim();
 let rawPhone2 = phone2Field.value.trim();
 let wilaya = wilayaField.value;
-let commune = communeField.value;
-let adresse = adresseField.value.trim();
 let size = sizeField.value.trim();
 let qty = qtyField.value;
 
@@ -682,8 +623,6 @@ let fields=[
 nameField,
 phoneField,
 wilayaField,
-communeField,
-adresseField,
 sizeField,
 qtyField
 ];
@@ -769,8 +708,6 @@ name,
 phone,
 phone2,
 wilaya,
-commune,
-adresse,
 size,
 qty
 
@@ -791,10 +728,6 @@ let message =
 📞 إضافي: ${phone2 || "لا يوجد"}
 
 📍 ${wilaya}
-
-🏠 ${commune}
-
-📌 ${adresse}
 
 🚗 ${size}
 
