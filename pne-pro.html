@@ -298,6 +298,15 @@ td {
   border: 1px solid var(--border);
 }
 
+.badge-editable {
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.badge-editable:hover {
+  background: rgba(245,158,11,0.3);
+  transform: scale(1.03);
+}
+
 .note-preview {
   max-width: 160px;
   overflow: hidden;
@@ -402,6 +411,16 @@ td {
   background: var(--surface2);
   border-radius: var(--radius-sm);
   padding: 7px 10px;
+}
+
+.card-field-editable {
+  cursor: pointer;
+  transition: all 0.15s;
+  border: 1px solid transparent;
+}
+.card-field-editable:active {
+  border-color: var(--gold);
+  background: rgba(245,158,11,0.1);
 }
 
 .card-field-label {
@@ -712,7 +731,7 @@ td {
 <!-- CARDS SECTION (Mobile) -->
 <div class="cards-section" id="cardsSection"></div>
 
-<!-- MODAL -->
+<!-- NOTES MODAL -->
 <div class="modal-overlay" id="modal" onclick="handleOverlayClick(event)">
   <div class="modal-box">
     <div class="modal-handle"></div>
@@ -726,6 +745,21 @@ td {
       <button class="btn btn-gold" onclick="addNote()">➕ إضافة</button>
       <button class="btn btn-ghost" onclick="saveNotes()">💾 حفظ</button>
       <button class="btn btn-outline" onclick="closeModal()">✖</button>
+    </div>
+  </div>
+</div>
+
+<!-- PRODUCT EDIT MODAL -->
+<div class="modal-overlay" id="productModal" onclick="handleProductOverlayClick(event)">
+  <div class="modal-box">
+    <div class="modal-handle"></div>
+    <div class="modal-title">📦 تعديل المنتج</div>
+
+    <input type="text" class="modal-input" id="productInput" placeholder="اسم المنتج" style="margin-bottom:14px;">
+
+    <div class="modal-actions">
+      <button class="btn btn-gold" onclick="saveProduct()">💾 حفظ</button>
+      <button class="btn btn-outline" onclick="closeProductModal()">✖ إلغاء</button>
     </div>
   </div>
 </div>
@@ -747,9 +781,19 @@ let filterVal    = "all";
 let currentId    = null;
 let currentNotes = [];
 let searchTimer  = null;
+let editProductId = null;
 
 /* ——— UTILS ——— */
 const clean = v => (v && v !== "null" && v !== "undefined") ? v : "—";
+
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
 
 function getNotes(raw) {
   if (!raw) return [];
@@ -873,7 +917,11 @@ function renderTable(rows) {
       <td>${clean(row.wilaya)}</td>
       <td>${clean(row.commune)}</td>
       <td style="color:var(--text-muted);">${clean(row.adresse)}</td>
-      <td><span class="badge badge-note">${clean(row.product)}</span></td>
+      <td>
+        <span class="badge badge-note badge-editable" onclick="openProductEdit(${row.id})" title="اضغط للتعديل">
+          ${clean(row.product)} ✏️
+        </span>
+      </td>
       <td>${clean(row.size)}</td>
       <td style="font-size:12px;color:var(--text-muted);">${formatDate(row.date)}</td>
       <td>
@@ -927,8 +975,8 @@ function renderCards(rows) {
           <div class="card-field-label">🏘 البلدية</div>
           <div class="card-field-value">${clean(row.commune)}</div>
         </div>
-        <div class="card-field">
-          <div class="card-field-label">📦 المنتج</div>
+        <div class="card-field card-field-editable" onclick="openProductEdit(${row.id})">
+          <div class="card-field-label">📦 المنتج ✏️</div>
           <div class="card-field-value">${clean(row.product)}</div>
         </div>
         <div class="card-field">
@@ -1041,6 +1089,53 @@ function closeModal() {
 function handleOverlayClick(e) {
   if (e.target === document.getElementById("modal")) closeModal();
 }
+
+/* ——— PRODUCT EDIT MODAL ——— */
+function openProductEdit(id) {
+  editProductId = id;
+  const row = allData.find(r => r.id === id);
+  const currentVal = row && row.product && row.product !== "null" ? row.product : "";
+  document.getElementById("productInput").value = currentVal;
+  document.getElementById("productModal").classList.add("open");
+  document.body.style.overflow = "hidden";
+  setTimeout(() => document.getElementById("productInput").focus(), 100);
+}
+
+function closeProductModal() {
+  document.getElementById("productModal").classList.remove("open");
+  document.body.style.overflow = "";
+}
+
+function handleProductOverlayClick(e) {
+  if (e.target === document.getElementById("productModal")) closeProductModal();
+}
+
+function saveProduct() {
+  const val = document.getElementById("productInput").value.trim();
+  if (!val) {
+    showToast("الرجاء إدخال اسم المنتج", "error");
+    return;
+  }
+  fetch(API, {
+    method: "POST",
+    body: JSON.stringify({
+      action: "updateAll",
+      index:  editProductId,
+      field:  "product",
+      value:  val
+    })
+  }).then(() => {
+    playSuccess();
+    showToast("تم تعديل المنتج بنجاح");
+    if (navigator.vibrate) navigator.vibrate(60);
+    closeProductModal();
+    loadData();
+  });
+}
+
+document.getElementById("productInput").addEventListener("keydown", e => {
+  if (e.key === "Enter") saveProduct();
+});
 
 /* ——— AUDIO UNLOCK ——— */
 document.body.addEventListener("click", function unlock() {
