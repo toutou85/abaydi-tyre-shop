@@ -1,21 +1,18 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>طلب شراء - عبايدي للعجلات</title>
 
 <style>
-
 body{
-    font-family:Arial;
+    font-family:Arial,Tahoma,sans-serif;
     background:#f4f4f4;
     direction:rtl;
     margin:0;
     padding:15px;
 }
-
 .container{
     max-width:500px;
     margin:auto;
@@ -24,18 +21,15 @@ body{
     border-radius:14px;
     box-shadow:0 4px 15px rgba(0,0,0,0.1);
 }
-
 img{
     width:100%;
     border-radius:12px;
     margin-bottom:10px;
 }
-
 h3{
     text-align:center;
     margin:15px 0;
 }
-
 input,
 select,
 button{
@@ -44,10 +38,10 @@ button{
     margin:7px 0;
     border-radius:10px;
     border:1px solid #ccc;
-    font-size:15px;
+    font-size:16px; /* 16px لمنع تكبير الصفحة تلقائيًا في الآيفون */
     box-sizing:border-box;
+    font-family:inherit;
 }
-
 button{
     background:green;
     color:white;
@@ -55,11 +49,10 @@ button{
     font-size:17px;
     cursor:pointer;
 }
-
 button:disabled{
     opacity:0.7;
+    cursor:not-allowed;
 }
-
 #noticePopup{
     background:rgba(255,255,224,0.8);
     border:1px solid #ffc107;
@@ -69,7 +62,6 @@ button:disabled{
     font-size:14px;
     line-height:1.7;
 }
-
 .spinner{
     width:40px;
     height:40px;
@@ -79,61 +71,53 @@ button:disabled{
     animation:spin 1s linear infinite;
     margin:auto;
 }
-
 @keyframes spin{
-    100%{
-        transform:rotate(360deg);
-    }
+    100%{ transform:rotate(360deg); }
 }
-
 #statusText{
     margin-top:10px;
     font-weight:bold;
 }
-
 .error{
     border:2px solid red !important;
     background:#ffe6e6;
 }
-
 .toast{
     position:fixed;
     bottom:20px;
     right:20px;
+    left:20px;
+    margin:auto;
+    width:fit-content;
     background:#e74c3c;
     color:white;
     padding:12px 16px;
     border-radius:8px;
     opacity:0;
+    pointer-events:none;
     transition:0.4s;
     z-index:9999;
     max-width:90%;
 }
-
 .toast.show{
     opacity:1;
 }
 
 /* البحث */
-
 .size-search-box{
     position:relative;
     width:100%;
 }
-
 #size{
-    width:100%;
-    padding:14px;
     border:2px solid #ddd;
-    border-radius:12px;
-    font-size:16px;
+    padding:14px;
     outline:none;
+    direction:ltr;
+    text-align:right;
 }
-
 #size:focus{
     border-color:#2563eb;
 }
-
 .suggestions-box{
     position:absolute;
     top:100%;
@@ -147,25 +131,24 @@ button:disabled{
     z-index:9999;
     box-shadow:0 5px 20px rgba(0,0,0,0.15);
     display:none;
+    direction:ltr;
+    text-align:left;
 }
-
 .suggestion-item{
     padding:12px;
     cursor:pointer;
     border-bottom:1px solid #f1f1f1;
 }
-
 .suggestion-item:hover{
     background:#2563eb;
     color:white;
 }
-
 .no-result{
     padding:12px;
     text-align:center;
     color:#777;
+    direction:rtl;
 }
-
 </style>
 </head>
 
@@ -176,114 +159,42 @@ button:disabled{
 <img src="https://i.ibb.co/QjbNvZdc/20260329-060940-0000.png" alt="عبايدي للعجلات">
 
 <div id="noticePopup">
-
 📌 <strong>ملاحظة هامة:</strong><br><br>
-
 نظرًا لندرة العجلات 🛞🚗،
 نرجو من زبائننا الكرام تعبئة الطلبية مسبقًا 📝،
 وسيتم التواصل معكم فور توفرها 📞
-
 <br><br>
-
 🚚 التوصيل متوفر إلى 58 ولاية<br>
 💵 الدفع عند الاستلام
-
 </div>
 
 <h3>🛞 طلب شراء إطارات</h3>
 
-<select id="wilaya">
+<select id="wilaya"></select>
 
- <option value="">اختر الولاية</option>
-        <option value="01 - أدرار">01 - أدرار</option>
-        <option value="02 - الشلف">02 - الشلف</option>
-        <option value="03 - الأغواط">03 - الأغواط</option>
-        <option value="04 - أم البواقي">04 - أم البواقي</option>
-        <option value="05 - باتنة">05 - باتنة</option>
-        <option value="06 - بجاية">06 - بجاية</option>
-        <option value="07 - بسكرة">07 - بسكرة</option>
-        <option value="08 - بشار">08 - بشار</option>
-        <option value="09 - البليدة">09 - البليدة</option>
-        <option value="10 - البويرة">10 - البويرة</option>
-        <option value="11 - تمنراست">11 - تمنراست</option>
-        <option value="12 - تبسة">12 - تبسة</option>
-        <option value="13 - تلمسان">13 - تلمسان</option>
-        <option value="14 - تيارت">14 - تيارت</option>
-        <option value="15 - تيزي وزو">15 - تيزي وزو</option>
-        <option value="16 - الجزائر">16 - الجزائر</option>
-        <option value="17 - الجلفة">17 - الجلفة</option>
-        <option value="18 - جيجل">18 - جيجل</option>
-        <option value="19 - سطيف">19 - سطيف</option>
-        <option value="20 - سعيدة">20 - سعيدة</option>
-        <option value="21 - سكيكدة">21 - سكيكدة</option>
-        <option value="22 - سيدي بلعباس">22 - سيدي بلعباس</option>
-        <option value="23 - عنابة">23 - عنابة</option>
-        <option value="24 - قالمة">24 - قالمة</option>
-        <option value="25 - قسنطينة">25 - قسنطينة</option>
-        <option value="26 - المدية">26 - المدية</option>
-        <option value="27 - مستغانم">27 - مستغانم</option>
-        <option value="28 - المسيلة">28 - المسيلة</option>
-        <option value="29 - معسكر">29 - معسكر</option>
-        <option value="30 - ورقلة">30 - ورقلة</option>
-        <option value="31 - وهران">31 - وهران</option>
-        <option value="32 - البيض">32 - البيض</option>
-        <option value="33 - إليزي">33 - إليزي</option>
-        <option value="34 - برج بوعريريج">34 - برج بوعريريج</option>
-        <option value="35 - بومرداس">35 - بومرداس</option>
-        <option value="36 - الطارف">36 - الطارف</option>
-        <option value="37 - تندوف">37 - تندوف</option>
-        <option value="38 - تيسمسيلت">38 - تيسمسيلت</option>
-        <option value="39 - الوادي">39 - الوادي</option>
-        <option value="40 - خنشلة">40 - خنشلة</option>
-        <option value="41 - سوق أهراس">41 - سوق أهراس</option>
-        <option value="42 - تيبازة">42 - تيبازة</option>
-        <option value="43 - ميلة">43 - ميلة</option>
-        <option value="44 - عين الدفلى">44 - عين الدفلى</option>
-        <option value="45 - النعامة">45 - النعامة</option>
-        <option value="46 - عين تموشنت">46 - عين تموشنت</option>
-        <option value="47 - غرداية">47 - غرداية</option>
-        <option value="48 - غليزان">48 - غليزان</option>
-    <option value="49 - تيميمون">49 - تيميمون</option>
-<option value="50 - برج باجي مختار">50 - برج باجي مختار</option>
-<option value="51 - أولاد جلال">51 - أولاد جلال</option>
-<option value="52 - بني عباس">52 - بني عباس</option>
-<option value="53 - عين صالح">53 - عين صالح</option>
-<option value="54 - عين قزام">54 - عين قزام</option>
-<option value="55 - تقرت">55 - تقرت</option>
-<option value="56 - جانت">56 - جانت</option>
-<option value="57 - المغير">57 - المغير</option>
-<option value="58 - المنيعة">58 - المنيعة</option>
-</select>
+<input type="text" id="name" placeholder="الاسم و اللقب" autocomplete="name">
 
-<input type="text" id="name" placeholder="الاسم و اللقب">
+<input type="tel" id="phone" placeholder="رقم الهاتف" inputmode="tel" autocomplete="tel">
 
-<input type="tel" id="phone" placeholder="رقم الهاتف">
-
-<input type="tel" id="phone2" placeholder="رقم هاتف إضافي (اختياري)">
+<input type="tel" id="phone2" placeholder="رقم هاتف إضافي (اختياري)" inputmode="tel">
 
 <div class="size-search-box">
-
-<input
-type="text"
-id="size"
-placeholder="مقاس الإطار مثال 175/70R13"
-autocomplete="off"
->
-
-<div id="sizeSuggestions" class="suggestions-box"></div>
-
+    <input
+        type="text"
+        id="size"
+        placeholder="مقاس الإطار مثال 175/70R13"
+        autocomplete="off"
+    >
+    <div id="sizeSuggestions" class="suggestions-box"></div>
 </div>
 
-<input type="number" id="qty" placeholder="الكمية" min="1" step="1">
+<input type="number" id="qty" placeholder="الكمية" min="1" step="1" inputmode="numeric">
 
-<button onclick="sendAll()">إرسال الطلب</button>
+<button id="sendBtn" type="button">إرسال الطلب</button>
 
 <div id="statusBox" style="display:none;text-align:center;margin-top:15px;">
-
-<div class="spinner"></div>
-
-<p id="statusText">جاري إرسال الطلب...</p>
-
+    <div class="spinner" id="spinner"></div>
+    <p id="statusText">جاري إرسال الطلب...</p>
 </div>
 
 </div>
@@ -293,10 +204,32 @@ autocomplete="off"
 <script>
 
 // =========================================================
-// مقاسات الإطارات - قائمة موسعة تغطي السوق الجزائري
-// (سيارات صغيرة - سياحية - SUV/4x4 - فانات وشاحنات خفيفة - زراعية/صناعية أساسية)
+// الولايات (58 ولاية) - تُولَّد تلقائيًا لتفادي أخطاء النسخ
 // =========================================================
+const wilayas = [
+"أدرار","الشلف","الأغواط","أم البواقي","باتنة","بجاية","بسكرة","بشار","البليدة","البويرة",
+"تمنراست","تبسة","تلمسان","تيارت","تيزي وزو","الجزائر","الجلفة","جيجل","سطيف","سعيدة",
+"سكيكدة","سيدي بلعباس","عنابة","قالمة","قسنطينة","المدية","مستغانم","المسيلة","معسكر","ورقلة",
+"وهران","البيض","إليزي","برج بوعريريج","بومرداس","الطارف","تندوف","تيسمسيلت","الوادي","خنشلة",
+"سوق أهراس","تيبازة","ميلة","عين الدفلى","النعامة","عين تموشنت","غرداية","غليزان","تيميمون","برج باجي مختار",
+"أولاد جلال","بني عباس","عين صالح","عين قزام","تقرت","جانت","المغير","المنيعة"
+];
 
+(function buildWilayas(){
+    const sel = document.getElementById("wilaya");
+    sel.innerHTML = '<option value="">اختر الولاية</option>';
+    wilayas.forEach((w,i)=>{
+        const v = String(i+1).padStart(2,"0") + " - " + w;
+        const o = document.createElement("option");
+        o.value = v;
+        o.textContent = v;
+        sel.appendChild(o);
+    });
+})();
+
+// =========================================================
+// مقاسات الإطارات
+// =========================================================
 const tireSizes = [
 
 // --- 12 - 13 بوصة ---
@@ -317,7 +250,7 @@ const tireSizes = [
 "205/60R14","205/65R14","205/70R14",
 
 // --- 15 بوصة ---
-"175/55R15","175/50R15","175/60R15","175/65R15",
+"175/50R15","175/55R15","175/60R15","175/65R15",
 "185/55R15","185/60R15","185/65R15","185/70R15",
 "195/45R15","195/50R15","195/55R15","195/60R15","195/65R15",
 "205/55R15","205/60R15","205/65R15","205/70R15","205/75R15",
@@ -399,7 +332,7 @@ const tireSizes = [
 "305/35R24",
 "305/30R26",
 
-// --- فانات وشاحنات خفيفة (C / LT) ---
+// --- فانات وشاحنات خفيفة (C) ---
 "145R13C","155R13C",
 "165R13C","165R14C",
 "175R13C","175R14C","175/70R14C",
@@ -416,307 +349,207 @@ const tireSizes = [
 "195/60R16C","200/70R15C",
 
 // --- LT (بيك أب / 4x4 أمريكي) ---
-"215/85R16","225/75R16","235/75R16","235/80R16","245/75R16","245/75R17",
-"245/70R17","255/70R18","265/60R18","265/70R17","265/70R18","265/75R16",
+"215/85R16","235/80R16",
+"255/70R18","265/60R18","265/70R17","265/70R18",
 "275/65R18","275/70R18","285/70R17","285/75R16","285/75R17","305/70R16",
-"305/70R17","315/75R16","33X12.50R15","33X12.50R17","35X12.50R17","31X10.50R15",
+"305/70R17","315/75R16","33X12.50R15","33X12.50R17","35X12.50R17","31X10.50R15"
 
 ];
 
-// إزالة التكرار وفرز القائمة منطقياً (بدون فرز أبجدي مضلل)
+// إزالة التكرار
 const uniqueSizes = [...new Set(tireSizes)];
 
-// البحث
+// =========================================================
+// البحث عن المقاس
+// =========================================================
+const input = document.getElementById("size");
+const suggestionsBox = document.getElementById("sizeSuggestions");
 
-const input =
-document.getElementById("size");
-
-const suggestionsBox =
-document.getElementById("sizeSuggestions");
-
-input.addEventListener("input",function(){
-
-let value =
-this.value.trim().toUpperCase().replace(/\s+/g,"");
-
-if(value===""){
-
-suggestionsBox.style.display="none";
-return;
-
+// تحويل الأرقام العربية/الهندية إلى لاتينية
+function normalizeDigits(str){
+    return str
+        .replace(/[٠-٩]/g, d => "٠١٢٣٤٥٦٧٨٩".indexOf(d))
+        .replace(/[۰-۹]/g, d => "۰۱۲۳۴۵۶۷۸۹".indexOf(d));
 }
 
-let results = uniqueSizes.filter(size=>
-size.includes(value)
-);
+input.addEventListener("input", function(){
+    let value = normalizeDigits(this.value).trim().toUpperCase().replace(/\s+/g,"");
 
-showSuggestions(results);
+    if(value === ""){
+        suggestionsBox.style.display = "none";
+        return;
+    }
 
+    let results = uniqueSizes.filter(size => size.includes(value));
+    showSuggestions(results);
 });
 
-input.addEventListener("focus",function(){
-
-if(this.value.trim()!==""){
-
-this.dispatchEvent(new Event("input"));
-
-}
-
+input.addEventListener("focus", function(){
+    if(this.value.trim() !== ""){
+        this.dispatchEvent(new Event("input"));
+    }
 });
 
 function showSuggestions(results){
+    suggestionsBox.innerHTML = "";
 
-suggestionsBox.innerHTML="";
+    if(results.length === 0){
+        suggestionsBox.innerHTML =
+            '<div class="no-result">لا توجد نتائج، يمكنك كتابة المقاس يدويًا</div>';
+        suggestionsBox.style.display = "block";
+        return;
+    }
 
-if(results.length===0){
+    results.slice(0,50).forEach(size => {
+        let div = document.createElement("div");
+        div.className = "suggestion-item";
+        div.textContent = size;
+        div.onclick = () => {
+            input.value = size;
+            input.classList.remove("error");
+            suggestionsBox.style.display = "none";
+        };
+        suggestionsBox.appendChild(div);
+    });
 
-suggestionsBox.innerHTML=
-'<div class="no-result">لا توجد نتائج، يمكنك كتابة المقاس يدويًا</div>';
-
-suggestionsBox.style.display="block";
-
-return;
-
+    suggestionsBox.style.display = "block";
 }
 
-results.slice(0,50).forEach(size=>{
-
-let div = document.createElement("div");
-
-div.className="suggestion-item";
-
-div.innerText=size;
-
-div.onclick=()=>{
-
-input.value=size;
-
-input.classList.remove("error");
-
-suggestionsBox.style.display="none";
-
-};
-
-suggestionsBox.appendChild(div);
-
+// إغلاق القائمة عند الضغط خارجها
+document.addEventListener("click", function(e){
+    if(!document.querySelector(".size-search-box").contains(e.target)){
+        suggestionsBox.style.display = "none";
+    }
 });
 
-suggestionsBox.style.display="block";
-
-}
-
-// إغلاق القائمة
-
-document.addEventListener("click",function(e){
-
-if(
-!document
-.querySelector(".size-search-box")
-.contains(e.target)
-){
-
-suggestionsBox.style.display="none";
-
-}
-
+// إزالة اللون الأحمر عند بدء الكتابة
+["name","phone","phone2","wilaya","size","qty"].forEach(id=>{
+    const el = document.getElementById(id);
+    el.addEventListener("input",  () => el.classList.remove("error"));
+    el.addEventListener("change", () => el.classList.remove("error"));
 });
 
-
-
-// تحقق من أن الحقل غير فارغ
-
+// =========================================================
+// دوال مساعدة
+// =========================================================
 function validateField(field){
-
-let value = field.value.trim();
-
-if(value===""){
-
-field.classList.add("error");
-
-return false;
-
+    if(field.value.trim() === ""){
+        field.classList.add("error");
+        return false;
+    }
+    field.classList.remove("error");
+    return true;
 }
 
-field.classList.remove("error");
-
-return true;
-
-}
-
-// إظهار رسالة تنبيه
-
+let toastTimer = null;
 function showToast(msg){
-
-let toast = document.getElementById("toast");
-
-toast.innerText = msg;
-
-toast.classList.add("show");
-
-setTimeout(()=>{
-
-toast.classList.remove("show");
-
-},3000);
-
+    let toast = document.getElementById("toast");
+    toast.textContent = msg;
+    toast.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(()=> toast.classList.remove("show"), 3000);
 }
 
-// تحقق من رقم الهاتف الجزائري (يقبل 05/06/07 و 9 أرقام بعد الصفر)
+// تنظيف رقم الهاتف: أرقام لاتينية، بدون مسافات أو شرطات،
+// وتحويل +213 / 00213 / 213 إلى 0
+function cleanPhone(phone){
+    let p = normalizeDigits(phone).trim().replace(/[\s\-().]/g,"");
+    if(p.startsWith("+213")) p = "0" + p.slice(4);
+    else if(p.startsWith("00213")) p = "0" + p.slice(5);
+    else if(p.startsWith("213") && p.length === 12) p = "0" + p.slice(3);
+    return p;
+}
 
+// رقم جزائري: 05 / 06 / 07 + 8 أرقام
 function isValidAlgerianPhone(phone){
-
-let cleaned = phone.trim().replace(/\s+/g,"");
-
-return /^0(5|6|7)\d{8}$/.test(cleaned);
-
+    return /^0[567]\d{8}$/.test(cleanPhone(phone));
 }
 
-// إرسال
+function formatPhone(phone){
+    let p = cleanPhone(phone);
+    if(!p) return "";
+    return "+213" + p.slice(1);
+}
+
+function resetStatus(){
+    document.getElementById("statusBox").style.display = "none";
+}
+
+// =========================================================
+// الإرسال
+// =========================================================
+const SCRIPT_URL =
+"https://script.google.com/macros/s/AKfycbzRtmH36UY4xlxJOnAe5gwIB-7G2a3IWODfPp3n3U_Y2NsdShOQ816CfQRvVfuvMWtuJA/exec";
+
+document.getElementById("sendBtn").addEventListener("click", sendAll);
 
 function sendAll(){
 
-let btn=document.querySelector("button");
+    let btn  = document.getElementById("sendBtn");
+    let box  = document.getElementById("statusBox");
+    let text = document.getElementById("statusText");
+    let spinner = document.getElementById("spinner");
 
-let box=document.getElementById("statusBox");
+    text.style.color = "";
+    resetStatus();
 
-let text=document.getElementById("statusText");
+    let nameField   = document.getElementById("name");
+    let phoneField  = document.getElementById("phone");
+    let phone2Field = document.getElementById("phone2");
+    let wilayaField = document.getElementById("wilaya");
+    let sizeField   = document.getElementById("size");
+    let qtyField    = document.getElementById("qty");
 
-text.style.color="";
+    // تحقق من الحقول الإلزامية
+    let required = [nameField, phoneField, wilayaField, sizeField, qtyField];
+    let firstError = null;
 
-// تنسيق الهاتف
+    required.forEach(f => {
+        if(!validateField(f) && !firstError){
+            firstError = f;
+        }
+    });
 
-function formatPhone(phone){
+    if(firstError){
+        showToast("⚠️ يرجى ملء جميع الخانات");
+        firstError.focus();
+        return;
+    }
 
-phone=phone.trim().replace(/\s+/g,"");
+    // تحقق من الهاتف
+    if(!isValidAlgerianPhone(phoneField.value)){
+        phoneField.classList.add("error");
+        showToast("⚠️ رقم الهاتف غير صحيح (مثال: 0551234567)");
+        phoneField.focus();
+        return;
+    }
 
-if(!phone) return "";
+    if(phone2Field.value.trim() && !isValidAlgerianPhone(phone2Field.value)){
+        phone2Field.classList.add("error");
+        showToast("⚠️ رقم الهاتف الإضافي غير صحيح");
+        phone2Field.focus();
+        return;
+    }
 
-if(phone.startsWith("+213"))
-return phone;
+    // تحقق من الكمية (عدد صحيح موجب)
+    let qtyNum = Number(qtyField.value);
+    if(!Number.isInteger(qtyNum) || qtyNum <= 0){
+        qtyField.classList.add("error");
+        showToast("⚠️ الرجاء إدخال كمية صحيحة");
+        qtyField.focus();
+        return;
+    }
 
-if(phone.startsWith("0"))
-return "+213"+phone.slice(1);
+    let name   = nameField.value.trim();
+    let wilaya = wilayaField.value;
+    let size   = normalizeDigits(sizeField.value).trim().toUpperCase().replace(/\s+/g,"");
+    let phone  = formatPhone(phoneField.value);
+    let phone2 = formatPhone(phone2Field.value);
+    let dateString = new Date().toLocaleString("fr-FR");
 
-return "+213"+phone;
+    let data = { date: dateString, name, phone, phone2, wilaya, size, qty: qtyNum };
 
-}
-
-// البيانات
-
-let nameField = document.getElementById("name");
-let phoneField = document.getElementById("phone");
-let phone2Field = document.getElementById("phone2");
-let wilayaField = document.getElementById("wilaya");
-let sizeField = document.getElementById("size");
-let qtyField = document.getElementById("qty");
-
-let name = nameField.value.trim();
-let rawPhone = phoneField.value.trim();
-let rawPhone2 = phone2Field.value.trim();
-let wilaya = wilayaField.value;
-let size = sizeField.value.trim();
-let qty = qtyField.value;
-
-// تحقق من الحقول الإلزامية
-
-let fields=[
-nameField,
-phoneField,
-wilayaField,
-sizeField,
-qtyField
-];
-
-let firstError=null;
-
-fields.forEach(f=>{
-
-if(!validateField(f) && !firstError){
-
-firstError=f;
-
-}
-
-});
-
-if(firstError){
-
-showToast("⚠️ يرجى ملء جميع الخانات");
-
-firstError.focus();
-
-return;
-
-}
-
-// تحقق من صحة رقم الهاتف
-
-if(!isValidAlgerianPhone(rawPhone)){
-
-phoneField.classList.add("error");
-
-showToast("⚠️ رقم الهاتف غير صحيح (مثال: 0551234567)");
-
-phoneField.focus();
-
-return;
-
-}
-
-if(rawPhone2 && !isValidAlgerianPhone(rawPhone2)){
-
-phone2Field.classList.add("error");
-
-showToast("⚠️ رقم الهاتف الإضافي غير صحيح");
-
-phone2Field.focus();
-
-return;
-
-}
-
-// تحقق من الكمية
-
-if(parseInt(qty,10)<=0 || isNaN(parseInt(qty,10))){
-
-qtyField.classList.add("error");
-
-showToast("⚠️ الرجاء إدخال كمية صحيحة");
-
-qtyField.focus();
-
-return;
-
-}
-
-let phone = formatPhone(rawPhone);
-let phone2 = formatPhone(rawPhone2);
-
-// التاريخ
-
-let now = new Date();
-
-let dateString =
-now.toLocaleString("fr-FR");
-
-// البيانات
-
-let data = {
-
-date:dateString,
-name,
-phone,
-phone2,
-wilaya,
-size,
-qty
-
-};
-
-// واتساب
-
-let message =
-
+    let message =
 `🛞 طلب جديد
 
 📅 ${dateString}
@@ -731,70 +564,57 @@ let message =
 
 🚗 ${size}
 
-🔢 ${qty}`;
+🔢 ${qtyNum}`;
 
-// تحميل
+    // نفتح نافذة واتساب الآن (داخل حدث النقر) حتى لا يحجبها المتصفح،
+    // ثم نوجهها إلى الرابط بعد نجاح الإرسال
+    let waWindow = window.open("", "_blank");
 
-box.style.display="block";
+    box.style.display = "block";
+    spinner.style.display = "block";
+    text.textContent = "⏳ جاري إرسال الطلب...";
+    btn.disabled = true;
+    btn.textContent = "جاري الإرسال...";
 
-text.innerText="⏳ جاري إرسال الطلب...";
+    // no-cors: سكربت جوجل لا يرسل ترويسات CORS، وبدونها كان الطلب
+    // يُحفظ في الجدول لكن تظهر رسالة خطأ للزبون
+    fetch(SCRIPT_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(data)
+    })
+    .then(() => {
 
-btn.disabled=true;
+        let waUrl = "https://wa.me/213698749015?text=" + encodeURIComponent(message);
 
-btn.innerText="جاري الإرسال...";
+        if(waWindow && !waWindow.closed){
+            waWindow.location.href = waUrl;
+        } else {
+            window.location.href = waUrl;
+        }
 
-// إرسال
+        spinner.style.display = "none";
+        text.textContent = "✅ تم إرسال الطلب بنجاح";
+        text.style.color = "green";
 
-fetch(
-"https://script.google.com/macros/s/AKfycbzRtmH36UY4xlxJOnAe5gwIB-7G2a3IWODfPp3n3U_Y2NsdShOQ816CfQRvVfuvMWtuJA/exec",
-{
-method:"POST",
-body:JSON.stringify(data)
-}
-)
+        // تفريغ الحقول
+        document.querySelectorAll("input").forEach(i => i.value = "");
+        document.querySelectorAll("select").forEach(s => s.selectedIndex = 0);
+        suggestionsBox.style.display = "none";
+    })
+    .catch(() => {
 
-.then(()=>{
+        if(waWindow && !waWindow.closed) waWindow.close();
 
-window.open(
-
-"https://wa.me/213698749015?text="+
-encodeURIComponent(message),
-
-"_blank"
-
-);
-
-text.innerText=
-"✅ تم إرسال الطلب بنجاح";
-
-text.style.color="green";
-
-btn.disabled=false;
-
-btn.innerText="إرسال الطلب";
-
-// تفريغ الحقول
-
-document.querySelectorAll("input")
-.forEach(i=>i.value="");
-
-document.querySelectorAll("select")
-.forEach(s=>s.selectedIndex=0);
-
-})
-
-.catch(()=>{
-
-text.innerText="❌ حدث خطأ، تأكد من اتصالك بالانترنت وحاول مجدداً";
-
-text.style.color="red";
-
-btn.disabled=false;
-
-btn.innerText="إرسال الطلب";
-
-});
-
+        spinner.style.display = "none";
+        text.textContent = "❌ حدث خطأ، تأكد من اتصالك بالانترنت وحاول مجدداً";
+        text.style.color = "red";
+    })
+    .finally(() => {
+        btn.disabled = false;
+        btn.textContent = "إرسال الطلب";
+    });
 }
 
 </script>
