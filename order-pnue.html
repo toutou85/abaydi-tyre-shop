@@ -549,27 +549,6 @@ function sendAll(){
 
     let data = { date: dateString, name, phone, phone2, wilaya, size, qty: qtyNum };
 
-    let message =
-`🛞 طلب جديد
-
-📅 ${dateString}
-
-👤 ${name}
-
-📞 ${phone}
-
-📞 إضافي: ${phone2 || "لا يوجد"}
-
-📍 ${wilaya}
-
-🚗 ${size}
-
-🔢 ${qtyNum}`;
-
-    // نفتح نافذة واتساب الآن (داخل حدث النقر) حتى لا يحجبها المتصفح،
-    // ثم نوجهها إلى الرابط بعد نجاح الإرسال
-    let waWindow = window.open("", "_blank");
-
     box.style.display = "block";
     spinner.style.display = "block";
     text.textContent = "⏳ جاري إرسال الطلب...";
@@ -586,16 +565,8 @@ function sendAll(){
     })
     .then(() => {
 
-        let waUrl = "https://wa.me/213698749015?text=" + encodeURIComponent(message);
-
-        if(waWindow && !waWindow.closed){
-            waWindow.location.href = waUrl;
-        } else {
-            window.location.href = waUrl;
-        }
-
         spinner.style.display = "none";
-        text.textContent = "✅ تم إرسال الطلب بنجاح";
+        text.textContent = "✅ تم إرسال الطلب بنجاح، سنتواصل معكم قريبًا";
         text.style.color = "green";
 
         // تفريغ الحقول
@@ -604,8 +575,6 @@ function sendAll(){
         suggestionsBox.style.display = "none";
     })
     .catch(() => {
-
-        if(waWindow && !waWindow.closed) waWindow.close();
 
         spinner.style.display = "none";
         text.textContent = "❌ حدث خطأ، تأكد من اتصالك بالانترنت وحاول مجدداً";
